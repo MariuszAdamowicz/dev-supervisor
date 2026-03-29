@@ -1,3 +1,4 @@
+@testable import DevSupervisor
 import XCTest
 
 final class ProjectRegistryBDDTests: XCTestCase {
@@ -308,11 +309,28 @@ final class ProjectRegistryBDDTests: XCTestCase {
         XCTAssertTrue(projects.contains { $0.id == alpha && $0.status == .active })
         XCTAssertTrue(projects.contains { $0.id == beta && $0.status == .archived })
     }
+
+    func testScenario23_reactivateWithPathConflict_rejectsAndKeepsProjectArchived_withExplicitFailureReason() {
+        let sut = makeSUT()
+
+        _ = sut.registerProject(name: "Alpha", localPath: "/projects/alpha")
+        let beta = try XCTUnwrap(sut.registerProject(name: "Beta", localPath: "/projects/beta").createdProjectID)
+        XCTAssertTrue(sut.archiveProject(id: beta).isSuccess)
+        XCTAssertTrue(sut.updateProjectMetadata(id: beta, name: nil, localPath: "/projects/alpha").isSuccess)
+
+        let before = try XCTUnwrap(sut.project(by: beta))
+        XCTAssertEqual(before.status, .archived)
+
+        let result = sut.reactivateProject(id: beta)
+
+        assertExplicitFailureWithReason(result)
+        XCTAssertEqual(sut.project(by: beta), before)
+    }
 }
 
 private extension ProjectRegistryBDDTests {
     func makeSUT() -> any ProjectRegistryContract {
-        UnimplementedProjectRegistry()
+        ProjectRegistryInMemory()
     }
 
     func assertExplicitFailureWithReason(
@@ -326,128 +344,5 @@ private extension ProjectRegistryBDDTests {
         }
 
         XCTAssertFalse(reason.message.isEmpty, "Failure reason should be explicit and non-empty", file: file, line: line)
-    }
-}
-
-private protocol ProjectRegistryContract {
-    func registerProject(name: String, localPath: String) -> ProjectRegistrationResult
-    func listProjects() -> [ProjectRecord]
-    func project(by id: ProjectID) -> ProjectRecord?
-
-    func updateProjectMetadata(id: ProjectID, name: String?, localPath: String?) -> RegistryOperationResult
-    func archiveProject(id: ProjectID) -> RegistryOperationResult
-    func reactivateProject(id: ProjectID) -> RegistryOperationResult
-
-    func selectActiveWorkingProject(id: ProjectID) -> RegistryOperationResult
-    func activeWorkingProjectID() -> ProjectID?
-
-    func performFeatureLevelOperation() -> RegistryOperationResult
-    func performPathRequiredOperation(for id: ProjectID) -> RegistryOperationResult
-
-    func seedScopedData(for id: ProjectID, data: ProjectScopedData)
-    func scopedData(for id: ProjectID) -> ProjectScopedData?
-    func setPathAvailability(for id: ProjectID, isAvailable: Bool)
-}
-
-private struct ProjectID: Hashable, Equatable {
-    let rawValue: String
-}
-
-private enum ProjectStatus: Equatable {
-    case active
-    case archived
-}
-
-private struct ProjectRecord: Equatable {
-    let id: ProjectID
-    let name: String
-    let localPath: String
-    let status: ProjectStatus
-    let history: [String]
-}
-
-private struct ProjectScopedData: Equatable {
-    let ideas: [String]
-    let features: [String]
-    let progress: [String]
-    let metadata: [String: String]
-}
-
-private struct ProjectRegistrationResult: Equatable {
-    let result: RegistryOperationResult
-    let createdProjectID: ProjectID?
-}
-
-private enum RegistryOperationResult: Equatable {
-    case success
-    case failure(RegistryFailureReason)
-
-    var isSuccess: Bool {
-        if case .success = self {
-            return true
-        }
-        return false
-    }
-}
-
-private struct RegistryFailureReason: Equatable {
-    let message: String
-}
-
-private final class UnimplementedProjectRegistry: ProjectRegistryContract {
-    func registerProject(name: String, localPath: String) -> ProjectRegistrationResult {
-        ProjectRegistrationResult(result: .failure(notImplemented("registerProject")), createdProjectID: nil)
-    }
-
-    func listProjects() -> [ProjectRecord] {
-        []
-    }
-
-    func project(by id: ProjectID) -> ProjectRecord? {
-        nil
-    }
-
-    func updateProjectMetadata(id: ProjectID, name: String?, localPath: String?) -> RegistryOperationResult {
-        .failure(notImplemented("updateProjectMetadata"))
-    }
-
-    func archiveProject(id: ProjectID) -> RegistryOperationResult {
-        .failure(notImplemented("archiveProject"))
-    }
-
-    func reactivateProject(id: ProjectID) -> RegistryOperationResult {
-        .failure(notImplemented("reactivateProject"))
-    }
-
-    func selectActiveWorkingProject(id: ProjectID) -> RegistryOperationResult {
-        .failure(notImplemented("selectActiveWorkingProject"))
-    }
-
-    func activeWorkingProjectID() -> ProjectID? {
-        nil
-    }
-
-    func performFeatureLevelOperation() -> RegistryOperationResult {
-        .failure(notImplemented("performFeatureLevelOperation"))
-    }
-
-    func performPathRequiredOperation(for id: ProjectID) -> RegistryOperationResult {
-        .failure(notImplemented("performPathRequiredOperation"))
-    }
-
-    func seedScopedData(for id: ProjectID, data: ProjectScopedData) {
-        // Placeholder only. Real behavior intentionally not implemented.
-    }
-
-    func scopedData(for id: ProjectID) -> ProjectScopedData? {
-        nil
-    }
-
-    func setPathAvailability(for id: ProjectID, isAvailable: Bool) {
-        // Placeholder only. Real behavior intentionally not implemented.
-    }
-
-    private func notImplemented(_ operation: String) -> RegistryFailureReason {
-        RegistryFailureReason(message: "Not implemented: \(operation)")
     }
 }
