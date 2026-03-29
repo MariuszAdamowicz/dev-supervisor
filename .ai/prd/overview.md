@@ -2,139 +2,172 @@
 
 ## Summary
 
-Dev Supervisor is a local desktop application that supervises and structures AI-assisted software development workflows.
+Dev Supervisor is a local desktop application that supervises and structures AI-assisted software development workflows across multiple projects.
 
-It does not act as an AI agent itself.
-Instead, it acts as a deterministic control layer that:
-- manages project structure
-- enforces development process
-- generates structured prompts
-- tracks feature lifecycle
-- maintains traceability between specifications, tests and implementation
+It is not an AI agent.
+It is a deterministic process supervisor that helps the operator manage:
+- project setup
+- ideas
+- features
+- specifications
+- tests
+- prompts
+- validation
+- progress tracking
 
-The application is designed to reduce chaos, context drift and inconsistency when using AI for software development.
+The application is intended to reduce chaos, context drift and inconsistency in AI-assisted development.
 
 ---
 
 ## Core Goals
 
-- Provide a structured, repeatable workflow for AI-assisted development
-- Enforce separation between idea, specification, tests and implementation
-- Maintain clear traceability between:
-  - PRD
+- Provide a structured and repeatable workflow for AI-assisted software development
+- Supervise multiple projects from one local application
+- Enforce separation between:
+  - ideas
+  - specifications
   - BDD scenarios
   - tests
   - implementation
-- Generate context-aware prompts for development steps
-- Track feature lifecycle and progress
+- Maintain traceability between requirements, scenarios, tests and implementation
+- Generate structured prompts for different stages of work
+- Track validation state and progress across projects and features
 - Reduce cognitive load on the operator
-- Prevent context explosion and inconsistency in AI usage
 
 ---
 
 ## Key Capabilities
 
-### 1. Project Initialization
-- create project structure
-- generate `.ai` scaffolding
-- initialize scripts and workflow
+### 1. Project Management
+- create and initialize projects
+- manage project structure
+- track project status
+- support multiple projects
 
-### 2. Idea & Feature Management
-- store ideas
-- convert ideas into features
-- manage feature lifecycle
+### 2. Idea Management
+- store ideas per project
+- move ideas into feature definition flow
+- keep ideas separate from implementation
 
-### 3. Specification Management
-- manage PRD per feature
+### 3. Feature Management
+- create and manage feature lifecycle
+- track feature status
+- connect features with specifications and validation
+
+### 4. Specification Management
+- manage feature PRD
 - manage BDD scenarios
 - maintain traceability between rules and scenarios
 
-### 4. Prompt Generation
-- generate structured prompts for:
+### 5. Prompt Generation
+- generate prompts for:
   - planning
+  - PRD creation
+  - BDD creation
   - test generation
   - implementation
   - debugging
   - refactoring
-- keep prompt templates external to project when needed
+- allow prompt templates to live outside project files
 
-### 5. Validation Tracking
-- track build/test/lint results
-- ensure each step is validated
+### 6. Validation Tracking
+- record build/test/lint status
+- show whether a feature is ready to move forward
+- support session-to-session continuity
 
-### 6. Progress Visibility
-- show feature status
+### 7. Progress Visibility
+- show feature lifecycle state
+- show project-level progress
 - show specification completeness
-- show validation status
-- optionally show coverage-like metrics (based on scenarios/tests)
+- show validation readiness
+- optionally derive progress metrics from scenario/test state
+
+### 8. Traceability Support
+- connect PRD rules to BDD scenarios
+- connect scenarios to tests
+- make gaps visible
 
 ---
 
-## Non-Goals (v1)
+## Non-Goals (initial phase)
 
-- direct execution of AI prompts
+- direct execution of prompts through an AI provider
 - full IDE replacement
-- cloud synchronization
-- multi-user collaboration
-- complex plugin ecosystem
-- deep code analysis beyond process-level tracking
+- cloud-first architecture
+- collaborative real-time editing
+- deep semantic code analysis
+- automatic code modification without operator control
 
 ---
 
 ## Design Principles
 
 ### Deterministic Control
-The application must remain predictable and deterministic.
-It supervises the process, not replaces decision-making.
+The application must remain deterministic and operator-driven.
 
-### Tool-Agnostic
-The system must not depend on any specific AI provider, CLI tool, or programming language.
+### Tool Agnostic
+The system must support different development stacks, different prompt strategies and different AI providers without hard coupling to any specific one.
 
-### Minimal Context
-The system should always promote minimal, focused context for AI interactions.
+### Local First
+The application should work as a local desktop supervisor with local state and local persistence.
 
-### Specification-Driven Development
-All development should be driven by:
-PRD → BDD → tests → implementation
+### Specification Driven Development
+The preferred workflow is:
+idea → PRD → BDD → tests → implementation → validation
 
 ### Traceability First
-Every important rule should be traceable to:
-- a scenario
-- a test
+Important rules should remain traceable across:
+- PRD
+- BDD
+- tests
 
 ### Incremental Workflow
-Work should be performed in small, controlled steps.
+The application should guide work in small, controlled steps rather than large ambiguous jumps.
+
+---
+
+## Storage Model
+
+The application uses a local database to maintain process state, operational metadata and project supervision data.
+
+The database is not intended to replace project files as the source of truth for specifications.
+Instead:
+- project files remain the source of truth for project artifacts
+- the local database stores operational state, references and supervision metadata
 
 ---
 
 ## Target Users
 
 - solo developers using AI-assisted workflows
-- engineers building local-first tools
-- developers who want strict control over AI-driven code generation
+- engineers managing multiple local projects
+- developers who want strict process control when working with AI
 
 ---
 
-## Boundaries
+## Product Boundaries
 
 The application:
-- manages process and structure
-- generates prompts
+- supervises process
 - tracks state
+- generates prompts
+- maintains references
+- helps the operator stay in control
 
-The application does NOT:
-- own the code execution environment
-- replace developer judgment
-- enforce a specific technology stack
+The application does not:
+- replace engineering judgment
+- own the execution environment of code
+- force a single AI provider or stack
+- become the implementation engine itself
 
 ---
 
 ## Success Criteria
 
 The system is successful if:
-- features are implemented with minimal rework
-- AI interactions remain predictable
-- context size stays small
-- feature changes do not create inconsistencies
-- the operator can clearly see the state of the project at any time
-
+- projects can be initialized consistently
+- feature work follows a repeatable flow
+- prompt generation reduces operator effort
+- validation state is visible at all times
+- traceability gaps are easy to detect
+- multiple projects can be supervised without confusion
