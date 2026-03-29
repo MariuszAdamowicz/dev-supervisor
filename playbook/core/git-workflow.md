@@ -150,6 +150,10 @@ Branch jest gotowy do Pull Request dopiero wtedy, gdy:
 - nie ma martwego kodu
 - nie ma niepotrzebnej duplikacji
 - `notes.md` i `traceability.md` są zsynchronizowane
+- `tasks.md` jest zaktualizowany (status wykonania + deferred)
+
+Twarda reguła:
+- feature artifacts (`prd.md`, `bdd.md`, `notes.md`, `tasks.md`, `traceability.md`) muszą być domknięte przed merge do `main`
 
 ---
 
@@ -211,7 +215,7 @@ Branch można scalić, jeśli:
 - build + test + lint przechodzą
 - kod nie zawiera martwych fragmentów
 - duplikacja została usunięta lub jawnie zapisana do extraction
-- dokumentacja feature została zsynchronizowana
+- dokumentacja feature została zsynchronizowana i domknięta (`prd.md`, `bdd.md`, `notes.md`, `tasks.md`, `traceability.md`)
 - branch jest gotowy do usunięcia po merge
 
 ---

@@ -37,6 +37,6 @@ git push origin --delete feat/<feature>
 
 ## Artifacts gate
 Przed merge do `main` upewnij się, że:
-- `prd.md`, `bdd.md`, `notes.md`, `traceability.md` są zsynchronizowane
+- `prd.md`, `bdd.md`, `notes.md`, `tasks.md`, `traceability.md` są zsynchronizowane i domknięte
 - testy pokrywają aktualne scenariusze BDD
 - nie ma martwego kodu po zmianie feature

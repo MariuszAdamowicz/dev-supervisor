@@ -41,6 +41,7 @@
 [ ] testy przechodzą
 [ ] lint przechodzi
 [ ] notes.md uzupełniony
+[ ] tasks.md uzupełniony (status wykonania + deferred)
 [ ] traceability.md uzupełniony
 [ ] sprawdzono czy nie ma duplikacji do extraction
 [ ] brak dead code
@@ -64,6 +65,7 @@
 [ ] build przechodzi
 [ ] testy przechodzą
 [ ] lint przechodzi
+[ ] tasks.md zaktualizowany (status wykonania + deferred)
 [ ] traceability.md zaktualizowany
 [ ] brak martwego kodu po starej implementacji
 [ ] branch gotowy do merge po review
