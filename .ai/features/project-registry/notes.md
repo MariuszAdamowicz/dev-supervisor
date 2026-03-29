@@ -40,3 +40,19 @@ Main inconsistency: tests contain behavior not yet modeled in BDD.
 
 ## Recommended next single step
 Update `bdd.md` to include missing behavior currently enforced by tests (scenario 21 and 22) and add one scenario for reactivation conflict on duplicate active path/reference. Then run test generation/update only if needed.
+
+---
+
+## Closure Update
+
+Date: 2026-03-29
+
+Status:
+- Completed: BDD updated with scenarios 21, 22, 23.
+- Completed: test for Scenario 23 added and passing.
+- Completed: traceability synchronized with current PRD/BDD.
+- Completed: validation scripts passing in current setup (`build`, `test`, `lint` with style warnings).
+
+Feature decision:
+- `project-registry` is considered functionally closed for current scope.
+- Further work moves to next feature, unless a defect/regression is discovered.
