@@ -38,6 +38,7 @@ Nakładki konfiguracyjne dla konkretnego kontekstu:
 - architecture (np. modular-monolith)
 - language (pl/en)
 - execution style (iterative, batch, hybrid)
+- optional git mode (np. `profiles/git-solo-no-pr.md`)
 
 ### prompts
 Kanoniczne prompty robocze per etap.
@@ -69,6 +70,7 @@ Moduły obowiązkowe:
 Moduły kontekstowe:
 - `prompts/*` używane zależnie od etapu pracy
 - `templates/*` używane przy inicjalizacji lub odtwarzaniu artefaktów
+- opcjonalnie profil `git-solo-no-pr.md` dla pracy jednoosobowej bez platformowego PR
 
 Sposób kompozycji:
 1. Start od `core/` jako zasad nadrzędnych.

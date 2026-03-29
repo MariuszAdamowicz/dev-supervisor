@@ -21,6 +21,32 @@ PR powinien zawierać:
 Zasada:
 PR ma być zrozumiały bez czytania całego kodu.
 
+### Solo mode (no PR)
+Tryb dla pojedynczego developera, gdy PR na platformie hostującej jest zbędny lub zablokowany.
+
+Zasady:
+- zachowaj branch `feat/<feature>` do izolacji pracy
+- po local validation wykonaj merge lokalny do `main` bez etapu platformowego PR
+- traktuj checklistę review jako self-review obowiązkowy przed merge
+- nie merguj do `main` bez `build + test + lint`
+- po merge usuń branch feature lokalnie i zdalnie
+
+Minimalny flow:
+```bash
+git checkout main
+git pull
+git checkout -b feat/<feature>
+# praca + commity
+./Scripts/build.sh
+./Scripts/test.sh
+./Scripts/lint.sh
+git checkout main
+git merge --no-ff feat/<feature>
+git push origin main
+git branch -d feat/<feature>
+git push origin --delete feat/<feature>
+```
+
 ### 🎯 Cel
 
 Git workflow ma być częścią procesu wytwórczego, a nie dodatkiem "na końcu".
@@ -170,6 +196,10 @@ Nie rób:
 - merge mimo czerwonego builda
 - merge mimo nieprzechodzących testów
 - poprawiania konfliktów "na szybko" bez ponownego uruchomienia walidacji
+
+W trybie solo-no-pr dodatkowo nie rób:
+- pomijania self-review checklisty tylko dlatego, że nie ma PR
+- bezpośrednich zmian na `main` bez brancha feature
 
 ---
 
