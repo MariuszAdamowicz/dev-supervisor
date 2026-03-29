@@ -1,4 +1,9 @@
 #!/bin/bash
 set -e
-xcodebuild test
 
+SCHEME=${1:-DevSupervisor}
+
+xcodebuild \
+  clean test \
+  -scheme "$SCHEME" \
+  -destination 'platform=macOS'

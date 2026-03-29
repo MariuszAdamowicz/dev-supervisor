@@ -134,3 +134,24 @@ And an active project "Beta" exists with local path/reference "/projects/beta"
 When the operator updates project "Beta" to use local path/reference "/projects/alpha"
 Then the update is not applied
 And the operation result is explicit failure with reason
+
+## Scenario 21: Update project local path/reference to a new unique value
+Given an active project "Alpha" exists with local path/reference "/projects/alpha"
+When the operator updates project "Alpha" to use local path/reference "/projects/alpha-new"
+Then the same project identity is preserved
+And the updated local path/reference is visible in the registry
+And the operation result is explicit success
+
+## Scenario 22: List includes active and archived projects together
+Given project "Alpha" is active
+And project "Beta" exists and is archived
+When the operator requests the project list
+Then the list includes both active and archived projects
+And no implicit state change is performed
+
+## Scenario 23: Reject reactivation when local path/reference conflicts with another active project
+Given project "Alpha" exists and is active with local path/reference "/projects/alpha"
+And project "Beta" exists and is archived with local path/reference "/projects/alpha"
+When the operator reactivates project "Beta"
+Then project "Beta" remains archived
+And the operation result is explicit failure with reason
