@@ -1,0 +1,17 @@
+# Project Bootstrap Flow — Status Zadań
+
+Data: 2026-03-30
+
+- [x] domknięcie zakresu i reguł PRD
+- [x] wygenerowanie scenariuszy BDD
+- [x] implementacja kontraktu bootstrapu i inspekcji projektu (filesystem)
+- [x] dodanie pierwszego UI dla operatora (bootstrap + inspect)
+- [x] dodanie testów dla bootstrapu i inspekcji
+- [x] poprawa konfiguracji test target, aby testy BDD były kompilowane przez Xcode
+- [ ] pełne domknięcie pętli walidacyjnej `test` z deterministic gate (`testsCount > 0`)
+- [ ] uzupełnienie traceability i notes po finalnym hardeningu
+
+## Odroczone / Następne
+- [ ] integracja bootstrapu z rejestrem projektów domenowych
+- [ ] Product Gate w UI (sekcje, checklista, status pass/fail)
+- [ ] import/eksport artefaktów dla trybu sqlbase (DB <-> `.ai`)

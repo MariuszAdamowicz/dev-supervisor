@@ -37,6 +37,12 @@
 			path = "/Volumes/Data/Projects/dev-supervisor/App";
 			sourceTree = "<absolute>";
 		};
+		62F1000A2F90000100AA11BB /* DevSupervisorTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			name = DevSupervisorTests;
+			path = "/Volumes/Data/Projects/dev-supervisor/Tests";
+			sourceTree = "<absolute>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -69,6 +75,7 @@
 			children = (
 				6273244B2F7967DB00BBCEAD /* DevSupervisor.xctestplan */,
 				627324042F78A55800BBCEAD /* DevSupervisor */,
+				62F1000A2F90000100AA11BB /* DevSupervisorTests */,
 				627324032F78A55800BBCEAD /* Products */,
 			);
 			sourceTree = "<group>";
@@ -120,6 +127,9 @@
 			);
 			dependencies = (
 				627324112F78A55B00BBCEAD /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				62F1000A2F90000100AA11BB /* DevSupervisorTests */,
 			);
 			name = DevSupervisorTests;
 			packageProductDependencies = (

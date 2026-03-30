@@ -57,7 +57,7 @@ final class ProjectRegistryBDDTests: XCTestCase {
         XCTAssertEqual(sut.listProjects().count, 1)
     }
 
-    func testScenario05_updateProjectMetadata_preservesIdentityAndShowsUpdatedMetadata_withExplicitSuccess() {
+    func testScenario05_updateProjectMetadata_preservesIdentityAndShowsUpdatedMetadata_withExplicitSuccess() throws {
         let sut = makeSUT()
 
         let createdID = try XCTUnwrap(sut.registerProject(name: "Alpha", localPath: "/projects/alpha").createdProjectID)
@@ -82,7 +82,7 @@ final class ProjectRegistryBDDTests: XCTestCase {
         XCTAssertEqual(sut.listProjects(), before)
     }
 
-    func testScenario07_archiveProject_preservesIdentityAndHistory_andReturnsExplicitSuccess() {
+    func testScenario07_archiveProject_preservesIdentityAndHistory_andReturnsExplicitSuccess() throws {
         let sut = makeSUT()
 
         let id = try XCTUnwrap(sut.registerProject(name: "Alpha", localPath: "/projects/alpha").createdProjectID)
@@ -98,7 +98,7 @@ final class ProjectRegistryBDDTests: XCTestCase {
         XCTAssertEqual(after.history, before.history)
     }
 
-    func testScenario08_reactivateArchivedProject_preservesIdentityAndHistory_andReturnsExplicitSuccess() {
+    func testScenario08_reactivateArchivedProject_preservesIdentityAndHistory_andReturnsExplicitSuccess() throws {
         let sut = makeSUT()
 
         let id = try XCTUnwrap(sut.registerProject(name: "Alpha", localPath: "/projects/alpha").createdProjectID)
@@ -115,7 +115,7 @@ final class ProjectRegistryBDDTests: XCTestCase {
         XCTAssertEqual(after.history, before.history)
     }
 
-    func testScenario09_archiveAlreadyArchivedProject_rejectsWithNoStateChange_andExplicitFailureReason() {
+    func testScenario09_archiveAlreadyArchivedProject_rejectsWithNoStateChange_andExplicitFailureReason() throws {
         let sut = makeSUT()
 
         let id = try XCTUnwrap(sut.registerProject(name: "Alpha", localPath: "/projects/alpha").createdProjectID)
@@ -128,7 +128,7 @@ final class ProjectRegistryBDDTests: XCTestCase {
         XCTAssertEqual(sut.project(by: id), snapshot)
     }
 
-    func testScenario10_reactivateAlreadyActiveProject_rejectsWithNoStateChange_andExplicitFailureReason() {
+    func testScenario10_reactivateAlreadyActiveProject_rejectsWithNoStateChange_andExplicitFailureReason() throws {
         let sut = makeSUT()
 
         let id = try XCTUnwrap(sut.registerProject(name: "Beta", localPath: "/projects/beta").createdProjectID)
@@ -140,7 +140,7 @@ final class ProjectRegistryBDDTests: XCTestCase {
         XCTAssertEqual(sut.project(by: id), snapshot)
     }
 
-    func testScenario11_selectOneActiveWorkingProject_explicitly_setsSingleSelection_withExplicitSuccess() {
+    func testScenario11_selectOneActiveWorkingProject_explicitly_setsSingleSelection_withExplicitSuccess() throws {
         let sut = makeSUT()
 
         let alpha = try XCTUnwrap(sut.registerProject(name: "Alpha", localPath: "/projects/alpha").createdProjectID)
@@ -154,7 +154,7 @@ final class ProjectRegistryBDDTests: XCTestCase {
         XCTAssertEqual(sut.activeWorkingProjectID(), alpha)
     }
 
-    func testScenario12_replaceActiveWorkingProjectSelection_replacesPreviousSelection_withExplicitSuccess() {
+    func testScenario12_replaceActiveWorkingProjectSelection_replacesPreviousSelection_withExplicitSuccess() throws {
         let sut = makeSUT()
 
         let alpha = try XCTUnwrap(sut.registerProject(name: "Alpha", localPath: "/projects/alpha").createdProjectID)
@@ -180,7 +180,7 @@ final class ProjectRegistryBDDTests: XCTestCase {
         assertExplicitFailureWithReason(result)
     }
 
-    func testScenario14_projectIsolation_viewingAlphaScopeReturnsOnlyAlphaData() {
+    func testScenario14_projectIsolation_viewingAlphaScopeReturnsOnlyAlphaData() throws {
         let sut = makeSUT()
 
         let alpha = try XCTUnwrap(sut.registerProject(name: "Alpha", localPath: "/projects/alpha").createdProjectID)
@@ -235,7 +235,7 @@ final class ProjectRegistryBDDTests: XCTestCase {
         XCTAssertEqual(sut.listProjects(), before)
     }
 
-    func testScenario17_whenRegisteredPathIsUnavailable_operationFailsExplicitly_withNoSilentStateChange() {
+    func testScenario17_whenRegisteredPathIsUnavailable_operationFailsExplicitly_withNoSilentStateChange() throws {
         let sut = makeSUT()
 
         let alpha = try XCTUnwrap(sut.registerProject(name: "Alpha", localPath: "/projects/alpha").createdProjectID)
@@ -257,7 +257,7 @@ final class ProjectRegistryBDDTests: XCTestCase {
         XCTAssertNil(sut.activeWorkingProjectID())
     }
 
-    func testScenario19_selectArchivedProject_rejectsAndKeepsNoActiveSelection_withExplicitFailureReason() {
+    func testScenario19_selectArchivedProject_rejectsAndKeepsNoActiveSelection_withExplicitFailureReason() throws {
         let sut = makeSUT()
 
         let alpha = try XCTUnwrap(sut.registerProject(name: "Alpha", localPath: "/projects/alpha").createdProjectID)
@@ -269,7 +269,7 @@ final class ProjectRegistryBDDTests: XCTestCase {
         XCTAssertNil(sut.activeWorkingProjectID())
     }
 
-    func testScenario20_updateToDuplicateActivePath_rejectsUpdate_withExplicitFailureReason() {
+    func testScenario20_updateToDuplicateActivePath_rejectsUpdate_withExplicitFailureReason() throws {
         let sut = makeSUT()
 
         _ = sut.registerProject(name: "Alpha", localPath: "/projects/alpha")
@@ -282,7 +282,7 @@ final class ProjectRegistryBDDTests: XCTestCase {
         XCTAssertEqual(sut.project(by: beta), before)
     }
 
-    func testScenario21_updateProjectLocalPathToNewUniquePath_succeedsWithExplicitSuccess() {
+    func testScenario21_updateProjectLocalPathToNewUniquePath_succeedsWithExplicitSuccess() throws {
         let sut = makeSUT()
 
         let id = try XCTUnwrap(sut.registerProject(name: "Alpha", localPath: "/projects/alpha").createdProjectID)
@@ -295,7 +295,7 @@ final class ProjectRegistryBDDTests: XCTestCase {
         XCTAssertEqual(updated.localPath, "/projects/alpha-new")
     }
 
-    func testScenario22_listProjects_includesArchivedProjectsAlongsideActiveOnes() {
+    func testScenario22_listProjects_includesArchivedProjectsAlongsideActiveOnes() throws {
         let sut = makeSUT()
 
         let alpha = try XCTUnwrap(sut.registerProject(name: "Alpha", localPath: "/projects/alpha").createdProjectID)
@@ -310,7 +310,7 @@ final class ProjectRegistryBDDTests: XCTestCase {
         XCTAssertTrue(projects.contains { $0.id == beta && $0.status == .archived })
     }
 
-    func testScenario23_reactivateWithPathConflict_rejectsAndKeepsProjectArchived_withExplicitFailureReason() {
+    func testScenario23_reactivateWithPathConflict_rejectsAndKeepsProjectArchived_withExplicitFailureReason() throws {
         let sut = makeSUT()
 
         _ = sut.registerProject(name: "Alpha", localPath: "/projects/alpha")
