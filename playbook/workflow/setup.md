@@ -215,11 +215,23 @@ Krótka instrukcja dla AI, jak ma pracować w tym repo.
 - utwórz repo
 - utwórz .gitignore
 - utwórz `.ai/`
+- utwórz i zatwierdź bazę produktu:
+  - `.ai/prd/overview.md`
+  - `.ai/prd/constraints.md`
+  - `.ai/prd/glossary.md`
+- wykonaj Product Gate (kompletność + spójność + decyzja operatora)
 - skonfiguruj build, test, lint
 - skonfiguruj Git workflow (branching + PR)
 - skonfiguruj zasady dla shared code (`.ai/stack/shared-code.md`)
 
 See stack profile for platform-specific setup.
+
+## 1a. Product Gate
+Product Gate przechodzi tylko gdy:
+- istnieją `overview.md`, `constraints.md`, `glossary.md`
+- dokumenty nie są ze sobą sprzeczne
+- terminy krytyczne używane w `overview.md` mają definicje w `glossary.md`
+- operator jawnie zatwierdził baseline produktu
 
 ---
 
@@ -235,7 +247,7 @@ Aktualizuj warunkowo:
 - architecture.md
 - shared-code.md
 - playbook / setup rules, jeśli praktyka ujawniła nowe wymagania operacyjne
-- glossary.md
+- glossary.md (gdy feature wprowadza stabilny nowy termin domenowy)
 
 Nie aktualizuj automatycznie:
 - overview.md

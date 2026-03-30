@@ -57,6 +57,9 @@ Każda iteracja AI powinna kończyć się:
 - test
 - lint
 
+Wynik `test` jest ważny tylko wtedy, gdy testy faktycznie zostały wykonane.
+Green status bez wykonanych testów nie przechodzi gate.
+
 ### Zasada użycia skryptów
 AI powinno używać skryptów jako jedynego wejścia do walidacji.
 Nie polegaj na luźnym opisywaniu błędów — przekazuj pełny output ze skryptów.
@@ -67,6 +70,10 @@ Uruchom:
 ./Scripts/test.sh
 ./Scripts/lint.sh
 ```
+
+Dodatkowa kontrola:
+- potwierdź, że raport testów pokazuje wykonane testy (`testsCount > 0`)
+- potwierdź, że wykonywane są właściwe suite dla aktywnego feature
 
 Implementacje skryptów: `templates/scripts/`.
 Konfiguracja narzędzi Swift/Xcode: `profiles/stack/macos-swiftui.md`.

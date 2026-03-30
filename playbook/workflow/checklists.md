@@ -6,6 +6,7 @@
 [ ] utworzone .ai/prd/overview.md
 [ ] utworzony .ai/prd/constraints.md
 [ ] utworzony .ai/prd/glossary.md
+[ ] Product Gate przeszedł (kompletność + spójność + decyzja operatora)
 [ ] utworzone .ai/stack/core.md
 [ ] utworzone .ai/stack/architecture.md
 [ ] utworzone .ai/stack/shared-code.md
@@ -19,6 +20,7 @@
 [ ] skonfigurowany podstawowy workflow Git (main + feat/<feature>)
 [ ] utworzony .gitignore
 [ ] ukończony setup stack profile (np. `profiles/stack/macos-swiftui.md`)
+[ ] potwierdzone realne wykonanie testów (`testsCount > 0`)
 ```
 
 ---
@@ -27,6 +29,7 @@
 
 ```text
 [ ] idea dodana do .ai/ideas.md
+[ ] wykonany scoping idea -> feature(s)
 [ ] utworzony folder .ai/features/<feature>/
 [ ] utworzony branch feat/<feature>
 [ ] utworzony prd.md
@@ -37,13 +40,17 @@
 [ ] wygenerowane / poprawione testy
 [ ] przygotowany plan implementacji
 [ ] kod zaimplementowany krokami
+[ ] review package pokazany operatorowi (diff + mapowanie do BDD + walidacja)
+[ ] decyzja gate operatora zapisana (approve/request changes/defer/reject)
 [ ] build przechodzi
 [ ] testy przechodzą
 [ ] lint przechodzi
+[ ] testy faktycznie wykonane (nie tylko green status)
 [ ] notes.md uzupełniony
 [ ] tasks.md uzupełniony (status wykonania + deferred)
 [ ] traceability.md uzupełniony
 [ ] sprawdzono czy nie ma duplikacji do extraction
+[ ] wykonany integration hardening
 [ ] brak dead code
 [ ] PR przygotowany i gotowy do merge
 ```
@@ -65,8 +72,11 @@
 [ ] build przechodzi
 [ ] testy przechodzą
 [ ] lint przechodzi
+[ ] testy faktycznie wykonane (nie tylko green status)
 [ ] tasks.md zaktualizowany (status wykonania + deferred)
 [ ] traceability.md zaktualizowany
+[ ] review package pokazany operatorowi i decyzja gate zapisana
+[ ] wykonany integration hardening
 [ ] brak martwego kodu po starej implementacji
 [ ] branch gotowy do merge po review
 ```

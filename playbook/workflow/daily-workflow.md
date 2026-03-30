@@ -1,12 +1,19 @@
 ## 🔁 Codzienny workflow
 
-### 1. wybór feature
-Wybierz jeden aktywny feature.
+### 1. wybór idei i scoping
+Wybierz ideę i podejmij decyzję:
+- czy to jeden feature czy kilka
+- który feature realizujesz teraz
+
+Dopiero po tej decyzji tworzysz aktywny feature.
 
 ### 2. minimalny kontekst
 Ładuj tylko:
 - `.ai/features/<feature>/prd.md`
 - `.ai/features/<feature>/bdd.md`
+- `.ai/prd/overview.md`
+- `.ai/prd/constraints.md`
+- `.ai/prd/glossary.md`
 - odpowiednie pliki z `.ai/stack/`
 
 ### 🔍 Reguła kontekstu
@@ -41,7 +48,15 @@ Implement step 1 from the plan.
 Do not modify unrelated files.
 ```
 
-### 6. loop walidacyjny
+### 6. review package (obowiązkowe przed decyzją)
+Aplikacja musi pokazać operatorowi:
+- diff zmian plików
+- mapowanie zmiana -> scenariusz BDD
+- wynik build/test/lint
+
+Bez review package nie przechodź dalej.
+
+### 7. loop walidacyjny
 Uruchom:
 ```text
 ./Scripts/build.sh
@@ -49,17 +64,32 @@ Uruchom:
 ./Scripts/lint.sh
 ```
 
-### 7. poprawki
+### 8. gate decyzji operatora
+Po każdej iteracji operator wybiera:
+- approve
+- request changes
+- defer
+- reject
+
+Transport promptów i wyników może być zautomatyzowany przez MCP, ale decyzja gate należy do operatora.
+
+### 9. poprawki
 Prompt:
 ```text
 Here are the build/test/lint results.
 Fix the issues with minimal changes.
 ```
 
-### 8. stabilizacja
+### 10. stabilizacja
 Prompt:
 ```text
 Compare the implementation with prd.md and bdd.md.
 Remove dead code.
 Update notes.md and traceability.md if needed.
 ```
+
+### 11. integration hardening
+Przed finalnym merge:
+- sprawdź duplikacje między feature
+- sprawdź dryf PRD <-> BDD <-> testy
+- sprawdź czy nowe capability ma punkt wejścia UI lub jawne odroczenie

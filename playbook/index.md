@@ -9,6 +9,7 @@ Source artifact:
 
 - `dev-supervisor` jest deterministic supervisor, nie agent AI.
 - Proces jest operator-driven: człowiek uruchamia prompty w zewnętrznym narzędziu.
+- Operator podejmuje jawne decyzje na gate'ach procesu; automatyzacja nie zastępuje decyzji.
 - System pozostaje local-first.
 - System pozostaje tool-agnostic i provider-agnostic.
 - Tożsamość produktu jest stack-agnostic in principle; stack profile to konfiguracja, nie definicja produktu.
@@ -75,6 +76,8 @@ Moduły kontekstowe:
 Sposób kompozycji:
 1. Start od `core/` jako zasad nadrzędnych.
 2. Wybierz i dołącz profile (`stack`, `architecture`, `language`, `execution-style`).
-3. Realizuj pracę przez `workflow/daily-workflow.md`.
-4. Używaj promptów kanonicznych z `prompts/`.
-5. Zamykaj iteracje checklistami i `workflow/session-closure.md`.
+3. Domknij Product Gate (`overview.md`, `constraints.md`, `glossary.md` + decyzja operatora).
+4. Realizuj pracę przez `workflow/daily-workflow.md` z etapem `idea -> feature(s)`.
+5. Używaj promptów kanonicznych z `prompts/`; transport można zautomatyzować przez MCP.
+6. Każdą iterację zamykaj review package (diff + mapowanie do BDD + walidacja) i decyzją operatora.
+7. Zamykaj iteracje checklistami i `workflow/session-closure.md`.
