@@ -39,7 +39,10 @@ Nakładki konfiguracyjne dla konkretnego kontekstu:
 - architecture (np. modular-monolith)
 - language (pl/en)
 - execution style (iterative, batch, hybrid)
+- storage (file-ai, sqlbase)
 - optional git mode (np. `profiles/git-solo-no-pr.md`)
+
+Pełna lista profili: `profiles/index.md`.
 
 ### prompts
 Kanoniczne prompty robocze per etap.
@@ -57,6 +60,7 @@ Zasada separacji:
 - architecture: `modular-monolith`
 - language: `pl`
 - execution-style: `iterative-tdd`
+- storage: `file-ai`
 
 ## How To Use
 
@@ -67,6 +71,7 @@ Moduły obowiązkowe:
 - jeden profil `architecture/*`
 - jeden profil `language/*`
 - jeden profil `execution-style/*`
+- jeden profil `storage/*`
 
 Moduły kontekstowe:
 - `prompts/*` używane zależnie od etapu pracy
@@ -75,7 +80,7 @@ Moduły kontekstowe:
 
 Sposób kompozycji:
 1. Start od `core/` jako zasad nadrzędnych.
-2. Wybierz i dołącz profile (`stack`, `architecture`, `language`, `execution-style`).
+2. Wybierz i dołącz profile (`stack`, `architecture`, `language`, `execution-style`, `storage`).
 3. Domknij Product Gate (`overview.md`, `constraints.md`, `glossary.md` + decyzja operatora).
 4. Realizuj pracę przez `workflow/daily-workflow.md` z etapem `idea -> feature(s)`.
 5. Używaj promptów kanonicznych z `prompts/`; transport można zautomatyzować przez MCP.

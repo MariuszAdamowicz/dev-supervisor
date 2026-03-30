@@ -22,6 +22,7 @@ my-app/
 
 Szczegóły layoutu modułów: `profiles/architecture/modular-monolith.md`.
 Szczegóły narzędziowe i platformowe: `profiles/stack/macos-swiftui.md`.
+Szczegóły modelu przechowywania: `profiles/storage/*`.
 
 ## 🧠 Zasady nazewnictwa
 
@@ -215,6 +216,9 @@ Krótka instrukcja dla AI, jak ma pracować w tym repo.
 - utwórz repo
 - utwórz .gitignore
 - utwórz `.ai/`
+- wybierz profil storage:
+  - `profiles/storage/file-ai.md` albo
+  - `profiles/storage/sqlbase.md`
 - utwórz i zatwierdź bazę produktu:
   - `.ai/prd/overview.md`
   - `.ai/prd/constraints.md`

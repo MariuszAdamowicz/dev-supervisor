@@ -17,6 +17,7 @@
 [ ] utworzone Scripts/build.sh
 [ ] utworzone Scripts/test.sh
 [ ] utworzone Scripts/lint.sh
+[ ] wybrany profil storage (`profiles/storage/file-ai.md` lub `profiles/storage/sqlbase.md`)
 [ ] skonfigurowany podstawowy workflow Git (main + feat/<feature>)
 [ ] utworzony .gitignore
 [ ] ukończony setup stack profile (np. `profiles/stack/macos-swiftui.md`)
