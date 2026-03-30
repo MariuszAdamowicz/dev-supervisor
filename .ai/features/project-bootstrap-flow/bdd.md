@@ -43,3 +43,16 @@ Oraz inspekcja nie modyfikuje stanu projektu
 Zakładając, że wskazana ścieżka nie istnieje lub nie jest katalogiem
 Kiedy operator uruchamia inspekcję projektu
 Wtedy wynik operacji to jawna porażka z podaniem przyczyny
+
+## Scenariusz 8: Deterministyczny gate testów wymaga wykonania testów
+Zakładając, że uruchamiana jest walidacja testów przez `./Scripts/test.sh`
+Oraz domyślnie uruchamiany jest target `DevSupervisorTests` (bez UI testów)
+Kiedy `xcodebuild` nie raportuje wykonanych testów lub raportuje `0`
+Wtedy skrypt kończy się jawną porażką
+Oraz gate testowy nie może zostać uznany za zaliczony
+
+## Scenariusz 9: Deterministyczny gate testów nie może zawiesić workflow
+Zakładając, że `xcodebuild` zawiesza się lub przekracza limit czasu
+Kiedy uruchamiany jest `./Scripts/test.sh`
+Wtedy watchdog timeout przerywa proces testów
+Oraz skrypt kończy się jawną porażką zamiast nieskończonego oczekiwania

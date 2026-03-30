@@ -8,8 +8,8 @@ Data: 2026-03-30
 - [x] dodanie pierwszego UI dla operatora (bootstrap + inspect)
 - [x] dodanie testów dla bootstrapu i inspekcji
 - [x] poprawa konfiguracji test target, aby testy BDD były kompilowane przez Xcode
-- [ ] pełne domknięcie pętli walidacyjnej `test` z deterministic gate (`testsCount > 0`)
-- [ ] uzupełnienie traceability i notes po finalnym hardeningu
+- [x] pełne domknięcie pętli walidacyjnej `test` z deterministic gate (`testsCount > 0`)
+- [x] uzupełnienie traceability i notes po finalnym hardeningu
 
 ## Odroczone / Następne
 - [ ] integracja bootstrapu z rejestrem projektów domenowych

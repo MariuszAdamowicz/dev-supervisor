@@ -22,3 +22,9 @@
 
 - Reguła: Inspekcja nieistniejącej ścieżki zwraca jawny błąd.
   - Pokryte przez: Scenariusz 7 "Odrzucenie inspekcji nieistniejącej ścieżki"
+
+- Reguła: Walidacja testów jest deterministyczna i wymaga realnie wykonanych testów (`testsCount > 0`).
+  - Pokryte przez: Scenariusz 8 "Deterministyczny gate testów wymaga wykonania testów"
+
+- Reguła: Walidacja testów nie może blokować workflow bez końca (timeout watchdog).
+  - Pokryte przez: Scenariusz 9 "Deterministyczny gate testów nie może zawiesić workflow"
