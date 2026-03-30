@@ -15,9 +15,11 @@ struct ContentView: View {
     @State private var flowIdeaTitle = ""
     @State private var flowIdeaStatus: IdeaStatus = .selected
     @State private var lastFeaturesResult: FeatureSetPromptGenerationResult?
+    @State private var lastPRDFromFeaturesResult: PRDFromFeaturesPromptResult?
 
     private let bootstrapService: any ProjectBootstrapContract = ProjectBootstrapFileSystem()
     private let ideaToFeaturesService: any IdeaToFeaturesFlowContract = IdeaToFeaturesFlowInMemory()
+    private let featuresToPRDService: any FeaturesToPRDFlowContract = FeaturesToPRDFlowInMemory()
 
     var body: some View {
         ScrollView {
@@ -30,6 +32,8 @@ struct ContentView: View {
                 newProjectSection
                 Divider()
                 ideaToFeaturesSection
+                Divider()
+                featuresToPRDSection
                 Divider()
                 inspectProjectSection
                 Divider()
@@ -126,6 +130,50 @@ struct ContentView: View {
         }
     }
 
+    private var featuresToPRDSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("FEATURES -> PRD")
+                .font(.title2.bold())
+
+            Text("Gate operatora: budowa promptu PRD na bazie wygenerowanego feature-setu.")
+                .foregroundStyle(.secondary)
+
+            Button("Generate FEATURES -> PRD prompt") {
+                guard let featuresResult = lastFeaturesResult, featuresResult.result.isSuccess else {
+                    lastPRDFromFeaturesResult = PRDFromFeaturesPromptResult(
+                        result: .failure(.init(message: "Run IDEA -> FEATURES successfully before this step.")),
+                        promptText: "",
+                        promptFingerprint: "",
+                        includesMinimalContext: false,
+                        ideaID: nil,
+                        projectID: nil,
+                        featuresCount: 0
+                    )
+                    return
+                }
+
+                let projectID = ProjectID(rawValue: flowProjectID.trimmingCharacters(in: .whitespacesAndNewlines))
+                let ideaID = IdeaID(rawValue: flowIdeaID.trimmingCharacters(in: .whitespacesAndNewlines))
+                let ideaTitle = flowIdeaTitle.trimmingCharacters(in: .whitespacesAndNewlines)
+
+                featuresToPRDService.selectActiveProject(id: projectID)
+                featuresToPRDService.setContextAvailability(
+                    overview: true,
+                    constraints: true,
+                    glossary: true,
+                    stackRules: true
+                )
+
+                lastPRDFromFeaturesResult = featuresToPRDService.generatePRDPrompt(
+                    for: ideaID,
+                    ideaTitle: ideaTitle,
+                    features: featuresResult.proposedFeatures
+                )
+            }
+            .buttonStyle(.borderedProminent)
+        }
+    }
+
     private var inspectProjectSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Otwórz istniejący projekt")
@@ -181,6 +229,17 @@ struct ContentView: View {
                     .font(.footnote)
                 if !features.promptText.isEmpty {
                     Text(features.promptText)
+                        .font(.footnote.monospaced())
+                        .textSelection(.enabled)
+                }
+            }
+
+            if let prd = lastPRDFromFeaturesResult {
+                Text("FEATURES -> PRD: \(statusText(for: prd.result))")
+                Text("Features in PRD prompt: \(prd.featuresCount)")
+                    .font(.footnote)
+                if !prd.promptText.isEmpty {
+                    Text(prd.promptText)
                         .font(.footnote.monospaced())
                         .textSelection(.enabled)
                 }
