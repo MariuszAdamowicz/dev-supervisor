@@ -18,7 +18,7 @@ final class IdeaRegistryBDDTests: XCTestCase {
         XCTAssertEqual(created.status, .new)
     }
 
-    func testScenario02_createMultipleIdeasWithinOneProject_keepsBothWithUniqueIdentity_withExplicitSuccess() throws {
+    func testScenario02_createMultipleIdeasWithinOneProject_keepsBothWithUniqueIdentity_withExplicitSuccess() {
         let sut = makeSUT()
         let alpha = ProjectID(rawValue: "P-1")
         sut.selectActiveProject(id: alpha)
@@ -35,7 +35,7 @@ final class IdeaRegistryBDDTests: XCTestCase {
         XCTAssertEqual(list.ideas.count, 2)
     }
 
-    func testScenario03_createIdeaWhenNoActiveProjectSelected_rejectsWithExplicitFailureReason() throws {
+    func testScenario03_createIdeaWhenNoActiveProjectSelected_rejectsWithExplicitFailureReason() {
         let sut = makeSUT()
         sut.selectActiveProject(id: nil)
 
@@ -45,7 +45,7 @@ final class IdeaRegistryBDDTests: XCTestCase {
         XCTAssertNil(creation.createdIdeaID)
     }
 
-    func testScenario04_createIdeaWithEmptyTitle_rejectsWithExplicitFailureReason() throws {
+    func testScenario04_createIdeaWithEmptyTitle_rejectsWithExplicitFailureReason() {
         let sut = makeSUT()
         sut.selectActiveProject(id: ProjectID(rawValue: "P-1"))
 
@@ -70,7 +70,7 @@ final class IdeaRegistryBDDTests: XCTestCase {
         XCTAssertEqual(updated.description, "Prioritize no-network use")
     }
 
-    func testScenario06_updateNonExistentIdea_rejectsWithNoStateChange_andExplicitFailureReason() throws {
+    func testScenario06_updateNonExistentIdea_rejectsWithNoStateChange_andExplicitFailureReason() {
         let sut = makeSUT()
         sut.selectActiveProject(id: ProjectID(rawValue: "P-1"))
         let before = sut.listIdeasForActiveProject().ideas
@@ -128,13 +128,13 @@ final class IdeaRegistryBDDTests: XCTestCase {
         let ideaID = try XCTUnwrap(sut.createIdea(title: "Offline mode", description: nil).createdIdeaID)
         let before = try XCTUnwrap(sut.idea(by: ideaID))
 
-        let result = sut.changeIdeaStatusToInvalidValue(id: ideaID, value: "in-progress")
+        let result = sut.changeIdeaStatus(id: ideaID, rawStatus: "in-progress")
 
         assertExplicitFailureWithReason(result)
         XCTAssertEqual(sut.idea(by: ideaID), before)
     }
 
-    func testScenario11_changeStatusForNonExistentIdea_rejectsWithNoStateChange_andExplicitFailureReason() throws {
+    func testScenario11_changeStatusForNonExistentIdea_rejectsWithNoStateChange_andExplicitFailureReason() {
         let sut = makeSUT()
         sut.selectActiveProject(id: ProjectID(rawValue: "P-1"))
         let before = sut.listIdeasForActiveProject().ideas
@@ -147,23 +147,25 @@ final class IdeaRegistryBDDTests: XCTestCase {
 
     func testScenario12_updateAndStatusChangeWhenNoActiveProjectSelected_areBlockedWithExplicitFailureReason() throws {
         let sut = makeSUT()
-        let alpha = ProjectID(rawValue: "P-1")
-        sut.seedIdea(projectID: alpha, id: IdeaID(rawValue: "I-1"), title: "Offline mode", description: nil, status: .new)
+        sut.selectActiveProject(id: ProjectID(rawValue: "P-1"))
+        let ideaID = try XCTUnwrap(sut.createIdea(title: "Offline mode", description: nil).createdIdeaID)
         sut.selectActiveProject(id: nil)
 
-        let update = sut.updateIdeaContent(id: IdeaID(rawValue: "I-1"), title: "Offline-first mode", description: nil)
-        let status = sut.changeIdeaStatus(id: IdeaID(rawValue: "I-1"), status: .deferred)
+        let update = sut.updateIdeaContent(id: ideaID, title: "Offline-first mode", description: nil)
+        let status = sut.changeIdeaStatus(id: ideaID, status: .deferred)
 
         assertExplicitFailureWithReason(update)
         assertExplicitFailureWithReason(status)
     }
 
-    func testScenario13_listIdeasForActiveProject_returnsOnlyActiveProjectIdeas() throws {
+    func testScenario13_listIdeasForActiveProject_returnsOnlyActiveProjectIdeas() {
         let sut = makeSUT()
         let alpha = ProjectID(rawValue: "P-1")
         let beta = ProjectID(rawValue: "P-2")
-        sut.seedIdea(projectID: alpha, id: IdeaID(rawValue: "I-1"), title: "Offline mode", description: nil, status: .new)
-        sut.seedIdea(projectID: beta, id: IdeaID(rawValue: "I-2"), title: "Telemetry export", description: nil, status: .new)
+        sut.selectActiveProject(id: alpha)
+        _ = sut.createIdea(title: "Offline mode", description: nil)
+        sut.selectActiveProject(id: beta)
+        _ = sut.createIdea(title: "Telemetry export", description: nil)
         sut.selectActiveProject(id: alpha)
 
         let list = sut.listIdeasForActiveProject()
@@ -173,7 +175,7 @@ final class IdeaRegistryBDDTests: XCTestCase {
         XCTAssertFalse(list.ideas.contains { $0.title == "Telemetry export" })
     }
 
-    func testScenario14_listIdeasWhenProjectHasNoIdeas_returnsExplicitEmptyList_withoutImplicitCreation() throws {
+    func testScenario14_listIdeasWhenProjectHasNoIdeas_returnsExplicitEmptyList_withoutImplicitCreation() {
         let sut = makeSUT()
         sut.selectActiveProject(id: ProjectID(rawValue: "P-1"))
 
@@ -199,10 +201,10 @@ final class IdeaRegistryBDDTests: XCTestCase {
         let sut = makeSUT()
         let alpha = ProjectID(rawValue: "P-1")
         let beta = ProjectID(rawValue: "P-2")
-        let betaIdea = IdeaID(rawValue: "I-2")
-
-        sut.seedIdea(projectID: alpha, id: IdeaID(rawValue: "I-1"), title: "Offline mode", description: nil, status: .new)
-        sut.seedIdea(projectID: beta, id: betaIdea, title: "Telemetry export", description: nil, status: .new)
+        sut.selectActiveProject(id: alpha)
+        _ = sut.createIdea(title: "Offline mode", description: nil)
+        sut.selectActiveProject(id: beta)
+        let betaIdea = try XCTUnwrap(sut.createIdea(title: "Telemetry export", description: nil).createdIdeaID)
         sut.selectActiveProject(id: alpha)
 
         let mutation = sut.updateIdeaContent(id: betaIdea, title: "Should Not Update", description: nil)
@@ -216,7 +218,7 @@ final class IdeaRegistryBDDTests: XCTestCase {
 
 private extension IdeaRegistryBDDTests {
     func makeSUT() -> any IdeaRegistryContract {
-        UnimplementedIdeaRegistry()
+        IdeaRegistryInMemory()
     }
 
     func assertExplicitFailureWithReason(
@@ -231,76 +233,4 @@ private extension IdeaRegistryBDDTests {
 
         XCTAssertFalse(reason.message.isEmpty, "Failure reason should be explicit and non-empty", file: file, line: line)
     }
-}
-
-// Temporary test-side placeholders for BDD -> tests step.
-// They should be extracted to App/Core/Domain during implementation.
-private protocol IdeaRegistryContract {
-    func selectActiveProject(id: ProjectID?)
-    func createIdea(title: String, description: String?) -> IdeaCreationResult
-    func updateIdeaContent(id: IdeaID, title: String, description: String?) -> RegistryOperationResult
-    func changeIdeaStatus(id: IdeaID, status: IdeaStatus) -> RegistryOperationResult
-    func changeIdeaStatusToInvalidValue(id: IdeaID, value: String) -> RegistryOperationResult
-    func listIdeasForActiveProject() -> IdeaListResult
-    func idea(by id: IdeaID) -> IdeaRecord?
-    func seedIdea(projectID: ProjectID, id: IdeaID, title: String, description: String?, status: IdeaStatus)
-}
-
-private struct IdeaID: Hashable, Equatable {
-    let rawValue: String
-}
-
-private enum IdeaStatus: Equatable {
-    case new
-    case selected
-    case deferred
-    case done
-}
-
-private struct IdeaRecord: Equatable {
-    let id: IdeaID
-    let projectID: ProjectID
-    let title: String
-    let description: String?
-    let status: IdeaStatus
-}
-
-private struct IdeaCreationResult: Equatable {
-    let result: RegistryOperationResult
-    let createdIdeaID: IdeaID?
-}
-
-private struct IdeaListResult: Equatable {
-    let result: RegistryOperationResult
-    let ideas: [IdeaRecord]
-}
-
-private final class UnimplementedIdeaRegistry: IdeaRegistryContract {
-    func selectActiveProject(id _: ProjectID?) {}
-
-    func createIdea(title _: String, description _: String?) -> IdeaCreationResult {
-        IdeaCreationResult(result: .failure(.init(message: "Idea registry not implemented yet.")), createdIdeaID: nil)
-    }
-
-    func updateIdeaContent(id _: IdeaID, title _: String, description _: String?) -> RegistryOperationResult {
-        .failure(.init(message: "Idea registry not implemented yet."))
-    }
-
-    func changeIdeaStatus(id _: IdeaID, status _: IdeaStatus) -> RegistryOperationResult {
-        .failure(.init(message: "Idea registry not implemented yet."))
-    }
-
-    func changeIdeaStatusToInvalidValue(id _: IdeaID, value _: String) -> RegistryOperationResult {
-        .failure(.init(message: "Idea registry not implemented yet."))
-    }
-
-    func listIdeasForActiveProject() -> IdeaListResult {
-        IdeaListResult(result: .failure(.init(message: "Idea registry not implemented yet.")), ideas: [])
-    }
-
-    func idea(by _: IdeaID) -> IdeaRecord? {
-        nil
-    }
-
-    func seedIdea(projectID _: ProjectID, id _: IdeaID, title _: String, description _: String?, status _: IdeaStatus) {}
 }
