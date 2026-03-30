@@ -7,6 +7,8 @@ struct ContentView: View {
     @State private var initializeGitRepository = true
 
     @State private var inspectPath = ""
+    @State private var activeProjectPathForPersistence = ""
+    @State private var activeStorageProfileForPersistence: StorageProfile = .fileAI
 
     @State private var lastBootstrapResult: ProjectBootstrapResult?
     @State private var lastInspectionResult: ProjectInspectionResult?
@@ -24,6 +26,7 @@ struct ContentView: View {
     @State private var lastTestsFromBDDResult: TestsFromBDDPromptResult?
     @State private var lastImplementationFromTestsResult: ImplementationFromTestsPromptResult?
     @State private var lastValidationFromImplementationResult: ValidationFromImplementationPromptResult?
+    @State private var lastPersistenceResult: GatePromptPersistenceResult?
 
     private let bootstrapService: any ProjectBootstrapContract = ProjectBootstrapFileSystem()
     private let ideaToFeaturesService: any IdeaToFeaturesFlowContract = IdeaToFeaturesFlowInMemory()
@@ -32,6 +35,7 @@ struct ContentView: View {
     private let bddToTestsService: any BDDToTestsFlowContract = BDDToTestsFlowInMemory()
     private let testsToImplementationService: any TestsToImplementationFlowContract = TestsToImplementationFlowInMemory()
     private let implementationToValidationService: any ImplementationToValidationFlowContract = ImplementationToValidationFlowInMemory()
+    private let gatePersistenceService: any GatePromptPersistenceContract = GatePromptPersistenceFileSystem()
 
     var body: some View {
         ScrollView {
@@ -95,7 +99,13 @@ struct ContentView: View {
                     storageProfile: selectedStorageProfile,
                     initializeGitRepository: initializeGitRepository
                 )
-                lastBootstrapResult = bootstrapService.bootstrapProject(input)
+                let result = bootstrapService.bootstrapProject(input)
+                lastBootstrapResult = result
+                if result.result.isSuccess, let path = result.projectPath {
+                    activeProjectPathForPersistence = path
+                    activeStorageProfileForPersistence = selectedStorageProfile
+                    inspectPath = path
+                }
             }
             .buttonStyle(.borderedProminent)
         }
@@ -144,7 +154,15 @@ struct ContentView: View {
                     glossary: true
                 )
 
-                lastFeaturesResult = ideaToFeaturesService.generateFeaturesPrompt(for: ideaID)
+                let result = ideaToFeaturesService.generateFeaturesPrompt(for: ideaID)
+                lastFeaturesResult = result
+                persistPromptIfPossible(
+                    operation: "IDEA -> FEATURES",
+                    gateResult: result.result,
+                    promptText: result.promptText,
+                    ideaID: result.ideaID,
+                    projectID: result.projectID
+                )
             }
             .buttonStyle(.borderedProminent)
         }
@@ -184,10 +202,18 @@ struct ContentView: View {
                     stackRules: true
                 )
 
-                lastPRDFromFeaturesResult = featuresToPRDService.generatePRDPrompt(
+                let result = featuresToPRDService.generatePRDPrompt(
                     for: ideaID,
                     ideaTitle: ideaTitle,
                     features: featuresResult.proposedFeatures
+                )
+                lastPRDFromFeaturesResult = result
+                persistPromptIfPossible(
+                    operation: "FEATURES -> PRD",
+                    gateResult: result.result,
+                    promptText: result.promptText,
+                    ideaID: result.ideaID,
+                    projectID: result.projectID
                 )
             }
             .buttonStyle(.borderedProminent)
@@ -238,10 +264,18 @@ struct ContentView: View {
                     stackRules: true
                 )
 
-                lastBDDFromPRDResult = prdToBDDService.generateBDDPrompt(
+                let result = prdToBDDService.generateBDDPrompt(
                     for: ideaID,
                     ideaTitle: ideaTitle,
                     prdDocument: finalPRDDocument
+                )
+                lastBDDFromPRDResult = result
+                persistPromptIfPossible(
+                    operation: "PRD -> BDD",
+                    gateResult: result.result,
+                    promptText: result.promptText,
+                    ideaID: result.ideaID,
+                    projectID: result.projectID
                 )
             }
             .buttonStyle(.borderedProminent)
@@ -292,10 +326,18 @@ struct ContentView: View {
                     stackRules: true
                 )
 
-                lastTestsFromBDDResult = bddToTestsService.generateTestsPrompt(
+                let result = bddToTestsService.generateTestsPrompt(
                     for: ideaID,
                     ideaTitle: ideaTitle,
                     bddDocument: finalBDDDoc
+                )
+                lastTestsFromBDDResult = result
+                persistPromptIfPossible(
+                    operation: "BDD -> TESTS",
+                    gateResult: result.result,
+                    promptText: result.promptText,
+                    ideaID: result.ideaID,
+                    projectID: result.projectID
                 )
             }
             .buttonStyle(.borderedProminent)
@@ -311,7 +353,14 @@ struct ContentView: View {
                 .textFieldStyle(.roundedBorder)
 
             Button("Inspect project") {
-                lastInspectionResult = bootstrapService.inspectProject(at: inspectPath)
+                let result = bootstrapService.inspectProject(at: inspectPath)
+                lastInspectionResult = result
+                if result.result.isSuccess {
+                    activeProjectPathForPersistence = result.projectPath
+                    if let storage = result.detectedStorageProfile {
+                        activeStorageProfileForPersistence = storage
+                    }
+                }
             }
             .buttonStyle(.bordered)
         }
@@ -368,10 +417,18 @@ private extension ContentView {
                     stackRules: true
                 )
 
-                lastImplementationFromTestsResult = testsToImplementationService.generateImplementationPrompt(
+                let result = testsToImplementationService.generateImplementationPrompt(
                     for: ideaID,
                     ideaTitle: ideaTitle,
                     testsDocument: finalTestsDoc
+                )
+                lastImplementationFromTestsResult = result
+                persistPromptIfPossible(
+                    operation: "TESTS -> IMPLEMENTATION",
+                    gateResult: result.result,
+                    promptText: result.promptText,
+                    ideaID: result.ideaID,
+                    projectID: result.projectID
                 )
             }
             .buttonStyle(.borderedProminent)
@@ -422,10 +479,18 @@ private extension ContentView {
                     stackRules: true
                 )
 
-                lastValidationFromImplementationResult = implementationToValidationService.generateValidationPrompt(
+                let result = implementationToValidationService.generateValidationPrompt(
                     for: ideaID,
                     ideaTitle: ideaTitle,
                     implementationDocument: finalImplementationDoc
+                )
+                lastValidationFromImplementationResult = result
+                persistPromptIfPossible(
+                    operation: "IMPLEMENTATION -> VALIDATION",
+                    gateResult: result.result,
+                    promptText: result.promptText,
+                    ideaID: result.ideaID,
+                    projectID: result.projectID
                 )
             }
             .buttonStyle(.borderedProminent)
@@ -531,7 +596,46 @@ private extension ContentView {
                         .textSelection(.enabled)
                 }
             }
+
+            if let persistence = lastPersistenceResult {
+                Text("Persistence: \(statusText(for: persistence.result))")
+                if let persistedPath = persistence.persistedPath {
+                    Text("Saved prompt: \(persistedPath)")
+                        .font(.footnote)
+                }
+            }
         }
+    }
+
+    func persistPromptIfPossible(
+        operation: String,
+        gateResult: RegistryOperationResult,
+        promptText: String,
+        ideaID: IdeaID?,
+        projectID: ProjectID?
+    ) {
+        guard gateResult.isSuccess else {
+            return
+        }
+
+        let activePath = activeProjectPathForPersistence.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !activePath.isEmpty else {
+            lastPersistenceResult = GatePromptPersistenceResult(
+                result: .failure(.init(message: "Persistence skipped: active project path is not set.")),
+                persistedPath: nil
+            )
+            return
+        }
+
+        let request = GatePromptPersistenceRequest(
+            projectPath: activePath,
+            storageProfile: activeStorageProfileForPersistence,
+            operation: operation,
+            ideaID: ideaID,
+            projectID: projectID,
+            promptText: promptText
+        )
+        lastPersistenceResult = gatePersistenceService.persistPrompt(request)
     }
 
     func statusText(for result: RegistryOperationResult) -> String {
