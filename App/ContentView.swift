@@ -15,14 +15,17 @@ struct ContentView: View {
     @State private var flowIdeaTitle = ""
     @State private var flowIdeaStatus: IdeaStatus = .selected
     @State private var prdDocumentText = ""
+    @State private var bddDocumentText = ""
     @State private var lastFeaturesResult: FeatureSetPromptGenerationResult?
     @State private var lastPRDFromFeaturesResult: PRDFromFeaturesPromptResult?
     @State private var lastBDDFromPRDResult: BDDFromPRDPromptResult?
+    @State private var lastTestsFromBDDResult: TestsFromBDDPromptResult?
 
     private let bootstrapService: any ProjectBootstrapContract = ProjectBootstrapFileSystem()
     private let ideaToFeaturesService: any IdeaToFeaturesFlowContract = IdeaToFeaturesFlowInMemory()
     private let featuresToPRDService: any FeaturesToPRDFlowContract = FeaturesToPRDFlowInMemory()
     private let prdToBDDService: any PRDToBDDFlowContract = PRDToBDDFlowInMemory()
+    private let bddToTestsService: any BDDToTestsFlowContract = BDDToTestsFlowInMemory()
 
     var body: some View {
         ScrollView {
@@ -39,6 +42,8 @@ struct ContentView: View {
                 featuresToPRDSection
                 Divider()
                 prdToBDDSection
+                Divider()
+                bddToTestsSection
                 Divider()
                 inspectProjectSection
                 Divider()
@@ -233,6 +238,60 @@ struct ContentView: View {
         }
     }
 
+    private var bddToTestsSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("BDD -> TESTY")
+                .font(.title2.bold())
+
+            Text("Gate operatora: budowa promptu testów na bazie zatwierdzonego dokumentu BDD.")
+                .foregroundStyle(.secondary)
+
+            TextEditor(text: $bddDocumentText)
+                .font(.footnote.monospaced())
+                .frame(minHeight: 140)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 8)
+                        .stroke(Color.secondary.opacity(0.25), lineWidth: 1)
+                )
+
+            Button("Generate BDD -> TESTS prompt") {
+                guard let bddResult = lastBDDFromPRDResult, bddResult.result.isSuccess else {
+                    lastTestsFromBDDResult = TestsFromBDDPromptResult(
+                        result: .failure(.init(message: "Run PRD -> BDD successfully before this step.")),
+                        promptText: "",
+                        promptFingerprint: "",
+                        includesMinimalContext: false,
+                        ideaID: nil,
+                        projectID: nil,
+                        bddLength: 0
+                    )
+                    return
+                }
+
+                let projectID = ProjectID(rawValue: flowProjectID.trimmingCharacters(in: .whitespacesAndNewlines))
+                let ideaID = IdeaID(rawValue: flowIdeaID.trimmingCharacters(in: .whitespacesAndNewlines))
+                let ideaTitle = flowIdeaTitle.trimmingCharacters(in: .whitespacesAndNewlines)
+                let candidateBDD = bddDocumentText.trimmingCharacters(in: .whitespacesAndNewlines)
+                let finalBDDDoc = candidateBDD.isEmpty ? bddResult.promptText : candidateBDD
+
+                bddToTestsService.selectActiveProject(id: projectID)
+                bddToTestsService.setContextAvailability(
+                    overview: true,
+                    constraints: true,
+                    glossary: true,
+                    stackRules: true
+                )
+
+                lastTestsFromBDDResult = bddToTestsService.generateTestsPrompt(
+                    for: ideaID,
+                    ideaTitle: ideaTitle,
+                    bddDocument: finalBDDDoc
+                )
+            }
+            .buttonStyle(.borderedProminent)
+        }
+    }
+
     private var inspectProjectSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Otwórz istniejący projekt")
@@ -310,6 +369,17 @@ struct ContentView: View {
                     .font(.footnote)
                 if !bdd.promptText.isEmpty {
                     Text(bdd.promptText)
+                        .font(.footnote.monospaced())
+                        .textSelection(.enabled)
+                }
+            }
+
+            if let tests = lastTestsFromBDDResult {
+                Text("BDD -> TESTS: \(statusText(for: tests.result))")
+                Text("BDD length: \(tests.bddLength)")
+                    .font(.footnote)
+                if !tests.promptText.isEmpty {
+                    Text(tests.promptText)
                         .font(.footnote.monospaced())
                         .textSelection(.enabled)
                 }
