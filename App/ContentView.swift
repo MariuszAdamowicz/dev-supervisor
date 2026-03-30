@@ -16,16 +16,19 @@ struct ContentView: View {
     @State private var flowIdeaStatus: IdeaStatus = .selected
     @State private var prdDocumentText = ""
     @State private var bddDocumentText = ""
+    @State private var testsDocumentText = ""
     @State private var lastFeaturesResult: FeatureSetPromptGenerationResult?
     @State private var lastPRDFromFeaturesResult: PRDFromFeaturesPromptResult?
     @State private var lastBDDFromPRDResult: BDDFromPRDPromptResult?
     @State private var lastTestsFromBDDResult: TestsFromBDDPromptResult?
+    @State private var lastImplementationFromTestsResult: ImplementationFromTestsPromptResult?
 
     private let bootstrapService: any ProjectBootstrapContract = ProjectBootstrapFileSystem()
     private let ideaToFeaturesService: any IdeaToFeaturesFlowContract = IdeaToFeaturesFlowInMemory()
     private let featuresToPRDService: any FeaturesToPRDFlowContract = FeaturesToPRDFlowInMemory()
     private let prdToBDDService: any PRDToBDDFlowContract = PRDToBDDFlowInMemory()
     private let bddToTestsService: any BDDToTestsFlowContract = BDDToTestsFlowInMemory()
+    private let testsToImplementationService: any TestsToImplementationFlowContract = TestsToImplementationFlowInMemory()
 
     var body: some View {
         ScrollView {
@@ -44,6 +47,8 @@ struct ContentView: View {
                 prdToBDDSection
                 Divider()
                 bddToTestsSection
+                Divider()
+                testsToImplementationSection
                 Divider()
                 inspectProjectSection
                 Divider()
@@ -307,7 +312,68 @@ struct ContentView: View {
         }
     }
 
-    private var statusSection: some View {
+    private func defaultProjectsRootPath() -> String {
+        let home = FileManager.default.homeDirectoryForCurrentUser.path
+        return "\(home)/Projects"
+    }
+}
+
+private extension ContentView {
+    var testsToImplementationSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("TESTY -> IMPLEMENTACJA")
+                .font(.title2.bold())
+
+            Text("Gate operatora: budowa promptu implementacji na bazie zatwierdzonego dokumentu testów.")
+                .foregroundStyle(.secondary)
+
+            TextEditor(text: $testsDocumentText)
+                .font(.footnote.monospaced())
+                .frame(minHeight: 140)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 8)
+                        .stroke(Color.secondary.opacity(0.25), lineWidth: 1)
+                )
+
+            Button("Generate TESTS -> IMPLEMENTATION prompt") {
+                guard let testsResult = lastTestsFromBDDResult, testsResult.result.isSuccess else {
+                    lastImplementationFromTestsResult = ImplementationFromTestsPromptResult(
+                        result: .failure(.init(message: "Run BDD -> TESTS successfully before this step.")),
+                        promptText: "",
+                        promptFingerprint: "",
+                        includesMinimalContext: false,
+                        ideaID: nil,
+                        projectID: nil,
+                        testsLength: 0
+                    )
+                    return
+                }
+
+                let projectID = ProjectID(rawValue: flowProjectID.trimmingCharacters(in: .whitespacesAndNewlines))
+                let ideaID = IdeaID(rawValue: flowIdeaID.trimmingCharacters(in: .whitespacesAndNewlines))
+                let ideaTitle = flowIdeaTitle.trimmingCharacters(in: .whitespacesAndNewlines)
+                let candidateTests = testsDocumentText.trimmingCharacters(in: .whitespacesAndNewlines)
+                let finalTestsDoc = candidateTests.isEmpty ? testsResult.promptText : candidateTests
+
+                testsToImplementationService.selectActiveProject(id: projectID)
+                testsToImplementationService.setContextAvailability(
+                    overview: true,
+                    constraints: true,
+                    glossary: true,
+                    stackRules: true
+                )
+
+                lastImplementationFromTestsResult = testsToImplementationService.generateImplementationPrompt(
+                    for: ideaID,
+                    ideaTitle: ideaTitle,
+                    testsDocument: finalTestsDoc
+                )
+            }
+            .buttonStyle(.borderedProminent)
+        }
+    }
+
+    var statusSection: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Status")
                 .font(.title2.bold())
@@ -384,21 +450,27 @@ struct ContentView: View {
                         .textSelection(.enabled)
                 }
             }
+
+            if let implementation = lastImplementationFromTestsResult {
+                Text("TESTS -> IMPLEMENTATION: \(statusText(for: implementation.result))")
+                Text("Tests length: \(implementation.testsLength)")
+                    .font(.footnote)
+                if !implementation.promptText.isEmpty {
+                    Text(implementation.promptText)
+                        .font(.footnote.monospaced())
+                        .textSelection(.enabled)
+                }
+            }
         }
     }
 
-    private func statusText(for result: RegistryOperationResult) -> String {
+    func statusText(for result: RegistryOperationResult) -> String {
         switch result {
         case .success:
             return "success"
         case let .failure(reason):
             return "failure (\(reason.message))"
         }
-    }
-
-    private func defaultProjectsRootPath() -> String {
-        let home = FileManager.default.homeDirectoryForCurrentUser.path
-        return "\(home)/Projects"
     }
 }
 
