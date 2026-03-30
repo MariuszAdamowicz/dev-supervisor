@@ -1,53 +1,53 @@
-# Traceability
+# Śledzalność
 
-- Rule: A project must have a non-empty name and a non-empty local path/reference.
-  - Covered by: Scenario 3 "Reject registration with missing required fields"
+- Reguła: Projekt musi mieć niepustą nazwę i niepustą lokalną ścieżkę/odniesienie.
+  - Pokryte przez: Scenariusz 3 "Odrzucenie rejestracji z brakującymi wymaganymi polami"
 
-- Rule: Each project must be uniquely identifiable in the registry.
-  - Covered by: Scenario 1 "Register a valid project"
-  - Covered by: Scenario 2 "Register multiple projects concurrently"
+- Reguła: Każdy projekt musi być jednoznacznie identyfikowalny w rejestrze.
+  - Pokryte przez: Scenariusz 1 "Rejestracja poprawnego projektu"
+  - Pokryte przez: Scenariusz 2 "Rejestracja wielu projektów równolegle"
 
-- Rule: Two active project records must not point to the same local path/reference.
-  - Covered by: Scenario 4 "Reject duplicate active path/reference"
-  - Covered by: Scenario 20 "Reject update that introduces duplicate active path/reference"
-  - Covered by: Scenario 23 "Reject reactivation when local path/reference conflicts with another active project"
+- Reguła: Dwa aktywne rekordy projektów nie mogą wskazywać tej samej lokalnej ścieżki/odniesienia.
+  - Pokryte przez: Scenariusz 4 "Odrzucenie zduplikowanej aktywnej ścieżki/odniesienia"
+  - Pokryte przez: Scenariusz 20 "Odrzucenie aktualizacji wprowadzającej zduplikowaną aktywną ścieżkę/odniesienie"
+  - Pokryte przez: Scenariusz 23 "Odrzucenie reaktywacji, gdy ścieżka/odniesienie koliduje z innym aktywnym projektem"
 
-- Rule: Project registration and updates must be operator-initiated; no implicit project creation.
-  - Covered by: Scenario 1 "Register a valid project"
-  - Covered by: Scenario 5 "Update project metadata by explicit operator action"
-  - Covered by: Scenario 15 "List behavior when no projects exist"
+- Reguła: Rejestracja i aktualizacje projektu muszą być inicjowane przez operatora; brak niejawnego tworzenia projektu.
+  - Pokryte przez: Scenariusz 1 "Rejestracja poprawnego projektu"
+  - Pokryte przez: Scenariusz 5 "Aktualizacja metadanych projektu przez jawne działanie operatora"
+  - Pokryte przez: Scenariusz 15 "Zachowanie listy, gdy nie istnieją żadne projekty"
 
-- Rule: Project data must remain isolated from other projects' ideas, features, progress and metadata.
-  - Covered by: Scenario 14 "Project isolation across supervised data"
+- Reguła: Dane projektu muszą pozostać odizolowane od idei, funkcji, postępu i metadanych innych projektów.
+  - Pokryte przez: Scenariusz 14 "Izolacja projektu w nadzorowanych danych"
 
-- Rule: Archive/reactivate operations must preserve project history and identity.
-  - Covered by: Scenario 7 "Archive project preserves identity and history"
-  - Covered by: Scenario 8 "Reactivate archived project preserves identity and history"
+- Reguła: Operacje archiwizacji/reaktywacji muszą zachowywać historię i tożsamość projektu.
+  - Pokryte przez: Scenariusz 7 "Archiwizacja projektu zachowuje tożsamość i historię"
+  - Pokryte przez: Scenariusz 8 "Reaktywacja zarchiwizowanego projektu zachowuje tożsamość i historię"
 
-- Rule: The registry must support multiple projects concurrently.
-  - Covered by: Scenario 2 "Register multiple projects concurrently"
-  - Covered by: Scenario 22 "List includes active and archived projects together"
+- Reguła: Rejestr musi wspierać wiele projektów jednocześnie.
+  - Pokryte przez: Scenariusz 2 "Rejestracja wielu projektów równolegle"
+  - Pokryte przez: Scenariusz 22 "Lista zawiera razem projekty aktywne i zarchiwizowane"
 
-- Rule: State changes must be explicit and traceable; silent failures are not allowed.
-  - Covered by: Scenario 3 "Reject registration with missing required fields"
-  - Covered by: Scenario 4 "Reject duplicate active path/reference"
-  - Covered by: Scenario 6 "Reject update for non-existent project"
-  - Covered by: Scenario 9 "Reject archive of an already archived project"
-  - Covered by: Scenario 10 "Reject reactivation of an already active project"
-  - Covered by: Scenario 16 "Reject archive for non-existent project"
-  - Covered by: Scenario 17 "Explicit failure when registered path/reference is unavailable"
-  - Covered by: Scenario 18 "Reject selection of non-existent project"
-  - Covered by: Scenario 19 "Reject selection of archived project"
-  - Covered by: Scenario 20 "Reject update that introduces duplicate active path/reference"
-  - Covered by: Scenario 23 "Reject reactivation when local path/reference conflicts with another active project"
+- Reguła: Zmiany stanu muszą być jawne i śledzalne; ciche błędy są niedozwolone.
+  - Pokryte przez: Scenariusz 3 "Odrzucenie rejestracji z brakującymi wymaganymi polami"
+  - Pokryte przez: Scenariusz 4 "Odrzucenie zduplikowanej aktywnej ścieżki/odniesienia"
+  - Pokryte przez: Scenariusz 6 "Odrzucenie aktualizacji dla nieistniejącego projektu"
+  - Pokryte przez: Scenariusz 9 "Odrzucenie archiwizacji już zarchiwizowanego projektu"
+  - Pokryte przez: Scenariusz 10 "Odrzucenie reaktywacji już aktywnego projektu"
+  - Pokryte przez: Scenariusz 16 "Odrzucenie archiwizacji dla nieistniejącego projektu"
+  - Pokryte przez: Scenariusz 17 "Jawna porażka, gdy zarejestrowana ścieżka/odniesienie jest niedostępna"
+  - Pokryte przez: Scenariusz 18 "Odrzucenie wyboru nieistniejącego projektu"
+  - Pokryte przez: Scenariusz 19 "Odrzucenie wyboru zarchiwizowanego projektu"
+  - Pokryte przez: Scenariusz 20 "Odrzucenie aktualizacji wprowadzającej zduplikowaną aktywną ścieżkę/odniesienie"
+  - Pokryte przez: Scenariusz 23 "Odrzucenie reaktywacji, gdy ścieżka/odniesienie koliduje z innym aktywnym projektem"
 
-- Rule: Exactly one project can be selected as the active working project at a time.
-  - Covered by: Scenario 11 "Select one active working project explicitly"
-  - Covered by: Scenario 12 "Replace active working project selection"
+- Reguła: Dokładnie jeden projekt może być wybrany jako aktywny projekt roboczy w danym momencie.
+  - Pokryte przez: Scenariusz 11 "Jawny wybór jednego aktywnego projektu roboczego"
+  - Pokryte przez: Scenariusz 12 "Zamiana wyboru aktywnego projektu roboczego"
 
-- Rule: The active project must be explicitly set by the operator.
-  - Covered by: Scenario 11 "Select one active working project explicitly"
-  - Covered by: Scenario 12 "Replace active working project selection"
+- Reguła: Aktywny projekt musi być jawnie ustawiony przez operatora.
+  - Pokryte przez: Scenariusz 11 "Jawny wybór jednego aktywnego projektu roboczego"
+  - Pokryte przez: Scenariusz 12 "Zamiana wyboru aktywnego projektu roboczego"
 
-- Rule: If no project is selected, feature-level operations must be blocked or return explicit error.
-  - Covered by: Scenario 13 "Block feature-level operations when no project is selected"
+- Reguła: Jeśli żaden projekt nie jest wybrany, operacje na poziomie funkcji muszą być blokowane lub zwracać jawny błąd.
+  - Pokryte przez: Scenariusz 13 "Blokowanie operacji na poziomie funkcji, gdy nie wybrano projektu"

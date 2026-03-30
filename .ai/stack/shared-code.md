@@ -1,11 +1,10 @@
-# Shared Code Rules
+# Reguły Kodu Współdzielonego
 
 ## Domain
-Shared business types and DTOs.
+Współdzielone typy biznesowe i DTO.
 
 ## Shared
-Reusable helpers and common validation logic.
+Wielokrotnego użytku helpery i wspólna logika walidacji.
 
-## Extraction Rule
-When the second similar implementation appears, propose extraction.
-
+## Reguła Ekstrakcji
+Gdy pojawia się druga podobna implementacja, zaproponuj ekstrakcję.

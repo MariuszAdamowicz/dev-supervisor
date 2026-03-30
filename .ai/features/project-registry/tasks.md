@@ -1,18 +1,18 @@
-# Project Registry — Task Status
+# Rejestr Projektów — Status Zadań
 
-Date: 2026-03-29
+Data: 2026-03-29
 
-- [x] finalize PRD scope and rules
-- [x] generate and refine BDD scenarios
-- [x] implement in-memory project registry contract
-- [x] add executable BDD-aligned tests
-- [x] run validation loop (`build`, `test`, `lint`)
-- [x] run consistency check PRD <-> BDD <-> tests
-- [x] sync BDD with scenarios 21, 22, 23
-- [x] add test coverage for Scenario 23 (reactivation path conflict)
-- [x] create traceability mapping (rules -> scenarios)
-- [x] close feature artifacts (`notes.md`, `tasks.md`, `traceability.md`)
+- [x] domknięcie zakresu i reguł PRD
+- [x] wygenerowanie i doprecyzowanie scenariuszy BDD
+- [x] implementacja kontraktu rejestru projektów in-memory
+- [x] dodanie wykonywalnych testów zgodnych z BDD
+- [x] uruchomienie pętli walidacyjnej (`build`, `test`, `lint`)
+- [x] wykonanie kontroli spójności PRD <-> BDD <-> testy
+- [x] synchronizacja BDD ze scenariuszami 21, 22, 23
+- [x] dodanie pokrycia testowego dla Scenariusza 23 (konflikt ścieżki przy reaktywacji)
+- [x] utworzenie mapowania traceability (reguły -> scenariusze)
+- [x] domknięcie artefaktów funkcji (`notes.md`, `tasks.md`, `traceability.md`)
 
-## Deferred / Next
-- [ ] persistence-backed registry implementation (out of scope for current feature batch)
-- [ ] UI integration with project-registry workflows (out of scope for current feature batch)
+## Odroczone / Następne
+- [ ] implementacja rejestru opartego o persystencję (poza zakresem bieżącej partii funkcji)
+- [ ] integracja UI z workflow `project-registry` (poza zakresem bieżącej partii funkcji)

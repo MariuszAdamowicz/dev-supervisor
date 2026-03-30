@@ -1,197 +1,197 @@
-# Glossary
+# Słownik
 
-## Project
+## Projekt
 
-A supervised software project managed by Dev Supervisor.
+Nadzorowany projekt programistyczny zarządzany przez Dev Supervisor.
 
-A project consists of:
-- ideas
-- features
-- specifications (PRD, BDD)
-- validation state
-- progress tracking
+Projekt składa się z:
+- idei
+- funkcji
+- specyfikacji (PRD, BDD)
+- stanu walidacji
+- śledzenia postępu
 
-A project is typically mapped to a local repository but is not limited to it.
+Projekt jest zazwyczaj mapowany na lokalne repozytorium, ale nie jest do niego ograniczony.
 
 ---
 
 ## Idea
 
-A raw, unstructured concept or potential feature.
+Surowa, nieustrukturyzowana koncepcja lub potencjalna funkcja.
 
-Characteristics:
-- not yet specified
-- not committed to implementation
-- stored in ideas.md
-- can be promoted to a feature
+Charakterystyka:
+- jeszcze niesprecyzowana
+- niezatwierdzona do implementacji
+- przechowywana w `ideas.md`
+- może zostać awansowana do funkcji
 
 ---
 
-## Feature
+## Funkcja
 
-A defined unit of functionality with a clear responsibility.
+Zdefiniowana jednostka funkcjonalności z jasną odpowiedzialnością.
 
-Characteristics:
-- has its own specification (PRD)
-- has defined behavior (BDD)
-- has associated tests
-- follows a lifecycle from idea to implementation
+Charakterystyka:
+- ma własną specyfikację (PRD)
+- ma zdefiniowane zachowanie (BDD)
+- ma powiązane testy
+- przechodzi cykl życia od idei do implementacji
 
 ---
 
 ## PRD (Product Requirements Document)
 
-A structured description of what a feature or system must do.
+Ustrukturyzowany opis tego, co funkcja lub system musi robić.
 
-Contains:
-- goal
-- inputs
-- outputs
-- rules
-- constraints
-- edge cases
+Zawiera:
+- cel
+- wejścia
+- wyjścia
+- reguły
+- ograniczenia
+- przypadki brzegowe
 
-PRD defines the contract but does not enforce behavior.
+PRD definiuje kontrakt, ale nie egzekwuje zachowania.
 
 ---
 
 ## BDD (Behavior Driven Development)
 
-A set of scenarios describing how the system should behave.
+Zestaw scenariuszy opisujących, jak system powinien się zachowywać.
 
-Characteristics:
-- written as scenarios
-- covers happy path, edge cases and failures
-- used as a base for test generation
+Charakterystyka:
+- zapisany jako scenariusze
+- obejmuje happy path, przypadki brzegowe i porażki
+- używany jako podstawa do generowania testów
 
-BDD defines expected behavior.
+BDD definiuje oczekiwane zachowanie.
 
 ---
 
 ## Test
 
-Executable verification of system behavior.
+Wykonywalna weryfikacja zachowania systemu.
 
-Characteristics:
-- derived from BDD scenarios
-- enforce correctness
-- prevent regressions
+Charakterystyka:
+- wywodzona ze scenariuszy BDD
+- egzekwuje poprawność
+- zapobiega regresjom
 
-Tests are the final source of truth for behavior.
+Testy są ostatecznym źródłem prawdy dla zachowania.
 
 ---
 
-## Traceability
+## Śledzalność
 
-The relationship between:
-- PRD rules
-- BDD scenarios
-- tests
+Relacja między:
+- regułami PRD
+- scenariuszami BDD
+- testami
 
-Purpose:
-- ensure coverage
-- detect gaps
-- maintain consistency
+Cel:
+- zapewnić pokrycie
+- wykrywać luki
+- utrzymywać spójność
 
 ---
 
 ## Prompt
 
-A structured instruction used to guide AI-assisted development.
+Ustrukturyzowana instrukcja używana do prowadzenia rozwoju wspomaganego AI.
 
-Types:
-- planning
-- PRD generation
-- BDD generation
-- test generation
-- implementation
-- debugging
-- refactoring
+Typy:
+- planowanie
+- generowanie PRD
+- generowanie BDD
+- generowanie testów
+- implementacja
+- debugowanie
+- refaktoryzacja
 
-Prompts are deterministic and context-aware.
-
----
-
-## Prompt Template
-
-A reusable structure for generating prompts.
-
-Stored outside or alongside project files.
+Prompty są deterministyczne i świadome kontekstu.
 
 ---
 
-## Validation
+## Szablon Promptu
 
-The process of verifying system correctness using:
+Wielokrotnego użytku struktura do generowania promptów.
+
+Przechowywana poza plikami projektu lub obok nich.
+
+---
+
+## Walidacja
+
+Proces weryfikacji poprawności systemu przy użyciu:
 - build
-- tests
+- testów
 - lint
 
-Validation determines readiness of a feature or project.
+Walidacja określa gotowość funkcji lub projektu.
 
 ---
 
-## Feature Lifecycle
+## Cykl życia funkcji
 
-The sequence of steps a feature follows:
+Sekwencja kroków, przez które przechodzi funkcja:
 
-idea → PRD → BDD → tests → implementation → validation → stabilization
+idea → PRD → BDD → testy → implementacja → walidacja → stabilizacja
 
 ---
 
-## Stabilization
+## Stabilizacja
 
-The process of:
-- cleaning up code
-- removing dead logic
-- aligning implementation with specification
-- updating documentation
+Proces:
+- porządkowania kodu
+- usuwania martwej logiki
+- wyrównywania implementacji ze specyfikacją
+- aktualizacji dokumentacji
 
 ---
 
 ## Operator
 
-The human user of Dev Supervisor.
+Człowiek używający Dev Supervisor.
 
-Responsibilities:
-- making decisions
-- executing prompts
-- supervising the workflow
+Odpowiedzialności:
+- podejmowanie decyzji
+- wykonywanie promptów
+- nadzorowanie workflow
 
 ---
 
 ## Supervisor
 
-Dev Supervisor itself.
+Sam Dev Supervisor.
 
-Responsibilities:
-- structuring the process
-- generating prompts
-- tracking state
-- maintaining traceability
+Odpowiedzialności:
+- strukturyzowanie procesu
+- generowanie promptów
+- śledzenie stanu
+- utrzymywanie śledzalności
 
-Does NOT:
-- execute code
-- replace developer judgment
-
----
-
-## Context
-
-The set of information provided to AI at a given step.
-
-Principles:
-- minimal
-- relevant
-- feature-scoped
+NIE:
+- wykonuje kodu
+- zastępuje osądu dewelopera
 
 ---
 
-## Shared Code
+## Kontekst
 
-Code reused across multiple features.
+Zestaw informacji przekazanych do AI w danym kroku.
 
-Located in:
+Zasady:
+- minimalny
+- istotny
+- ograniczony do funkcji
+
+---
+
+## Kod Współdzielony
+
+Kod używany ponownie przez wiele funkcji.
+
+Zlokalizowany w:
 - Core/Domain
 - Core/Shared
 - Core/Providers
@@ -199,10 +199,9 @@ Located in:
 
 ---
 
-## Extraction
+## Ekstrakcja
 
-The process of moving duplicated or reusable logic into shared modules.
+Proces przenoszenia zduplikowanej lub wielokrotnego użytku logiki do modułów współdzielonych.
 
-Triggered when:
-- similar logic appears more than once
-
+Uruchamiany, gdy:
+- podobna logika pojawi się więcej niż raz

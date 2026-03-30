@@ -1,5 +1,4 @@
-- Follow playbook rules
-- Work on one feature at a time
-- Do not modify unrelated files
-- Keep tests aligned with BDD
-
+- Przestrzegaj zasad playbooka
+- Pracuj nad jedną funkcją naraz
+- Nie modyfikuj niepowiązanych plików
+- Utrzymuj testy zgodne z BDD

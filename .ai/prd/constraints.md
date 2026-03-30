@@ -1,121 +1,121 @@
-# Constraints
+# Ograniczenia
 
-## Platform
+## Platforma
 
-- macOS only (initial phase)
-- Desktop application (window-based UI)
-- No web UI
-- No Electron
-- No browser-based primary interface
-
----
-
-## Language and Framework
-
-- Swift as primary language
-- SwiftUI for UI layer
-- Native Apple frameworks preferred
+- tylko macOS (faza początkowa)
+- aplikacja desktopowa (interfejs okienkowy)
+- brak web UI
+- brak Electron
+- brak interfejsu głównego opartego o przeglądarkę
 
 ---
 
-## Architecture
+## Język i Framework
 
-- Prefer simple modular monolith in initial phase
-- Clear separation between:
+- Swift jako główny język
+- SwiftUI dla warstwy UI
+- preferowane natywne frameworki Apple
+
+---
+
+## Architektura
+
+- w fazie początkowej preferowany prosty modularny monolit
+- jasna separacja między:
   - UI (App/)
-  - Domain logic (Core/)
-  - Integrations (Services/)
-- Avoid over-engineering (no microservices, no distributed systems)
+  - logiką domenową (Core/)
+  - integracjami (Services/)
+- unikać over-engineeringu (brak mikroserwisów, brak systemów rozproszonych)
 
 ---
 
-## Tool Agnosticism
+## Niezależność od narzędzi
 
-- The system must not depend on any specific:
-  - AI provider
-  - CLI tool
-  - programming language used in supervised projects
+- System nie może zależeć od żadnego konkretnego:
+  - dostawcy AI
+  - narzędzia CLI
+  - języka programowania używanego w nadzorowanych projektach
 
-- The application supervises process, not execution engine
-
----
-
-## AI Interaction Model
-
-- The application must NOT automatically execute prompts
-- Prompts are generated and presented to the operator
-- The operator is responsible for execution
+- Aplikacja nadzoruje proces, a nie silnik wykonawczy
 
 ---
 
-## Storage
+## Model interakcji z AI
 
-- Local database is required
-- No cloud dependency in initial phase
-- Database stores:
-  - project metadata
-  - feature state
-  - progress tracking
-  - traceability references
+- Aplikacja NIE może automatycznie wykonywać promptów
+- Prompty są generowane i prezentowane operatorowi
+- Operator odpowiada za wykonanie
 
-- Project files remain the source of truth for:
+---
+
+## Przechowywanie danych
+
+- Lokalna baza danych jest wymagana
+- Brak zależności od chmury w fazie początkowej
+- Baza przechowuje:
+  - metadane projektu
+  - stan funkcji
+  - śledzenie postępu
+  - odniesienia śledzalności
+
+- Pliki projektu pozostają źródłem prawdy dla:
   - PRD
   - BDD
-  - feature specifications
+  - specyfikacji funkcji
 
 ---
 
-## Project Scope
+## Zakres projektu
 
-- Support multiple projects
-- Each project is isolated in terms of:
-  - ideas
-  - features
-  - progress
-  - metadata
+- Obsługa wielu projektów
+- Każdy projekt jest odizolowany pod względem:
+  - idei
+  - funkcji
+  - postępu
+  - metadanych
 
 ---
 
-## Validation
+## Walidacja
 
-- Every feature must be verifiable through:
+- Każda funkcja musi być weryfikowalna przez:
   - build
-  - tests
+  - testy
   - lint
 
-- The system must track validation state but does not execute it automatically
+- System musi śledzić stan walidacji, ale nie wykonuje jej automatycznie
 
 ---
 
-## Prompt System
+## System Promptów
 
-- Prompt templates may be stored outside project files
-- Prompts must be:
-  - deterministic
-  - structured
-  - minimal in context
-
----
-
-## Quality Rules
-
-- No silent failures
-- No hidden state changes
-- No implicit behavior without traceability
-
-- Prefer explicit models over dynamic structures
-- Prefer clarity over cleverness
+- Szablony promptów mogą być przechowywane poza plikami projektu
+- Prompty muszą być:
+  - deterministyczne
+  - ustrukturyzowane
+  - minimalne kontekstowo
 
 ---
 
-## Evolution Constraints
+## Reguły jakości
 
-- New capabilities must not break:
-  - existing feature workflows
-  - traceability model
-  - minimal context principle
+- Brak cichych błędów
+- Brak ukrytych zmian stanu
+- Brak niejawnych zachowań bez śledzalności
 
-- Changes to workflow must be reflected in:
+- Preferuj jawne modele zamiast struktur dynamicznych
+- Preferuj klarowność zamiast sprytu
+
+---
+
+## Ograniczenia ewolucji
+
+- Nowe możliwości nie mogą psuć:
+  - istniejących workflowów funkcji
+  - modelu śledzalności
+  - zasady minimalnego kontekstu
+
+- Zmiany workflow muszą być odzwierciedlone w:
   - PRD
   - BDD
-  - tests
+  - testach
