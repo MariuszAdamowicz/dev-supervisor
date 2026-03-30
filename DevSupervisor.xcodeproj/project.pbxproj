@@ -27,7 +27,7 @@
 		627324022F78A55800BBCEAD /* DevSupervisor.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DevSupervisor.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		6273240F2F78A55B00BBCEAD /* DevSupervisorTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DevSupervisorTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		627324192F78A55B00BBCEAD /* DevSupervisorUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DevSupervisorUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		6273244B2F7967DB00BBCEAD /* DevSupervisor.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = file; path = DevSupervisor.xctestplan; sourceTree = "<group>"; };
+		6273244B2F7967DB00BBCEAD /* DevSupervisor.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = DevSupervisor.xctestplan; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
