@@ -10,8 +10,14 @@ struct ContentView: View {
 
     @State private var lastBootstrapResult: ProjectBootstrapResult?
     @State private var lastInspectionResult: ProjectInspectionResult?
+    @State private var flowProjectID = "P-1"
+    @State private var flowIdeaID = "I-1"
+    @State private var flowIdeaTitle = ""
+    @State private var flowIdeaStatus: IdeaStatus = .selected
+    @State private var lastFeaturesResult: FeatureSetPromptGenerationResult?
 
     private let bootstrapService: any ProjectBootstrapContract = ProjectBootstrapFileSystem()
+    private let ideaToFeaturesService: any IdeaToFeaturesFlowContract = IdeaToFeaturesFlowInMemory()
 
     var body: some View {
         ScrollView {
@@ -22,6 +28,8 @@ struct ContentView: View {
                     .foregroundStyle(.secondary)
 
                 newProjectSection
+                Divider()
+                ideaToFeaturesSection
                 Divider()
                 inspectProjectSection
                 Divider()
@@ -64,6 +72,55 @@ struct ContentView: View {
                     initializeGitRepository: initializeGitRepository
                 )
                 lastBootstrapResult = bootstrapService.bootstrapProject(input)
+            }
+            .buttonStyle(.borderedProminent)
+        }
+    }
+
+    private var ideaToFeaturesSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("IDEA -> FEATURES")
+                .font(.title2.bold())
+
+            Text("Gate operatora: materializacja wybranej idei do zestawu funkcjonalności przed PRD.")
+                .foregroundStyle(.secondary)
+
+            TextField("Project ID", text: $flowProjectID)
+                .textFieldStyle(.roundedBorder)
+
+            TextField("Idea ID", text: $flowIdeaID)
+                .textFieldStyle(.roundedBorder)
+
+            TextField("Idea title", text: $flowIdeaTitle)
+                .textFieldStyle(.roundedBorder)
+
+            Picker("Idea status", selection: $flowIdeaStatus) {
+                Text("new").tag(IdeaStatus.new)
+                Text("selected").tag(IdeaStatus.selected)
+                Text("deferred").tag(IdeaStatus.deferred)
+                Text("done").tag(IdeaStatus.done)
+            }
+            .pickerStyle(.segmented)
+
+            Button("Generate IDEA -> FEATURES prompt") {
+                let projectID = ProjectID(rawValue: flowProjectID.trimmingCharacters(in: .whitespacesAndNewlines))
+                let ideaID = IdeaID(rawValue: flowIdeaID.trimmingCharacters(in: .whitespacesAndNewlines))
+                let ideaTitle = flowIdeaTitle.trimmingCharacters(in: .whitespacesAndNewlines)
+
+                ideaToFeaturesService.selectActiveProject(id: projectID)
+                ideaToFeaturesService.seedIdea(
+                    id: ideaID,
+                    projectID: projectID,
+                    title: ideaTitle,
+                    status: flowIdeaStatus
+                )
+                ideaToFeaturesService.setContextAvailability(
+                    overview: true,
+                    constraints: true,
+                    glossary: true
+                )
+
+                lastFeaturesResult = ideaToFeaturesService.generateFeaturesPrompt(for: ideaID)
             }
             .buttonStyle(.borderedProminent)
         }
@@ -116,6 +173,17 @@ struct ContentView: View {
                     .font(.footnote)
                 Text("Storage: \(inspection.detectedStorageProfile?.rawValue ?? "unknown")")
                     .font(.footnote)
+            }
+
+            if let features = lastFeaturesResult {
+                Text("IDEA -> FEATURES: \(statusText(for: features.result))")
+                Text("Candidates: \(features.proposedFeatures.count)")
+                    .font(.footnote)
+                if !features.promptText.isEmpty {
+                    Text(features.promptText)
+                        .font(.footnote.monospaced())
+                        .textSelection(.enabled)
+                }
             }
         }
     }
