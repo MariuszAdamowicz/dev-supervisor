@@ -14,12 +14,15 @@ struct ContentView: View {
     @State private var flowIdeaID = "I-1"
     @State private var flowIdeaTitle = ""
     @State private var flowIdeaStatus: IdeaStatus = .selected
+    @State private var prdDocumentText = ""
     @State private var lastFeaturesResult: FeatureSetPromptGenerationResult?
     @State private var lastPRDFromFeaturesResult: PRDFromFeaturesPromptResult?
+    @State private var lastBDDFromPRDResult: BDDFromPRDPromptResult?
 
     private let bootstrapService: any ProjectBootstrapContract = ProjectBootstrapFileSystem()
     private let ideaToFeaturesService: any IdeaToFeaturesFlowContract = IdeaToFeaturesFlowInMemory()
     private let featuresToPRDService: any FeaturesToPRDFlowContract = FeaturesToPRDFlowInMemory()
+    private let prdToBDDService: any PRDToBDDFlowContract = PRDToBDDFlowInMemory()
 
     var body: some View {
         ScrollView {
@@ -34,6 +37,8 @@ struct ContentView: View {
                 ideaToFeaturesSection
                 Divider()
                 featuresToPRDSection
+                Divider()
+                prdToBDDSection
                 Divider()
                 inspectProjectSection
                 Divider()
@@ -174,6 +179,60 @@ struct ContentView: View {
         }
     }
 
+    private var prdToBDDSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("PRD -> BDD")
+                .font(.title2.bold())
+
+            Text("Gate operatora: budowa promptu BDD na bazie zatwierdzonego dokumentu PRD.")
+                .foregroundStyle(.secondary)
+
+            TextEditor(text: $prdDocumentText)
+                .font(.footnote.monospaced())
+                .frame(minHeight: 140)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 8)
+                        .stroke(Color.secondary.opacity(0.25), lineWidth: 1)
+                )
+
+            Button("Generate PRD -> BDD prompt") {
+                guard let prdResult = lastPRDFromFeaturesResult, prdResult.result.isSuccess else {
+                    lastBDDFromPRDResult = BDDFromPRDPromptResult(
+                        result: .failure(.init(message: "Run FEATURES -> PRD successfully before this step.")),
+                        promptText: "",
+                        promptFingerprint: "",
+                        includesMinimalContext: false,
+                        ideaID: nil,
+                        projectID: nil,
+                        prdLength: 0
+                    )
+                    return
+                }
+
+                let projectID = ProjectID(rawValue: flowProjectID.trimmingCharacters(in: .whitespacesAndNewlines))
+                let ideaID = IdeaID(rawValue: flowIdeaID.trimmingCharacters(in: .whitespacesAndNewlines))
+                let ideaTitle = flowIdeaTitle.trimmingCharacters(in: .whitespacesAndNewlines)
+                let candidatePRD = prdDocumentText.trimmingCharacters(in: .whitespacesAndNewlines)
+                let finalPRDDocument = candidatePRD.isEmpty ? prdResult.promptText : candidatePRD
+
+                prdToBDDService.selectActiveProject(id: projectID)
+                prdToBDDService.setContextAvailability(
+                    overview: true,
+                    constraints: true,
+                    glossary: true,
+                    stackRules: true
+                )
+
+                lastBDDFromPRDResult = prdToBDDService.generateBDDPrompt(
+                    for: ideaID,
+                    ideaTitle: ideaTitle,
+                    prdDocument: finalPRDDocument
+                )
+            }
+            .buttonStyle(.borderedProminent)
+        }
+    }
+
     private var inspectProjectSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Otwórz istniejący projekt")
@@ -240,6 +299,17 @@ struct ContentView: View {
                     .font(.footnote)
                 if !prd.promptText.isEmpty {
                     Text(prd.promptText)
+                        .font(.footnote.monospaced())
+                        .textSelection(.enabled)
+                }
+            }
+
+            if let bdd = lastBDDFromPRDResult {
+                Text("PRD -> BDD: \(statusText(for: bdd.result))")
+                Text("PRD length: \(bdd.prdLength)")
+                    .font(.footnote)
+                if !bdd.promptText.isEmpty {
+                    Text(bdd.promptText)
                         .font(.footnote.monospaced())
                         .textSelection(.enabled)
                 }
