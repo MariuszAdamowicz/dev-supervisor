@@ -17,11 +17,13 @@ struct ContentView: View {
     @State private var prdDocumentText = ""
     @State private var bddDocumentText = ""
     @State private var testsDocumentText = ""
+    @State private var implementationDocumentText = ""
     @State private var lastFeaturesResult: FeatureSetPromptGenerationResult?
     @State private var lastPRDFromFeaturesResult: PRDFromFeaturesPromptResult?
     @State private var lastBDDFromPRDResult: BDDFromPRDPromptResult?
     @State private var lastTestsFromBDDResult: TestsFromBDDPromptResult?
     @State private var lastImplementationFromTestsResult: ImplementationFromTestsPromptResult?
+    @State private var lastValidationFromImplementationResult: ValidationFromImplementationPromptResult?
 
     private let bootstrapService: any ProjectBootstrapContract = ProjectBootstrapFileSystem()
     private let ideaToFeaturesService: any IdeaToFeaturesFlowContract = IdeaToFeaturesFlowInMemory()
@@ -29,6 +31,7 @@ struct ContentView: View {
     private let prdToBDDService: any PRDToBDDFlowContract = PRDToBDDFlowInMemory()
     private let bddToTestsService: any BDDToTestsFlowContract = BDDToTestsFlowInMemory()
     private let testsToImplementationService: any TestsToImplementationFlowContract = TestsToImplementationFlowInMemory()
+    private let implementationToValidationService: any ImplementationToValidationFlowContract = ImplementationToValidationFlowInMemory()
 
     var body: some View {
         ScrollView {
@@ -49,6 +52,8 @@ struct ContentView: View {
                 bddToTestsSection
                 Divider()
                 testsToImplementationSection
+                Divider()
+                implementationToValidationSection
                 Divider()
                 inspectProjectSection
                 Divider()
@@ -373,6 +378,60 @@ private extension ContentView {
         }
     }
 
+    var implementationToValidationSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("IMPLEMENTACJA -> WALIDACJA")
+                .font(.title2.bold())
+
+            Text("Gate operatora: budowa promptu walidacji i stabilizacji na bazie opisu implementacji.")
+                .foregroundStyle(.secondary)
+
+            TextEditor(text: $implementationDocumentText)
+                .font(.footnote.monospaced())
+                .frame(minHeight: 140)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 8)
+                        .stroke(Color.secondary.opacity(0.25), lineWidth: 1)
+                )
+
+            Button("Generate IMPLEMENTATION -> VALIDATION prompt") {
+                guard let implementationResult = lastImplementationFromTestsResult, implementationResult.result.isSuccess else {
+                    lastValidationFromImplementationResult = ValidationFromImplementationPromptResult(
+                        result: .failure(.init(message: "Run TESTS -> IMPLEMENTATION successfully before this step.")),
+                        promptText: "",
+                        promptFingerprint: "",
+                        includesMinimalContext: false,
+                        ideaID: nil,
+                        projectID: nil,
+                        implementationLength: 0
+                    )
+                    return
+                }
+
+                let projectID = ProjectID(rawValue: flowProjectID.trimmingCharacters(in: .whitespacesAndNewlines))
+                let ideaID = IdeaID(rawValue: flowIdeaID.trimmingCharacters(in: .whitespacesAndNewlines))
+                let ideaTitle = flowIdeaTitle.trimmingCharacters(in: .whitespacesAndNewlines)
+                let candidateImplementation = implementationDocumentText.trimmingCharacters(in: .whitespacesAndNewlines)
+                let finalImplementationDoc = candidateImplementation.isEmpty ? implementationResult.promptText : candidateImplementation
+
+                implementationToValidationService.selectActiveProject(id: projectID)
+                implementationToValidationService.setContextAvailability(
+                    overview: true,
+                    constraints: true,
+                    glossary: true,
+                    stackRules: true
+                )
+
+                lastValidationFromImplementationResult = implementationToValidationService.generateValidationPrompt(
+                    for: ideaID,
+                    ideaTitle: ideaTitle,
+                    implementationDocument: finalImplementationDoc
+                )
+            }
+            .buttonStyle(.borderedProminent)
+        }
+    }
+
     var statusSection: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Status")
@@ -457,6 +516,17 @@ private extension ContentView {
                     .font(.footnote)
                 if !implementation.promptText.isEmpty {
                     Text(implementation.promptText)
+                        .font(.footnote.monospaced())
+                        .textSelection(.enabled)
+                }
+            }
+
+            if let validation = lastValidationFromImplementationResult {
+                Text("IMPLEMENTATION -> VALIDATION: \(statusText(for: validation.result))")
+                Text("Implementation length: \(validation.implementationLength)")
+                    .font(.footnote)
+                if !validation.promptText.isEmpty {
+                    Text(validation.promptText)
                         .font(.footnote.monospaced())
                         .textSelection(.enabled)
                 }
