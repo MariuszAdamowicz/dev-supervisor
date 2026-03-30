@@ -1,45 +1,45 @@
-# Feature: Idea Registry
+# Funkcja: Rejestr Idei
 
-## Goal
-Provide a deterministic and project-scoped way to capture, organize and select ideas so the operator can move ideas into the feature specification flow without losing context or mixing work across projects.
+## Cel
+Zapewnić deterministyczny i ograniczony do projektu sposób zapisywania, organizowania i wybierania idei, tak aby operator mógł przenosić idee do przepływu specyfikacji funkcji bez utraty kontekstu i bez mieszania pracy między projektami.
 
-## Inputs
-- Operator action to create an idea for the active project.
-- Idea payload provided by the operator (title + optional description/context).
-- Operator action to update idea content.
-- Operator action to change idea status.
-- Operator request to list ideas for the active project.
-- Operator action to select one idea as the next candidate for PRD generation.
+## Wejścia
+- Działanie operatora polegające na utworzeniu idei dla aktywnego projektu.
+- Ładunek idei podany przez operatora (tytuł + opcjonalny opis/kontekst).
+- Działanie operatora polegające na aktualizacji treści idei.
+- Działanie operatora polegające na zmianie statusu idei.
+- Żądanie operatora dotyczące listy idei dla aktywnego projektu.
+- Działanie operatora polegające na wybraniu jednej idei jako kolejnego kandydata do wygenerowania PRD.
 
-## Outputs
-- A persisted idea record with stable identity and explicit status.
-- Project-scoped idea list visible to the operator.
-- Deterministic operation results (explicit success or explicit failure reason).
-- Explicit indicator of which idea is selected as the next PRD candidate.
+## Wyjścia
+- Utrwalony rekord idei ze stabilną tożsamością i jawnym statusem.
+- Lista idei ograniczona do projektu, widoczna dla operatora.
+- Deterministyczne wyniki operacji (jawny sukces albo jawna przyczyna błędu).
+- Jawny wskaźnik, która idea jest wybrana jako następny kandydat do PRD.
 
-## Rules
-- Every idea must belong to exactly one project.
-- Idea operations must be blocked or explicitly rejected when no active project is selected.
-- Idea creation and updates must be operator-initiated; no implicit idea creation.
-- An idea must have a non-empty title.
-- Idea status must be explicit and limited to allowed states: `new`, `selected`, `deferred`, `done`.
-- At most one idea per project can have status `selected` at a time.
-- Selecting an idea for PRD candidate must be explicit and traceable.
-- Listing ideas must return only ideas scoped to the active project.
-- State changes must be explicit and traceable; silent failures are not allowed.
-- Idea registry must support multiple ideas per project.
+## Reguły
+- Każda idea musi należeć dokładnie do jednego projektu.
+- Operacje na ideach muszą być blokowane lub jawnie odrzucane, gdy nie wybrano aktywnego projektu.
+- Tworzenie i aktualizacje idei muszą być inicjowane przez operatora; brak niejawnego tworzenia idei.
+- Idea musi mieć niepusty tytuł.
+- Status idei musi być jawny i ograniczony do dozwolonych stanów: `new`, `selected`, `deferred`, `done`.
+- W danym projekcie co najwyżej jedna idea może mieć jednocześnie status `selected`.
+- Wybór idei jako kandydata do PRD musi być jawny i śledzalny.
+- Lista idei musi zwracać wyłącznie idee ograniczone do aktywnego projektu.
+- Zmiany stanu muszą być jawne i śledzalne; ciche błędy są niedozwolone.
+- Rejestr idei musi wspierać wiele idei na projekt.
 
-## Edge Cases
-- Attempt to create an idea when no active project is selected.
-- Attempt to create an idea with an empty title.
-- Attempt to update or change status of a non-existent idea.
-- Attempt to set `selected` on an idea when another idea in the same project is already `selected`.
-- Attempt to access ideas from a different project context.
-- Listing ideas when a project has no ideas.
+## Przypadki brzegowe
+- Próba utworzenia idei, gdy nie wybrano aktywnego projektu.
+- Próba utworzenia idei z pustym tytułem.
+- Próba aktualizacji lub zmiany statusu nieistniejącej idei.
+- Próba ustawienia `selected` dla idei, gdy inna idea w tym samym projekcie ma już status `selected`.
+- Próba dostępu do idei z innego kontekstu projektu.
+- Listowanie idei, gdy projekt nie ma żadnych idei.
 
-## Non-Goals
-- Auto-generating PRD from ideas without operator action.
-- Executing prompts automatically against any AI provider.
-- Cross-project idea deduplication or global idea search in this feature scope.
-- Ranking/prioritization using AI scoring.
-- Managing implementation artifacts beyond idea-level records.
+## Poza zakresem
+- Automatyczne generowanie PRD z idei bez działania operatora.
+- Automatyczne wykonywanie promptów wobec dowolnego dostawcy AI.
+- Deduplikacja idei między projektami lub globalne wyszukiwanie idei w zakresie tej funkcji.
+- Ranking/priorytetyzacja z wykorzystaniem scoringu AI.
+- Zarządzanie artefaktami implementacyjnymi wykraczającymi poza rekordy na poziomie idei.

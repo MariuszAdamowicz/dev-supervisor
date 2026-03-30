@@ -1,123 +1,123 @@
-# Feature: Idea Registry
+# Funkcja: Rejestr Idei
 
-## Scenario 1: Create an idea for active project with valid title
-Given project "Alpha" is selected as the active project
-And the idea registry for project "Alpha" is empty
-When the operator creates an idea with title "Offline mode" and description "Support offline workflow"
-Then a new idea record is created with stable identity
-And the idea belongs to project "Alpha"
-And the idea status is `new`
-And the operation result is explicit success
+## Scenariusz 1: Utworzenie idei dla aktywnego projektu z poprawnym tytułem
+Zakładając, że projekt "Alpha" jest wybrany jako aktywny projekt
+Oraz rejestr idei dla projektu "Alpha" jest pusty
+Kiedy operator tworzy ideę z tytułem "Offline mode" i opisem "Support offline workflow"
+Wtedy tworzony jest nowy rekord idei ze stabilną tożsamością
+Oraz idea należy do projektu "Alpha"
+Oraz status idei to `new`
+Oraz wynik operacji to jawny sukces
 
-## Scenario 2: Support multiple ideas within one project
-Given project "Alpha" is selected as the active project
-And project "Alpha" already has idea "Offline mode"
-When the operator creates another idea with title "Bulk import"
-Then both ideas exist in project "Alpha" idea registry
-And each idea remains uniquely identifiable
-And the operation result is explicit success
+## Scenariusz 2: Obsługa wielu idei w ramach jednego projektu
+Zakładając, że projekt "Alpha" jest wybrany jako aktywny projekt
+Oraz projekt "Alpha" ma już ideę "Offline mode"
+Kiedy operator tworzy kolejną ideę z tytułem "Bulk import"
+Wtedy obie idee istnieją jednocześnie w rejestrze idei projektu "Alpha"
+Oraz każda idea pozostaje jednoznacznie identyfikowalna
+Oraz wynik operacji to jawny sukces
 
-## Scenario 3: Reject idea creation when no active project is selected
-Given no active project is selected
-When the operator creates an idea with title "Offline mode"
-Then no idea is created
-And the operation is blocked or explicitly rejected
-And the operation result is explicit failure with reason
+## Scenariusz 3: Odrzucenie tworzenia idei, gdy nie wybrano aktywnego projektu
+Zakładając, że nie wybrano aktywnego projektu
+Kiedy operator tworzy ideę z tytułem "Offline mode"
+Wtedy żadna idea nie zostaje utworzona
+Oraz operacja jest zablokowana lub jawnie odrzucona
+Oraz wynik operacji to jawna porażka z podaniem przyczyny
 
-## Scenario 4: Reject idea creation with empty title
-Given project "Alpha" is selected as the active project
-When the operator creates an idea with an empty title
-Then no idea is created
-And the operation result is explicit failure with reason
+## Scenariusz 4: Odrzucenie tworzenia idei z pustym tytułem
+Zakładając, że projekt "Alpha" jest wybrany jako aktywny projekt
+Kiedy operator tworzy ideę z pustym tytułem
+Wtedy żadna idea nie zostaje utworzona
+Oraz wynik operacji to jawna porażka z podaniem przyczyny
 
-## Scenario 5: Update idea content by explicit operator action
-Given project "Alpha" is selected as the active project
-And idea "Offline mode" exists in project "Alpha"
-When the operator updates idea "Offline mode" title to "Offline-first mode" and description to "Prioritize no-network use"
-Then the same idea identity is preserved
-And updated idea content is visible in project "Alpha"
-And the operation result is explicit success
+## Scenariusz 5: Aktualizacja treści idei przez jawne działanie operatora
+Zakładając, że projekt "Alpha" jest wybrany jako aktywny projekt
+Oraz idea "Offline mode" istnieje w projekcie "Alpha"
+Kiedy operator aktualizuje tytuł idei "Offline mode" na "Offline-first mode" i opis na "Prioritize no-network use"
+Wtedy ta sama tożsamość idei zostaje zachowana
+Oraz zaktualizowana treść idei jest widoczna w projekcie "Alpha"
+Oraz wynik operacji to jawny sukces
 
-## Scenario 6: Reject update for non-existent idea
-Given project "Alpha" is selected as the active project
-And project "Alpha" contains no idea with identity "I-404"
-When the operator requests content update for idea "I-404"
-Then no idea state changes
-And the operation result is explicit failure with reason
+## Scenariusz 6: Odrzucenie aktualizacji dla nieistniejącej idei
+Zakładając, że projekt "Alpha" jest wybrany jako aktywny projekt
+Oraz projekt "Alpha" nie zawiera idei o tożsamości "I-404"
+Kiedy operator żąda aktualizacji treści idei "I-404"
+Wtedy żaden stan idei się nie zmienia
+Oraz wynik operacji to jawna porażka z podaniem przyczyny
 
-## Scenario 7: Change idea status to deferred
-Given project "Alpha" is selected as the active project
-And idea "Offline mode" exists in project "Alpha" with status `new`
-When the operator changes status of idea "Offline mode" to `deferred`
-Then idea "Offline mode" status is `deferred`
-And the operation result is explicit success
+## Scenariusz 7: Zmiana statusu idei na deferred
+Zakładając, że projekt "Alpha" jest wybrany jako aktywny projekt
+Oraz idea "Offline mode" istnieje w projekcie "Alpha" ze statusem `new`
+Kiedy operator zmienia status idei "Offline mode" na `deferred`
+Wtedy status idei "Offline mode" to `deferred`
+Oraz wynik operacji to jawny sukces
 
-## Scenario 8: Select one idea as PRD candidate
-Given project "Alpha" is selected as the active project
-And idea "Offline mode" exists in project "Alpha" with status `new`
-When the operator changes status of idea "Offline mode" to `selected`
-Then idea "Offline mode" status is `selected`
-And project "Alpha" has explicit indicator of selected PRD candidate
-And the operation result is explicit success
+## Scenariusz 8: Wybranie jednej idei jako kandydata do PRD
+Zakładając, że projekt "Alpha" jest wybrany jako aktywny projekt
+Oraz idea "Offline mode" istnieje w projekcie "Alpha" ze statusem `new`
+Kiedy operator zmienia status idei "Offline mode" na `selected`
+Wtedy status idei "Offline mode" to `selected`
+Oraz projekt "Alpha" ma jawny wskaźnik wybranego kandydata do PRD
+Oraz wynik operacji to jawny sukces
 
-## Scenario 9: Reject second selected idea in the same project
-Given project "Alpha" is selected as the active project
-And idea "Offline mode" exists in project "Alpha" with status `selected`
-And idea "Bulk import" exists in project "Alpha" with status `new`
-When the operator changes status of idea "Bulk import" to `selected`
-Then idea "Bulk import" status remains `new`
-And only one idea remains `selected` in project "Alpha"
-And the operation result is explicit failure with reason
+## Scenariusz 9: Odrzucenie drugiej idei ze statusem selected w tym samym projekcie
+Zakładając, że projekt "Alpha" jest wybrany jako aktywny projekt
+Oraz idea "Offline mode" istnieje w projekcie "Alpha" ze statusem `selected`
+Oraz idea "Bulk import" istnieje w projekcie "Alpha" ze statusem `new`
+Kiedy operator zmienia status idei "Bulk import" na `selected`
+Wtedy status idei "Bulk import" pozostaje `new`
+Oraz tylko jedna idea ma status `selected` w projekcie "Alpha"
+Oraz wynik operacji to jawna porażka z podaniem przyczyny
 
-## Scenario 10: Reject invalid idea status value
-Given project "Alpha" is selected as the active project
-And idea "Offline mode" exists in project "Alpha"
-When the operator changes status of idea "Offline mode" to "in-progress"
-Then idea "Offline mode" status does not change
-And the operation result is explicit failure with reason
+## Scenariusz 10: Odrzucenie nieprawidłowej wartości statusu idei
+Zakładając, że projekt "Alpha" jest wybrany jako aktywny projekt
+Oraz idea "Offline mode" istnieje w projekcie "Alpha"
+Kiedy operator zmienia status idei "Offline mode" na "in-progress"
+Wtedy status idei "Offline mode" nie ulega zmianie
+Oraz wynik operacji to jawna porażka z podaniem przyczyny
 
-## Scenario 11: Reject status change for non-existent idea
-Given project "Alpha" is selected as the active project
-And project "Alpha" contains no idea with identity "I-404"
-When the operator changes status for idea "I-404" to `deferred`
-Then no idea state changes
-And the operation result is explicit failure with reason
+## Scenariusz 11: Odrzucenie zmiany statusu dla nieistniejącej idei
+Zakładając, że projekt "Alpha" jest wybrany jako aktywny projekt
+Oraz projekt "Alpha" nie zawiera idei o tożsamości "I-404"
+Kiedy operator zmienia status idei "I-404" na `deferred`
+Wtedy żaden stan idei się nie zmienia
+Oraz wynik operacji to jawna porażka z podaniem przyczyny
 
-## Scenario 12: Reject update and status changes when no active project is selected
-Given no active project is selected
-And idea records exist in other projects
-When the operator requests idea update or status change
-Then no idea state changes
-And the operation is blocked or explicitly rejected
-And the operation result is explicit failure with reason
+## Scenariusz 12: Odrzucenie aktualizacji i zmian statusu, gdy nie wybrano aktywnego projektu
+Zakładając, że nie wybrano aktywnego projektu
+Oraz rekordy idei istnieją w innych projektach
+Kiedy operator żąda aktualizacji idei lub zmiany statusu
+Wtedy żaden stan idei się nie zmienia
+Oraz operacja jest zablokowana lub jawnie odrzucona
+Oraz wynik operacji to jawna porażka z podaniem przyczyny
 
-## Scenario 13: List ideas scoped to active project only
-Given project "Alpha" is selected as the active project
-And project "Alpha" has idea "Offline mode"
-And project "Beta" has idea "Telemetry export"
-When the operator requests idea list for active project
-Then the list includes only ideas from project "Alpha"
-And no idea from project "Beta" is included
+## Scenariusz 13: Lista idei ograniczona wyłącznie do aktywnego projektu
+Zakładając, że projekt "Alpha" jest wybrany jako aktywny projekt
+Oraz projekt "Alpha" ma ideę "Offline mode"
+Oraz projekt "Beta" ma ideę "Telemetry export"
+Kiedy operator żąda listy idei dla aktywnego projektu
+Wtedy lista zawiera wyłącznie idee z projektu "Alpha"
+Oraz żadna idea z projektu "Beta" nie jest uwzględniona
 
-## Scenario 14: List ideas returns explicit empty list
-Given project "Alpha" is selected as the active project
-And project "Alpha" has no ideas
-When the operator requests idea list for active project
-Then an explicit empty list is returned
-And no implicit idea is created
+## Scenariusz 14: Listowanie idei zwraca jawną pustą listę
+Zakładając, że projekt "Alpha" jest wybrany jako aktywny projekt
+Oraz projekt "Alpha" nie ma żadnych idei
+Kiedy operator żąda listy idei dla aktywnego projektu
+Wtedy zwracana jest jawna pusta lista
+Oraz żadna idea nie jest tworzona niejawnie
 
-## Scenario 15: Selecting PRD candidate is explicit and traceable
-Given project "Alpha" is selected as the active project
-And idea "Offline mode" exists with status `new`
-When the operator explicitly selects idea "Offline mode" as PRD candidate
-Then idea "Offline mode" status becomes `selected`
-And the selection change is traceable as an explicit state transition
-And the operation result is explicit success
+## Scenariusz 15: Wybór kandydata do PRD jest jawny i śledzalny
+Zakładając, że projekt "Alpha" jest wybrany jako aktywny projekt
+Oraz idea "Offline mode" istnieje ze statusem `new`
+Kiedy operator jawnie wybiera ideę "Offline mode" jako kandydata do PRD
+Wtedy status idei "Offline mode" zmienia się na `selected`
+Oraz zmiana wyboru jest śledzalna jako jawna zmiana stanu
+Oraz wynik operacji to jawny sukces
 
-## Scenario 16: Preserve project isolation for idea access
-Given project "Alpha" and project "Beta" both exist
-And project "Alpha" is selected as the active project
-And project "Beta" contains idea "Telemetry export"
-When the operator requests operations in project "Alpha" scope
-Then idea data from project "Beta" is not accessible in that scope
-And no cross-project idea mutation is performed
+## Scenariusz 16: Zachowanie izolacji projektów przy dostępie do idei
+Zakładając, że projekt "Alpha" i projekt "Beta" istnieją
+Oraz projekt "Alpha" jest wybrany jako aktywny projekt
+Oraz projekt "Beta" zawiera ideę "Telemetry export"
+Kiedy operator wykonuje operacje w zakresie projektu "Alpha"
+Wtedy dane idei z projektu "Beta" nie są dostępne w tym zakresie
+Oraz nie jest wykonywana żadna mutacja idei między projektami

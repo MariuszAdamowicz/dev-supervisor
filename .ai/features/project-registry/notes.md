@@ -1,58 +1,58 @@
-# Project Registry — Consistency Check
+# Rejestr Projektów — Kontrola Spójności
 
-Date: 2026-03-29
-Scope:
+Data: 2026-03-29
+Zakres:
 - `.ai/features/project-registry/prd.md`
 - `.ai/features/project-registry/bdd.md`
 - `Tests/ProjectRegistry/ProjectRegistryBDDTests.swift`
 - `App/Core/Domain/ProjectRegistryContract.swift`
 - `App/Core/ProjectRegistry/ProjectRegistryInMemory.swift`
 
-## Overall result
-Core alignment is good: PRD rules are broadly reflected in BDD and executable tests, and current implementation passes build+test.
+## Wynik ogólny
+Spójność rdzenia jest dobra: reguły PRD są szeroko odzwierciedlone w BDD i wykonywalnych testach, a bieżąca implementacja przechodzi build+test.
 
-Main inconsistency: tests contain behavior not yet modeled in BDD.
+Główna niespójność: testy zawierają zachowania, które nie były jeszcze zamodelowane w BDD.
 
-## Confirmed alignment
-- Registration validation, unique identity, and duplicate active path rejection are covered.
-- Metadata update, archive/reactivate, and non-existent project failures are covered.
-- Active working project selection semantics are covered.
-- "No selected project" blocking behavior is covered.
-- Project-scoped isolation behavior is covered.
-- Empty registry list behavior is covered.
-- Path-unavailable explicit failure behavior is covered.
-- Explicit failure reason pattern is enforced in tests.
+## Potwierdzona zgodność
+- Walidacja rejestracji, unikalna tożsamość i odrzucanie duplikatu aktywnej ścieżki są pokryte.
+- Aktualizacja metadanych, archiwizacja/reaktywacja oraz błędy dla nieistniejących projektów są pokryte.
+- Semantyka wyboru aktywnego projektu roboczego jest pokryta.
+- Zachowanie blokowania przy "braku wybranego projektu" jest pokryte.
+- Zachowanie izolacji ograniczonej do projektu jest pokryte.
+- Zachowanie pustej listy przy pustym rejestrze jest pokryte.
+- Zachowanie jawnej porażki przy niedostępnej ścieżce jest pokryte.
+- W testach egzekwowany jest wzorzec jawnej przyczyny błędu.
 
-## Missing or inconsistent items
-1. Tests include scenarios that are not present in BDD:
-- Test Scenario 21: update local path to a new unique path succeeds.
-- Test Scenario 22: listing includes archived and active projects together.
+## Braki lub niespójności
+1. Testy zawierają scenariusze, których nie ma w BDD:
+- Test Scenariusz 21: aktualizacja lokalnej ścieżki na nową unikalną wartość kończy się sukcesem.
+- Test Scenariusz 22: lista zawiera łącznie projekty zarchiwizowane i aktywne.
 
-2. Rule-level gap in BDD/tests for reactivation conflict:
-- PRD rule says two active projects must not share the same local path/reference.
-- Register and update conflict paths are covered.
-- Reactivation conflict path is implemented in code (`reactivateProject`) but not explicitly covered by BDD/test.
+2. Luka na poziomie reguł w BDD/testach dla konfliktu reaktywacji:
+- Reguła PRD mówi, że dwa aktywne projekty nie mogą współdzielić tej samej lokalnej ścieżki/odniesienia.
+- Konflikt ścieżek przy rejestracji i aktualizacji jest pokryty.
+- Konflikt ścieżek przy reaktywacji jest zaimplementowany w kodzie (`reactivateProject`), ale nie był jawnie pokryty w BDD/teście.
 
-## Obsolete items
-- No clearly obsolete PRD rules found.
-- No clearly obsolete BDD scenarios found.
-- No clearly obsolete tests found.
+## Elementy nieaktualne
+- Nie znaleziono wyraźnie nieaktualnych reguł PRD.
+- Nie znaleziono wyraźnie nieaktualnych scenariuszy BDD.
+- Nie znaleziono wyraźnie nieaktualnych testów.
 
-## Recommended next single step
-Update `bdd.md` to include missing behavior currently enforced by tests (scenario 21 and 22) and add one scenario for reactivation conflict on duplicate active path/reference. Then run test generation/update only if needed.
+## Rekomendowany następny pojedynczy krok
+Zaktualizować `bdd.md`, aby dodać brakujące zachowanie obecnie egzekwowane przez testy (scenariusze 21 i 22), oraz dodać jeden scenariusz dla konfliktu reaktywacji przy zduplikowanej aktywnej ścieżce/odniesieniu. Następnie uruchomić generację/aktualizację testów tylko jeśli będzie to potrzebne.
 
 ---
 
-## Closure Update
+## Aktualizacja zamknięcia
 
-Date: 2026-03-29
+Data: 2026-03-29
 
 Status:
-- Completed: BDD updated with scenarios 21, 22, 23.
-- Completed: test for Scenario 23 added and passing.
-- Completed: traceability synchronized with current PRD/BDD.
-- Completed: validation scripts passing in current setup (`build`, `test`, `lint` with style warnings).
+- Ukończono: BDD zaktualizowane o scenariusze 21, 22, 23.
+- Ukończono: dodano i zweryfikowano test dla Scenariusza 23.
+- Ukończono: synchronizacja traceability z aktualnym PRD/BDD.
+- Ukończono: skrypty walidacji przechodzą w obecnej konfiguracji (`build`, `test`, `lint` z ostrzeżeniami stylu).
 
-Feature decision:
-- `project-registry` is considered functionally closed for current scope.
-- Further work moves to next feature, unless a defect/regression is discovered.
+Decyzja dla funkcji:
+- `project-registry` jest uznany za funkcjonalnie domknięty w bieżącym zakresie.
+- Dalsza praca przechodzi do kolejnej funkcji, chyba że zostanie wykryty defekt/regresja.

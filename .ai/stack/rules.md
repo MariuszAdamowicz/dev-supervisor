@@ -1,20 +1,20 @@
-- No force unwrap
-- No global mutable state
-- Functions < 50 lines when practical
-- Prefer value types
-- Prefer explicit domain types over raw dictionaries
-- Do not modify unrelated files
+- Bez force unwrap
+- Bez globalnego mutowalnego stanu
+- Funkcje < 50 linii, gdy to praktyczne
+- Preferuj typy wartości
+- Preferuj jawne typy domenowe zamiast surowych słowników
+- Nie modyfikuj niepowiązanych plików
 
-## Domain Types Rule
+## Reguła Typów Domenowych
 
-- Domain types must not remain inside test files.
-- Tests may introduce temporary placeholder types only to express behavior.
-- Before or during implementation, all domain types must be extracted to Core/Domain.
-- Production code must be the single source of truth for domain models.
-- Tests must depend on domain types, not define them.
+- Typy domenowe nie mogą pozostawać wewnątrz plików testowych.
+- Testy mogą wprowadzać tymczasowe typy zastępcze wyłącznie do wyrażenia zachowania.
+- Przed implementacją lub w jej trakcie wszystkie typy domenowe muszą zostać wyekstrahowane do Core/Domain.
+- Kod produkcyjny musi być pojedynczym źródłem prawdy dla modeli domenowych.
+- Testy muszą zależeć od typów domenowych, a nie je definiować.
 
-## Test Boundary Rule
+## Reguła Granicy Testów
 
-- Tests define behavior, not architecture.
-- Tests may define minimal contracts to express expectations.
-- Final architecture must be derived during implementation, not fixed prematurely in tests.
+- Testy definiują zachowanie, a nie architekturę.
+- Testy mogą definiować minimalne kontrakty do wyrażenia oczekiwań.
+- Ostateczna architektura musi być wyprowadzona podczas implementacji, a nie z góry usztywniona w testach.

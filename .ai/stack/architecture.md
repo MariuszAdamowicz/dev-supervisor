@@ -1,14 +1,13 @@
-# Architecture
+# Architektura
 
 ## App
-Contains SwiftUI views, view models and app lifecycle glue.
+Zawiera widoki SwiftUI, view modele i elementy spinające cykl życia aplikacji.
 
 ## Core
-Contains domain logic and reusable modules.
+Zawiera logikę domenową i moduły wielokrotnego użytku.
 
 ## Services
-Contains integrations with external APIs.
+Zawiera integracje z zewnętrznymi API.
 
-## Rule
-If logic is reused by more than one feature, it should not stay inside a feature-specific implementation.
-
+## Reguła
+Jeśli logika jest używana przez więcej niż jedną funkcję, nie powinna pozostawać w implementacji specyficznej dla jednej funkcji.

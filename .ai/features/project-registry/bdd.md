@@ -1,157 +1,157 @@
-# Feature: Project Registry
+# Funkcja: Rejestr Projektów
 
-## Scenario 1: Register a valid project
-Given the registry is empty
-When the operator registers a project with name "Alpha" and local path/reference "/projects/alpha"
-Then a new project record is created with stable identity
-And the project is visible in the project list as active
-And the operation result is explicit success
+## Scenariusz 1: Rejestracja poprawnego projektu
+Zakładając, że rejestr jest pusty
+Kiedy operator rejestruje projekt o nazwie "Alpha" i lokalnej ścieżce/odniesieniu "/projects/alpha"
+Wtedy tworzony jest nowy rekord projektu ze stabilną tożsamością
+Oraz projekt jest widoczny na liście projektów jako aktywny
+Oraz wynik operacji to jawny sukces
 
-## Scenario 2: Register multiple projects concurrently
-Given a project "Alpha" exists with local path/reference "/projects/alpha"
-When the operator registers a second project with name "Beta" and local path/reference "/projects/beta"
-Then both projects exist in the registry at the same time
-And each project remains uniquely identifiable
-And the operation result is explicit success
+## Scenariusz 2: Rejestracja wielu projektów równolegle
+Zakładając, że projekt "Alpha" istnieje z lokalną ścieżką/odniesieniem "/projects/alpha"
+Kiedy operator rejestruje drugi projekt o nazwie "Beta" i lokalnej ścieżce/odniesieniu "/projects/beta"
+Wtedy oba projekty istnieją w rejestrze jednocześnie
+Oraz każdy projekt pozostaje jednoznacznie identyfikowalny
+Oraz wynik operacji to jawny sukces
 
-## Scenario 3: Reject registration with missing required fields
-Given the registry is empty
-When the operator registers a project with an empty name or empty local path/reference
-Then no project is created
-And the operation result is explicit failure with reason
+## Scenariusz 3: Odrzucenie rejestracji z brakującymi wymaganymi polami
+Zakładając, że rejestr jest pusty
+Kiedy operator rejestruje projekt z pustą nazwą lub pustą lokalną ścieżką/odniesieniem
+Wtedy żaden projekt nie jest tworzony
+Oraz wynik operacji to jawna porażka z podaniem przyczyny
 
-## Scenario 4: Reject duplicate active path/reference
-Given an active project "Alpha" exists with local path/reference "/projects/alpha"
-When the operator registers another active project with local path/reference "/projects/alpha"
-Then the second project is not created
-And the operation result is explicit failure with reason
+## Scenariusz 4: Odrzucenie zduplikowanej aktywnej ścieżki/odniesienia
+Zakładając, że aktywny projekt "Alpha" istnieje z lokalną ścieżką/odniesieniem "/projects/alpha"
+Kiedy operator rejestruje kolejny aktywny projekt z lokalną ścieżką/odniesieniem "/projects/alpha"
+Wtedy drugi projekt nie zostaje utworzony
+Oraz wynik operacji to jawna porażka z podaniem przyczyny
 
-## Scenario 5: Update project metadata by explicit operator action
-Given a project "Alpha" exists with local path/reference "/projects/alpha"
-When the operator updates the project name to "Alpha Renamed"
-Then the same project identity is preserved
-And the updated metadata is visible in the registry
-And the operation result is explicit success
+## Scenariusz 5: Aktualizacja metadanych projektu przez jawne działanie operatora
+Zakładając, że projekt "Alpha" istnieje z lokalną ścieżką/odniesieniem "/projects/alpha"
+Kiedy operator aktualizuje nazwę projektu na "Alpha Renamed"
+Wtedy ta sama tożsamość projektu zostaje zachowana
+Oraz zaktualizowane metadane są widoczne w rejestrze
+Oraz wynik operacji to jawny sukces
 
-## Scenario 6: Reject update for non-existent project
-Given the registry contains no project with identity "P-404"
-When the operator requests metadata update for project "P-404"
-Then no project state changes
-And the operation result is explicit failure with reason
+## Scenariusz 6: Odrzucenie aktualizacji dla nieistniejącego projektu
+Zakładając, że rejestr nie zawiera projektu o tożsamości "P-404"
+Kiedy operator żąda aktualizacji metadanych projektu "P-404"
+Wtedy żaden stan projektu się nie zmienia
+Oraz wynik operacji to jawna porażka z podaniem przyczyny
 
-## Scenario 7: Archive project preserves identity and history
-Given an active project "Alpha" exists
-When the operator archives project "Alpha"
-Then the project status becomes archived
-And the project identity is unchanged
-And project history remains preserved
-And the operation result is explicit success
+## Scenariusz 7: Archiwizacja projektu zachowuje tożsamość i historię
+Zakładając, że aktywny projekt "Alpha" istnieje
+Kiedy operator archiwizuje projekt "Alpha"
+Wtedy status projektu zmienia się na zarchiwizowany
+Oraz tożsamość projektu pozostaje bez zmian
+Oraz historia projektu pozostaje zachowana
+Oraz wynik operacji to jawny sukces
 
-## Scenario 8: Reactivate archived project preserves identity and history
-Given an archived project "Alpha" exists
-When the operator reactivates project "Alpha"
-Then the project status becomes active
-And the project identity is unchanged
-And project history remains preserved
-And the operation result is explicit success
+## Scenariusz 8: Reaktywacja zarchiwizowanego projektu zachowuje tożsamość i historię
+Zakładając, że zarchiwizowany projekt "Alpha" istnieje
+Kiedy operator reaktywuje projekt "Alpha"
+Wtedy status projektu zmienia się na aktywny
+Oraz tożsamość projektu pozostaje bez zmian
+Oraz historia projektu pozostaje zachowana
+Oraz wynik operacji to jawny sukces
 
-## Scenario 9: Reject archive of an already archived project
-Given project "Alpha" is archived
-When the operator archives project "Alpha" again
-Then no project state changes
-And the operation result is explicit failure with reason
+## Scenariusz 9: Odrzucenie archiwizacji już zarchiwizowanego projektu
+Zakładając, że projekt "Alpha" jest zarchiwizowany
+Kiedy operator ponownie archiwizuje projekt "Alpha"
+Wtedy żaden stan projektu się nie zmienia
+Oraz wynik operacji to jawna porażka z podaniem przyczyny
 
-## Scenario 10: Reject reactivation of an already active project
-Given project "Beta" is active
-When the operator reactivates project "Beta" again
-Then no project state changes
-And the operation result is explicit failure with reason
+## Scenariusz 10: Odrzucenie reaktywacji już aktywnego projektu
+Zakładając, że projekt "Beta" jest aktywny
+Kiedy operator ponownie reaktywuje projekt "Beta"
+Wtedy żaden stan projektu się nie zmienia
+Oraz wynik operacji to jawna porażka z podaniem przyczyny
 
-## Scenario 11: Select one active working project explicitly
-Given active projects "Alpha" and "Beta" exist
-And no active working project is selected
-When the operator selects "Alpha" as the active working project
-Then "Alpha" is the only active working project
-And active working project information is visible
-And the operation result is explicit success
+## Scenariusz 11: Jawny wybór jednego aktywnego projektu roboczego
+Zakładając, że aktywne projekty "Alpha" i "Beta" istnieją
+Oraz żaden aktywny projekt roboczy nie jest wybrany
+Kiedy operator wybiera "Alpha" jako aktywny projekt roboczy
+Wtedy "Alpha" jest jedynym aktywnym projektem roboczym
+Oraz informacja o aktywnym projekcie roboczym jest widoczna
+Oraz wynik operacji to jawny sukces
 
-## Scenario 12: Replace active working project selection
-Given active projects "Alpha" and "Beta" exist
-And "Alpha" is selected as the active working project
-When the operator selects "Beta" as the active working project
-Then "Beta" is the only active working project
-And "Alpha" is no longer selected as the active working project
-And the operation result is explicit success
+## Scenariusz 12: Zamiana wyboru aktywnego projektu roboczego
+Zakładając, że aktywne projekty "Alpha" i "Beta" istnieją
+Oraz "Alpha" jest wybrany jako aktywny projekt roboczy
+Kiedy operator wybiera "Beta" jako aktywny projekt roboczy
+Wtedy "Beta" jest jedynym aktywnym projektem roboczym
+Oraz "Alpha" nie jest już wybrany jako aktywny projekt roboczy
+Oraz wynik operacji to jawny sukces
 
-## Scenario 13: Block feature-level operations when no project is selected
-Given active projects exist
-And no active working project is selected
-When a feature-level operation is requested
-Then the operation is blocked or explicitly rejected
-And the response includes an explicit error
+## Scenariusz 13: Blokowanie operacji na poziomie funkcji, gdy nie wybrano projektu
+Zakładając, że aktywne projekty istnieją
+Oraz żaden aktywny projekt roboczy nie jest wybrany
+Kiedy żądana jest operacja na poziomie funkcji
+Wtedy operacja jest zablokowana lub jawnie odrzucona
+Oraz odpowiedź zawiera jawny błąd
 
-## Scenario 14: Project isolation across supervised data
-Given project "Alpha" and project "Beta" both exist
-And each project has its own ideas, features, progress and metadata
-When the operator views data scoped to project "Alpha"
-Then only "Alpha" data is visible in that scope
-And "Beta" data is not included in that scope
+## Scenariusz 14: Izolacja projektu w nadzorowanych danych
+Zakładając, że projekty "Alpha" i "Beta" istnieją
+Oraz każdy projekt ma własne idee, funkcje, postęp i metadane
+Kiedy operator przegląda dane ograniczone do projektu "Alpha"
+Wtedy widoczne są tylko dane "Alpha" w tym zakresie
+Oraz dane "Beta" nie są uwzględnione w tym zakresie
 
-## Scenario 15: List behavior when no projects exist
-Given the registry is empty
-When the operator requests the project list
-Then an explicit empty list is returned
-And no implicit project is created
+## Scenariusz 15: Zachowanie listy, gdy nie istnieją żadne projekty
+Zakładając, że rejestr jest pusty
+Kiedy operator żąda listy projektów
+Wtedy zwracana jest jawna pusta lista
+Oraz żaden projekt nie jest tworzony niejawnie
 
-## Scenario 16: Reject archive for non-existent project
-Given the registry contains no project with identity "P-404"
-When the operator requests archive for project "P-404"
-Then no project state changes
-And the operation result is explicit failure with reason
+## Scenariusz 16: Odrzucenie archiwizacji dla nieistniejącego projektu
+Zakładając, że rejestr nie zawiera projektu o tożsamości "P-404"
+Kiedy operator żąda archiwizacji projektu "P-404"
+Wtedy żaden stan projektu się nie zmienia
+Oraz wynik operacji to jawna porażka z podaniem przyczyny
 
-## Scenario 17: Explicit failure when registered path/reference is unavailable
-Given project "Alpha" is registered with local path/reference "/projects/alpha"
-And the local path/reference is currently unavailable
-When the operator performs an operation that requires that path/reference
-Then no silent state change occurs
-And the operation result is explicit failure with reason
+## Scenariusz 17: Jawna porażka, gdy zarejestrowana ścieżka/odniesienie jest niedostępna
+Zakładając, że projekt "Alpha" jest zarejestrowany z lokalną ścieżką/odniesieniem "/projects/alpha"
+Oraz lokalna ścieżka/odniesienie jest obecnie niedostępna
+Kiedy operator wykonuje operację, która wymaga tej ścieżki/odniesienia
+Wtedy nie zachodzi żadna cicha zmiana stanu
+Oraz wynik operacji to jawna porażka z podaniem przyczyny
 
-## Scenario 18: Reject selection of non-existent project
-Given the registry contains no project with identity "P-404"
-When the operator selects project "P-404" as the active working project
-Then no project is selected as the active working project
-And the operation result is explicit failure with reason
+## Scenariusz 18: Odrzucenie wyboru nieistniejącego projektu
+Zakładając, że rejestr nie zawiera projektu o tożsamości "P-404"
+Kiedy operator wybiera projekt "P-404" jako aktywny projekt roboczy
+Wtedy żaden projekt nie jest wybrany jako aktywny projekt roboczy
+Oraz wynik operacji to jawna porażka z podaniem przyczyny
 
-## Scenario 19: Reject selection of archived project
-Given project "Alpha" exists and is archived
-When the operator selects "Alpha" as the active working project
-Then no project is selected as the active working project
-And the operation result is explicit failure with reason
+## Scenariusz 19: Odrzucenie wyboru zarchiwizowanego projektu
+Zakładając, że projekt "Alpha" istnieje i jest zarchiwizowany
+Kiedy operator wybiera "Alpha" jako aktywny projekt roboczy
+Wtedy żaden projekt nie jest wybrany jako aktywny projekt roboczy
+Oraz wynik operacji to jawna porażka z podaniem przyczyny
 
-## Scenario 20: Reject update that introduces duplicate active path/reference
-Given an active project "Alpha" exists with local path/reference "/projects/alpha"
-And an active project "Beta" exists with local path/reference "/projects/beta"
-When the operator updates project "Beta" to use local path/reference "/projects/alpha"
-Then the update is not applied
-And the operation result is explicit failure with reason
+## Scenariusz 20: Odrzucenie aktualizacji wprowadzającej zduplikowaną aktywną ścieżkę/odniesienie
+Zakładając, że aktywny projekt "Alpha" istnieje z lokalną ścieżką/odniesieniem "/projects/alpha"
+Oraz aktywny projekt "Beta" istnieje z lokalną ścieżką/odniesieniem "/projects/beta"
+Kiedy operator aktualizuje projekt "Beta", aby używał lokalnej ścieżki/odniesienia "/projects/alpha"
+Wtedy aktualizacja nie jest zastosowana
+Oraz wynik operacji to jawna porażka z podaniem przyczyny
 
-## Scenario 21: Update project local path/reference to a new unique value
-Given an active project "Alpha" exists with local path/reference "/projects/alpha"
-When the operator updates project "Alpha" to use local path/reference "/projects/alpha-new"
-Then the same project identity is preserved
-And the updated local path/reference is visible in the registry
-And the operation result is explicit success
+## Scenariusz 21: Aktualizacja lokalnej ścieżki/odniesienia projektu na nową unikalną wartość
+Zakładając, że aktywny projekt "Alpha" istnieje z lokalną ścieżką/odniesieniem "/projects/alpha"
+Kiedy operator aktualizuje projekt "Alpha", aby używał lokalnej ścieżki/odniesienia "/projects/alpha-new"
+Wtedy ta sama tożsamość projektu zostaje zachowana
+Oraz zaktualizowana lokalna ścieżka/odniesienie jest widoczna w rejestrze
+Oraz wynik operacji to jawny sukces
 
-## Scenario 22: List includes active and archived projects together
-Given project "Alpha" is active
-And project "Beta" exists and is archived
-When the operator requests the project list
-Then the list includes both active and archived projects
-And no implicit state change is performed
+## Scenariusz 22: Lista zawiera razem projekty aktywne i zarchiwizowane
+Zakładając, że projekt "Alpha" jest aktywny
+Oraz projekt "Beta" istnieje i jest zarchiwizowany
+Kiedy operator żąda listy projektów
+Wtedy lista zawiera zarówno projekty aktywne, jak i zarchiwizowane
+Oraz nie jest wykonywana żadna niejawna zmiana stanu
 
-## Scenario 23: Reject reactivation when local path/reference conflicts with another active project
-Given project "Alpha" exists and is active with local path/reference "/projects/alpha"
-And project "Beta" exists and is archived with local path/reference "/projects/alpha"
-When the operator reactivates project "Beta"
-Then project "Beta" remains archived
-And the operation result is explicit failure with reason
+## Scenariusz 23: Odrzucenie reaktywacji, gdy ścieżka/odniesienie koliduje z innym aktywnym projektem
+Zakładając, że projekt "Alpha" istnieje i jest aktywny z lokalną ścieżką/odniesieniem "/projects/alpha"
+Oraz projekt "Beta" istnieje i jest zarchiwizowany z lokalną ścieżką/odniesieniem "/projects/alpha"
+Kiedy operator reaktywuje projekt "Beta"
+Wtedy projekt "Beta" pozostaje zarchiwizowany
+Oraz wynik operacji to jawna porażka z podaniem przyczyny

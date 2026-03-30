@@ -1,6 +1,5 @@
-- Build a local desktop supervisor application that manages AI-assisted software development workflows across projects, features, specifications, tests, prompts, validation and progress tracking.
+- Zbudować lokalną aplikację desktopową nadzorującą workflowy rozwoju oprogramowania wspomaganego AI w wielu projektach, funkcjach, specyfikacjach, testach, promptach, walidacji i śledzeniu postępu.
 
-- The application should act as a deterministic process orchestrator, not an AI agent.
+- Aplikacja powinna działać jako deterministyczny orkiestrator procesu, a nie agent AI.
 
-- It should support different development stacks and different AI providers without being coupled to any specific one.
-
+- Powinna wspierać różne stosy technologiczne i różnych dostawców AI bez sprzęgania z żadnym konkretnym.

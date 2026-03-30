@@ -1,173 +1,173 @@
-# Product Overview
+# Przegląd Produktu
 
-## Summary
+## Podsumowanie
 
-Dev Supervisor is a local desktop application that supervises and structures AI-assisted software development workflows across multiple projects.
+Dev Supervisor to lokalna aplikacja desktopowa, która nadzoruje i strukturyzuje workflowy rozwoju oprogramowania wspomaganego AI w wielu projektach.
 
-It is not an AI agent.
-It is a deterministic process supervisor that helps the operator manage:
-- project setup
-- ideas
-- features
-- specifications
-- tests
-- prompts
-- validation
-- progress tracking
+To nie jest agent AI.
+To deterministyczny supervisor procesu, który pomaga operatorowi zarządzać:
+- konfiguracją projektu
+- ideami
+- funkcjami
+- specyfikacjami
+- testami
+- promptami
+- walidacją
+- śledzeniem postępu
 
-The application is intended to reduce chaos, context drift and inconsistency in AI-assisted development.
-
----
-
-## Core Goals
-
-- Provide a structured and repeatable workflow for AI-assisted software development
-- Supervise multiple projects from one local application
-- Enforce separation between:
-  - ideas
-  - specifications
-  - BDD scenarios
-  - tests
-  - implementation
-- Maintain traceability between requirements, scenarios, tests and implementation
-- Generate structured prompts for different stages of work
-- Track validation state and progress across projects and features
-- Reduce cognitive load on the operator
+Aplikacja ma ograniczać chaos, dryf kontekstu i niespójność w rozwoju wspomaganym AI.
 
 ---
 
-## Key Capabilities
+## Główne cele
 
-### 1. Project Management
-- create and initialize projects
-- manage project structure
-- track project status
-- support multiple projects
-
-### 2. Idea Management
-- store ideas per project
-- move ideas into feature definition flow
-- keep ideas separate from implementation
-
-### 3. Feature Management
-- create and manage feature lifecycle
-- track feature status
-- connect features with specifications and validation
-
-### 4. Specification Management
-- manage feature PRD
-- manage BDD scenarios
-- maintain traceability between rules and scenarios
-
-### 5. Prompt Generation
-- generate prompts for:
-  - planning
-  - PRD creation
-  - BDD creation
-  - test generation
-  - implementation
-  - debugging
-  - refactoring
-- allow prompt templates to live outside project files
-
-### 6. Validation Tracking
-- record build/test/lint status
-- show whether a feature is ready to move forward
-- support session-to-session continuity
-
-### 7. Progress Visibility
-- show feature lifecycle state
-- show project-level progress
-- show specification completeness
-- show validation readiness
-- optionally derive progress metrics from scenario/test state
-
-### 8. Traceability Support
-- connect PRD rules to BDD scenarios
-- connect scenarios to tests
-- make gaps visible
+- Zapewnić ustrukturyzowany i powtarzalny workflow dla rozwoju oprogramowania wspomaganego AI
+- Nadzorować wiele projektów z jednej lokalnej aplikacji
+- Egzekwować separację między:
+  - ideami
+  - specyfikacjami
+  - scenariuszami BDD
+  - testami
+  - implementacją
+- Utrzymywać śledzalność między wymaganiami, scenariuszami, testami i implementacją
+- Generować ustrukturyzowane prompty dla różnych etapów pracy
+- Śledzić stan walidacji i postęp w projektach oraz funkcjach
+- Zmniejszać obciążenie poznawcze operatora
 
 ---
 
-## Non-Goals (initial phase)
+## Kluczowe możliwości
 
-- direct execution of prompts through an AI provider
-- full IDE replacement
-- cloud-first architecture
-- collaborative real-time editing
-- deep semantic code analysis
-- automatic code modification without operator control
+### 1. Zarządzanie projektami
+- tworzenie i inicjalizacja projektów
+- zarządzanie strukturą projektu
+- śledzenie statusu projektu
+- obsługa wielu projektów
+
+### 2. Zarządzanie ideami
+- przechowywanie idei per projekt
+- przenoszenie idei do przepływu definiowania funkcji
+- oddzielenie idei od implementacji
+
+### 3. Zarządzanie funkcjami
+- tworzenie i zarządzanie cyklem życia funkcji
+- śledzenie statusu funkcji
+- łączenie funkcji ze specyfikacjami i walidacją
+
+### 4. Zarządzanie specyfikacjami
+- zarządzanie PRD funkcji
+- zarządzanie scenariuszami BDD
+- utrzymywanie śledzalności między regułami i scenariuszami
+
+### 5. Generowanie promptów
+- generowanie promptów do:
+  - planowania
+  - tworzenia PRD
+  - tworzenia BDD
+  - generowania testów
+  - implementacji
+  - debugowania
+  - refaktoryzacji
+- umożliwienie przechowywania szablonów promptów poza plikami projektu
+
+### 6. Śledzenie walidacji
+- rejestrowanie statusu build/test/lint
+- pokazywanie, czy funkcja jest gotowa do przejścia dalej
+- wspieranie ciągłości między sesjami
+
+### 7. Widoczność postępu
+- pokazywanie stanu cyklu życia funkcji
+- pokazywanie postępu na poziomie projektu
+- pokazywanie kompletności specyfikacji
+- pokazywanie gotowości walidacyjnej
+- opcjonalne wyprowadzanie metryk postępu ze stanu scenariuszy/testów
+
+### 8. Wsparcie śledzalności
+- łączenie reguł PRD ze scenariuszami BDD
+- łączenie scenariuszy z testami
+- uwidacznianie luk
 
 ---
 
-## Design Principles
+## Poza zakresem (faza początkowa)
 
-### Deterministic Control
-The application must remain deterministic and operator-driven.
+- bezpośrednie wykonywanie promptów przez dostawcę AI
+- pełne zastąpienie IDE
+- architektura cloud-first
+- współdzielona edycja w czasie rzeczywistym
+- głęboka semantyczna analiza kodu
+- automatyczna modyfikacja kodu bez kontroli operatora
 
-### Tool Agnostic
-The system must support different development stacks, different prompt strategies and different AI providers without hard coupling to any specific one.
+---
+
+## Zasady projektowe
+
+### Deterministyczna kontrola
+Aplikacja musi pozostać deterministyczna i sterowana przez operatora.
+
+### Niezależność od narzędzi
+System musi wspierać różne stosy technologiczne, różne strategie promptów i różnych dostawców AI bez ścisłego sprzęgania z którymkolwiek z nich.
 
 ### Local First
-The application should work as a local desktop supervisor with local state and local persistence.
+Aplikacja powinna działać jako lokalny supervisor desktopowy z lokalnym stanem i lokalną persystencją.
 
-### Specification Driven Development
-The preferred workflow is:
-idea → PRD → BDD → tests → implementation → validation
+### Rozwój sterowany specyfikacją
+Preferowany workflow to:
+idea → PRD → BDD → testy → implementacja → walidacja
 
-### Traceability First
-Important rules should remain traceable across:
+### Śledzalność na pierwszym miejscu
+Istotne reguły powinny pozostać śledzalne między:
 - PRD
 - BDD
-- tests
+- testami
 
-### Incremental Workflow
-The application should guide work in small, controlled steps rather than large ambiguous jumps.
-
----
-
-## Storage Model
-
-The application uses a local database to maintain process state, operational metadata and project supervision data.
-
-The database is not intended to replace project files as the source of truth for specifications.
-Instead:
-- project files remain the source of truth for project artifacts
-- the local database stores operational state, references and supervision metadata
+### Workflow przyrostowy
+Aplikacja powinna prowadzić pracę małymi, kontrolowanymi krokami zamiast dużych, niejednoznacznych skoków.
 
 ---
 
-## Target Users
+## Model przechowywania danych
 
-- solo developers using AI-assisted workflows
-- engineers managing multiple local projects
-- developers who want strict process control when working with AI
+Aplikacja używa lokalnej bazy danych do utrzymywania stanu procesu, metadanych operacyjnych i danych nadzoru projektu.
 
----
-
-## Product Boundaries
-
-The application:
-- supervises process
-- tracks state
-- generates prompts
-- maintains references
-- helps the operator stay in control
-
-The application does not:
-- replace engineering judgment
-- own the execution environment of code
-- force a single AI provider or stack
-- become the implementation engine itself
+Baza danych nie ma zastępować plików projektu jako źródła prawdy dla specyfikacji.
+Zamiast tego:
+- pliki projektu pozostają źródłem prawdy dla artefaktów projektu
+- lokalna baza danych przechowuje stan operacyjny, referencje i metadane nadzoru
 
 ---
 
-## Success Criteria
+## Użytkownicy docelowi
 
-The system is successful if:
-- projects can be initialized consistently
-- feature work follows a repeatable flow
-- prompt generation reduces operator effort
-- validation state is visible at all times
-- traceability gaps are easy to detect
-- multiple projects can be supervised without confusion
+- solo deweloperzy pracujący z workflowami wspomaganymi AI
+- inżynierowie zarządzający wieloma lokalnymi projektami
+- deweloperzy, którzy chcą ścisłej kontroli procesu podczas pracy z AI
+
+---
+
+## Granice produktu
+
+Aplikacja:
+- nadzoruje proces
+- śledzi stan
+- generuje prompty
+- utrzymuje referencje
+- pomaga operatorowi zachować kontrolę
+
+Aplikacja nie:
+- zastępuje osądu inżynierskiego
+- nie zarządza środowiskiem wykonawczym kodu
+- nie wymusza jednego dostawcy AI ani jednego stosu
+- nie staje się sama silnikiem implementacyjnym
+
+---
+
+## Kryteria sukcesu
+
+System jest sukcesem, jeśli:
+- projekty mogą być inicjalizowane w sposób spójny
+- praca nad funkcjami przebiega powtarzalnym flow
+- generowanie promptów zmniejsza wysiłek operatora
+- stan walidacji jest widoczny przez cały czas
+- luki śledzalności są łatwe do wykrycia
+- wiele projektów może być nadzorowanych bez chaosu
