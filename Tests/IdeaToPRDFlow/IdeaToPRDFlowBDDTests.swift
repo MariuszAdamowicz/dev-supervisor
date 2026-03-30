@@ -2,7 +2,7 @@
 import XCTest
 
 final class IdeaToPRDFlowBDDTests: XCTestCase {
-    func testScenario01_generatePRDPromptForIdeaInActiveProject_returnsPromptWithExplicitSuccess() throws {
+    func testScenario01_generatePRDPromptForIdeaInActiveProject_returnsPromptWithExplicitSuccess() {
         let sut = makeSUT()
         let alpha = ProjectID(rawValue: "P-1")
         let ideaID = IdeaID(rawValue: "I-1")
@@ -154,7 +154,7 @@ final class IdeaToPRDFlowBDDTests: XCTestCase {
 
 private extension IdeaToPRDFlowBDDTests {
     func makeSUT() -> any IdeaToPRDFlowContract {
-        UnimplementedIdeaToPRDFlow()
+        IdeaToPRDFlowInMemory()
     }
 
     func assertExplicitFailureWithReason(
@@ -168,57 +168,5 @@ private extension IdeaToPRDFlowBDDTests {
         }
 
         XCTAssertFalse(reason.message.isEmpty, "Failure reason should be explicit and non-empty", file: file, line: line)
-    }
-}
-
-private protocol IdeaToPRDFlowContract {
-    func selectActiveProject(id: ProjectID?)
-    func seedIdea(id: IdeaID, projectID: ProjectID, title: String, status: IdeaStatus)
-    func setContextAvailability(overview: Bool, constraints: Bool, glossary: Bool, stackRules: Bool)
-    func generatePRDPrompt(for ideaID: IdeaID) -> PRDPromptGenerationResult
-    func idea(by id: IdeaID) -> IdeaRecord?
-    var didSendPromptToAIProvider: Bool { get }
-    func lastTrace() -> PRDPromptGenerationTrace?
-}
-
-private struct PRDPromptGenerationResult: Equatable {
-    let result: RegistryOperationResult
-    let promptText: String
-    let promptFingerprint: String
-    let includesMinimalContext: Bool
-    let ideaID: IdeaID?
-    let projectID: ProjectID?
-}
-
-private struct PRDPromptGenerationTrace: Equatable {
-    let operation: String
-    let ideaID: IdeaID
-    let projectID: ProjectID
-}
-
-private final class UnimplementedIdeaToPRDFlow: IdeaToPRDFlowContract {
-    var didSendPromptToAIProvider: Bool { false }
-
-    func selectActiveProject(id _: ProjectID?) {}
-    func seedIdea(id _: IdeaID, projectID _: ProjectID, title _: String, status _: IdeaStatus) {}
-    func setContextAvailability(overview _: Bool, constraints _: Bool, glossary _: Bool, stackRules _: Bool) {}
-
-    func generatePRDPrompt(for _: IdeaID) -> PRDPromptGenerationResult {
-        PRDPromptGenerationResult(
-            result: .failure(.init(message: "Idea to PRD flow not implemented yet.")),
-            promptText: "",
-            promptFingerprint: "",
-            includesMinimalContext: false,
-            ideaID: nil,
-            projectID: nil
-        )
-    }
-
-    func idea(by _: IdeaID) -> IdeaRecord? {
-        nil
-    }
-
-    func lastTrace() -> PRDPromptGenerationTrace? {
-        nil
     }
 }
