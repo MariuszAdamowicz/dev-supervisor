@@ -1,59 +1,93 @@
-## Trigger Rules (event -> action)
+## Trigger Rules (event -> action -> gate)
 
-Cel: automatycznie generowac wlasciwe PromptTask i wymuszac pelny flow bez recznego pilnowania zaleznosci.
+Cel: deterministyczne uruchamianie zadan i decyzji bez recznego pilnowania zaleznosci.
+
+## Kontrakt triggera
+
+Kazda regula ma:
+- event
+- guards
+- actions
+- target_op
+- gate_effect
+- failure_policy
+- idempotency_key
 
 ## Reguly bazowe
 
-### Idea / Feature
-- Event: `Idea.scoped`
-- Action: utworz `PromptTask(prd-draft)` dla nowego feature.
+### 1. Scope i spec
+- Event: Idea.scoped
+- Action: utworz PromptTask(prd-draft)
+- Gate effect: otwiera Feature.specified
 
-- Event: `Feature.specified`
-- Action: utworz `PromptTask(ux-contract-check)`.
+- Event: Feature.specified
+- Action: utworz PromptTask(ux-contract-check) + PromptTask(term-extract)
+- Gate effect: blokuje przejscie dalej do czasu domkniecia UX/Term
 
-- Event: `Feature.ux-aligned`
-- Action: utworz `PromptTask(prd-to-bdd)`.
+- Event: Feature.ux-aligned
+- Action: utworz PromptTask(prd-to-bdd)
 
-- Event: `Scenario.updated`
-- Action: utworz `PromptTask(bdd-to-tests)`.
+- Event: Scenario.approved
+- Action: utworz PromptTask(bdd-to-tests)
 
-### Terminologia (glossary lifecycle)
-- Event: `Term.proposed`
-- Action: utworz `PromptTask(term-impact-check)`:
-  - czy termin wymaga nowego `UIComponent`
-  - czy termin zmienia copy istniejacych komponentow
-  - czy termin wymaga nowych scenariuszy BDD
+### 2. Terminologia i UI
+- Event: Term.proposed
+- Action: utworz PromptTask(term-impact-check)
+  - czy potrzebny nowy UIComponent
+  - czy potrzebna zmiana copy
+  - czy potrzebna zmiana scenariuszy
 
-- Event: `Term.approved`
-- Action: zaktualizuj `glossary.md` i traceability (`Feature <-> Term`).
+- Event: UIComponent.proposed
+- Action: utworz PromptTask(ui-placement)
 
-- Event: `Term.deprecated`
-- Action: utworz `PromptTask(term-cleanup)` dla UI copy, scenariuszy i testow.
+- Event: UIComponent.mapped
+- Action: utworz PromptTask(ui-implementation)
 
-### UI/UX
-- Event: `UIComponent.proposed`
-- Action: utworz `PromptTask(ui-placement)`:
-  - umiejscowienie w `UIScreen`
-  - reguly visibility
-  - reguly gate availability
+- Event: UIComponent.implemented
+- Action: utworz PromptTask(ux-validation)
 
-- Event: `UIComponent.mapped`
-- Action: utworz `PromptTask(ui-implementation)`.
+### 3. Jakosc i gate
+- Event: PromptTask.executed
+- Action: zbuduj review package (diff + mapowanie do BDD + build/test/lint)
 
-- Event: `UIComponent.implemented`
-- Action: utworz `PromptTask(ux-validation)` + testy widocznosci.
+- Event: QualitySignal.fail
+- Action: utworz Exception + PromptTask(debug-fix)
+- Gate effect: wymusza GateDecision=request_changes lub defer
 
-### Gate i walidacja
-- Event: `PromptTask.executed`
-- Action: zbuduj review package (diff + BDD map + build/test/lint).
+- Event: GateDecision.approve
+- Action: odblokuj kolejny stan OP
 
-- Event: `GateDecision.request_changes`
-- Action: utworz `PromptTask(debug/fix)` z minimalnym kontekstem.
+- Event: GateDecision.request_changes
+- Action: utworz PromptTask(rework)
 
-- Event: `GateDecision.approve`
-- Action: odblokuj nastepny stan OP.
+### 4. Delivery
+- Event: Feature.stabilized
+- Guard: brak krytycznych Exception, Dependency!=blocked
+- Action: utworz Release.candidate
 
-## Reguly deterministyczne
-- Jeden event moze utworzyc wiele PromptTask, ale kazdy task ma jednego wlasciciela OP.
-- Task bez wskazanego `target-op` jest niewazny.
-- Nie mozna zamknac `Feature`, jesli istnieje otwarty `PromptTask` krytyczny.
+- Event: Release.approved
+- Action: utworz Deployment.prepared
+
+- Event: Deployment.failed
+- Action: utworz Rollback.prepared + Compensation.planned
+
+### 5. Timeout i eskalacje
+- Event: Timeout.fired
+- Action: utworz Exception(timeout) + GateDecision(defer) candidate
+- Failure policy: escalation do operatora
+
+## Retry / idempotency / compensation
+
+- Retry stosuj tylko dla operacji oznaczonych retryable.
+- Kazdy trigger ma idempotency_key, aby uniknac duplikatow PromptTask.
+- Po przekroczeniu limitu retry wymagane jest Compensation lub decyzja reject/defer.
+
+## Reguly bezpieczenstwa i uprawnien
+
+- Action mozliwa tylko gdy ActorRolePermission pozwala na dana operacje.
+- Brak uprawnien generuje Exception(authz) i blokuje transition.
+
+## Audit
+
+- Kazdy trigger execution zapisuje ProcessEvent.
+- Brak ProcessEvent = przejscie uznane za niewazne.

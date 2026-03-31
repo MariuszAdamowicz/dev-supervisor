@@ -1,79 +1,98 @@
-## State Machines (per OP)
+## State Machines (kanoniczne)
 
-## OP: Project
-```text
-created -> configured -> active -> archived
-```
+Cel: kazdy OP ma jednoznaczny lifecycle. Przejscie stanu wymaga eventu i guard condition.
 
-Przejscia:
-- `created -> configured`: wybrane profile + zapis konfiguracji.
-- `configured -> active`: Product Baseline Gate zatwierdzony.
-- `active -> archived`: decyzja operatora o zamknieciu projektu.
+## Semantyka przejsc
 
-## OP: Idea
-```text
+Kazde przejscie zapisujemy jako:
+- from_state
+- event
+- guards
+- actions
+- to_state
+- failure_policy (retry/compensation/escalation)
+
+## Maszyny stanow per OP
+
+### Project
+created -> configured -> baseline-approved -> active -> archived
+
+### Requirement
+proposed -> clarified -> approved -> linked -> deprecated
+
+### Constraint
+proposed -> validated -> enforced -> revised -> retired
+
+### DecisionRecord
+drafted -> reviewed -> approved -> superseded
+
+### Idea
 captured -> scoped -> converted | dropped
-```
 
-Przejscia:
-- `captured -> scoped`: wykonano idea -> feature(s).
-- `scoped -> converted`: utworzono co najmniej jeden feature.
-- `scoped -> dropped`: decyzja operatora o odrzuceniu.
+### Feature
+drafted -> specified -> ux-aligned -> scenario-ready -> test-ready -> implemented -> stabilized -> released -> done
 
-## OP: Feature
-```text
-drafted -> specified -> ux-aligned -> scenario-ready -> test-ready -> implemented -> stabilized -> done
-```
+### Scenario
+drafted -> approved -> test-linked -> passing -> obsolete
 
-Przejscia:
-- `drafted -> specified`: gotowe `prd.md`.
-- `specified -> ux-aligned`: gotowy UX contract.
-- `ux-aligned -> scenario-ready`: gotowe `bdd.md`.
-- `scenario-ready -> test-ready`: testy wygenerowane/zaktualizowane.
-- `test-ready -> implemented`: implementacja zgodna z testami.
-- `implemented -> stabilized`: cleanup + docs sync.
-- `stabilized -> done`: gate operatora `approve`.
-
-## OP: Term
-```text
+### Term
 proposed -> approved -> deprecated
-```
 
-Przejscia:
-- `proposed -> approved`: zatwierdzenie operatora.
-- `approved -> deprecated`: termin zastapiony/usuniety.
-
-## OP: UIComponent
-```text
+### UIComponent
 proposed -> mapped -> implemented -> verified -> deprecated
-```
 
-Przejscia:
-- `proposed -> mapped`: komponent osadzony w mapie UI/UX.
-- `mapped -> implemented`: kod komponentu dodany.
-- `implemented -> verified`: testy i visibility rules przechodza.
+### UIScreen
+proposed -> mapped -> verified -> deprecated
 
-## OP: PromptTask
-```text
-created -> ready -> executed -> closed | cancelled
-```
+### PromptTask
+created -> ready -> executed -> validated -> closed | cancelled
 
-Przejscia:
-- `created -> ready`: kontekst minimalny zbudowany.
-- `ready -> executed`: operator uruchomil prompt.
-- `executed -> closed`: wynik zwalidowany i powiazany z OP.
+### GateDecision
+recorded (value: approve | request_changes | defer | reject)
 
-## OP: GateDecision
-```text
-recorded
-```
+### ActorRolePermission
+defined -> active -> revised -> revoked
 
-Wartosci decyzji:
-- `approve`
-- `request_changes`
-- `defer`
-- `reject`
+### Dependency
+identified -> validated -> satisfied | blocked | waived
 
-## Regula spojnosci stanu
-- Stan OP nizszego poziomu nie moze wyprzedzac OP nadrzednego.
-- Przyklad: `UIComponent=implemented` przy `Feature=specified` jest niedozwolone.
+### Risk
+identified -> assessed -> mitigated | accepted | escalated -> closed
+
+### Release
+planned -> candidate -> approved -> published -> closed
+
+### Deployment
+prepared -> running -> succeeded | failed
+
+### Rollback
+prepared -> running -> succeeded | failed
+
+### QualitySignal
+collected -> evaluated -> pass | fail
+
+### Exception
+detected -> classified -> handled | escalated
+
+### Timeout
+scheduled -> fired -> handled | escalated
+
+### Compensation
+planned -> running -> completed | failed
+
+### ProcessEvent
+recorded (immutable)
+
+## Guard conditions (obowiazkowe)
+
+Przyklady guardow:
+- Feature.test-ready wymaga: wszystkie scenariusze kluczowe maja testy.
+- Feature.released wymaga: GateDecision=approve i QualitySignal=pass.
+- Deployment.running wymaga: Release.approved.
+- Rollback.running wymaga: Deployment.failed lub QualitySignal=fail.
+
+## Hierarchia i zakazy
+
+- OP nizszego poziomu nie moze wyprzedzac OP nadrzednego.
+- Feature nie przejdzie do done, jesli istnieje Exception o severity=critical bez Compensation.completed.
+- GateDecision bez review package jest niewazna.
