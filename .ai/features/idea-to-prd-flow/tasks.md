@@ -16,4 +16,4 @@ Data: 2026-03-30
 ## Odroczone / Następne
 - [ ] integracja flow `IDEA -> PRD` z UI operatora (poza zakresem bieżącej partii funkcji)
 - [x] przygotowanie i utrwalenie `notes.md` dla decyzji implementacyjnych flow
-- [ ] domknięcie kolejnego kroku procesu `PRD -> BDD` dla nowej funkcji (poza zakresem bieżącej partii funkcji)
+- [x] domknięcie kolejnego kroku procesu `PRD -> BDD` dla nowej funkcji

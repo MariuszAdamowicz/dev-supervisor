@@ -28,6 +28,8 @@ struct ContentView: View {
     @State private var approvedFeaturesForPRD: [FeatureCandidate] = []
     @State private var lastFeaturesPromotionResult: RegistryOperationResult?
     @State private var lastPRDFromFeaturesResult: PRDFromFeaturesPromptResult?
+    @State private var approvedPRDForBDD = ""
+    @State private var lastPRDPromotionResult: RegistryOperationResult?
     @State private var lastBDDFromPRDResult: BDDFromPRDPromptResult?
     @State private var lastTestsFromBDDResult: TestsFromBDDPromptResult?
     @State private var lastImplementationFromTestsResult: ImplementationFromTestsPromptResult?
@@ -52,7 +54,6 @@ struct ContentView: View {
     private let testsToImplementationService: any TestsToImplementationFlowContract = TestsToImplementationFlowInMemory()
     private let implementationToValidationService: any ImplementationToValidationFlowContract = ImplementationToValidationFlowInMemory()
     private let gatePersistenceService: any GatePromptPersistenceContract = GatePromptPersistenceFileSystem()
-
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
@@ -60,7 +61,6 @@ struct ContentView: View {
                     .font(.largeTitle.bold())
                 Text("Deterministyczny bootstrap i inspekcja projektu")
                     .foregroundStyle(.secondary)
-
                 newProjectSection
                 Divider()
                 ideaRegistrySection
@@ -98,21 +98,16 @@ private extension ContentView {
         VStack(alignment: .leading, spacing: 12) {
             Text("Nowy projekt")
                 .font(.title2.bold())
-
             TextField("Nazwa projektu (np. Dev Supervisor)", text: $projectName)
                 .textFieldStyle(.roundedBorder)
-
             TextField("Katalog główny na projekty", text: $projectsRootPath)
                 .textFieldStyle(.roundedBorder)
-
             Picker("Storage profile", selection: $selectedStorageProfile) {
                 Text("file-ai").tag(StorageProfile.fileAI)
                 Text("sqlbase").tag(StorageProfile.sqlbase)
             }
             .pickerStyle(.segmented)
-
             Toggle("Zainicjalizuj git repo", isOn: $initializeGitRepository)
-
             Button("Bootstrap project") {
                 let input = ProjectBootstrapInput(
                     projectName: projectName,
@@ -138,19 +133,14 @@ private extension ContentView {
         VStack(alignment: .leading, spacing: 12) {
             Text("IDEA -> FEATURES")
                 .font(.title2.bold())
-
             Text("Gate operatora: materializacja wybranej idei do zestawu funkcjonalności przed PRD.")
                 .foregroundStyle(.secondary)
-
             TextField("Project ID", text: $flowProjectID)
                 .textFieldStyle(.roundedBorder)
-
             TextField("Idea ID", text: $flowIdeaID)
                 .textFieldStyle(.roundedBorder)
-
             TextField("Idea title", text: $flowIdeaTitle)
                 .textFieldStyle(.roundedBorder)
-
             Picker("Idea status", selection: $flowIdeaStatus) {
                 Text("new").tag(IdeaStatus.new)
                 Text("selected").tag(IdeaStatus.selected)
@@ -158,7 +148,6 @@ private extension ContentView {
                 Text("done").tag(IdeaStatus.done)
             }
             .pickerStyle(.segmented)
-
             Button("Generate IDEA -> FEATURES prompt") {
                 guard let inspection = lastInspectionResult, inspection.result.isSuccess else {
                     lastFeaturesResult = FeatureSetPromptGenerationResult(
@@ -172,7 +161,6 @@ private extension ContentView {
                     )
                     return
                 }
-
                 guard inspection.productGatePassed else {
                     let missing = inspection.missingProductArtifacts.joined(separator: ", ")
                     lastFeaturesResult = FeatureSetPromptGenerationResult(
@@ -186,11 +174,9 @@ private extension ContentView {
                     )
                     return
                 }
-
                 let projectID = ProjectID(rawValue: flowProjectID.trimmingCharacters(in: .whitespacesAndNewlines))
                 let ideaID = IdeaID(rawValue: flowIdeaID.trimmingCharacters(in: .whitespacesAndNewlines))
                 let ideaTitle = flowIdeaTitle.trimmingCharacters(in: .whitespacesAndNewlines)
-
                 ideaToFeaturesService.selectActiveProject(id: projectID)
                 ideaToFeaturesService.seedIdea(
                     id: ideaID,
@@ -203,7 +189,6 @@ private extension ContentView {
                     constraints: true,
                     glossary: true
                 )
-
                 let result = ideaToFeaturesService.generateFeaturesPrompt(for: ideaID)
                 lastFeaturesResult = result
                 approvedFeaturesForPRD = []
@@ -225,25 +210,20 @@ private extension ContentView {
         VStack(alignment: .leading, spacing: 12) {
             Text("FEATURES -> PRD")
                 .font(.title2.bold())
-
             Text("Gate operatora: budowa promptu PRD na bazie wygenerowanego feature-setu.")
                 .foregroundStyle(.secondary)
-
             Text("Approved features for PRD gate: \(approvedFeaturesForPRD.count)")
                 .font(.footnote)
-
             Button("Promote generated features to PRD gate") {
                 guard let featuresResult = lastFeaturesResult, featuresResult.result.isSuccess else {
                     lastFeaturesPromotionResult = .failure(.init(message: "Run IDEA -> FEATURES successfully before promotion."))
                     approvedFeaturesForPRD = []
                     return
                 }
-
                 approvedFeaturesForPRD = featuresResult.proposedFeatures
                 lastFeaturesPromotionResult = .success
             }
             .buttonStyle(.bordered)
-
             Button("Generate FEATURES -> PRD prompt") {
                 guard !approvedFeaturesForPRD.isEmpty else {
                     lastPRDFromFeaturesResult = PRDFromFeaturesPromptResult(
@@ -257,11 +237,9 @@ private extension ContentView {
                     )
                     return
                 }
-
                 let projectID = ProjectID(rawValue: flowProjectID.trimmingCharacters(in: .whitespacesAndNewlines))
                 let ideaID = IdeaID(rawValue: flowIdeaID.trimmingCharacters(in: .whitespacesAndNewlines))
                 let ideaTitle = flowIdeaTitle.trimmingCharacters(in: .whitespacesAndNewlines)
-
                 featuresToPRDService.selectActiveProject(id: projectID)
                 featuresToPRDService.setContextAvailability(
                     overview: true,
@@ -269,13 +247,14 @@ private extension ContentView {
                     glossary: true,
                     stackRules: true
                 )
-
                 let result = featuresToPRDService.generatePRDPrompt(
                     for: ideaID,
                     ideaTitle: ideaTitle,
                     features: approvedFeaturesForPRD
                 )
                 lastPRDFromFeaturesResult = result
+                approvedPRDForBDD = ""
+                lastPRDPromotionResult = .failure(.init(message: "Run PRD promotion gate before PRD -> BDD."))
                 persistPromptIfPossible(
                     operation: "FEATURES -> PRD",
                     gateResult: result.result,
@@ -292,10 +271,10 @@ private extension ContentView {
         VStack(alignment: .leading, spacing: 12) {
             Text("PRD -> BDD")
                 .font(.title2.bold())
-
             Text("Gate operatora: budowa promptu BDD na bazie zatwierdzonego dokumentu PRD.")
                 .foregroundStyle(.secondary)
-
+            Text("Approved PRD length for BDD gate: \(approvedPRDForBDD.count)")
+                .font(.footnote)
             TextEditor(text: $prdDocumentText)
                 .font(.footnote.monospaced())
                 .frame(minHeight: 140)
@@ -303,8 +282,30 @@ private extension ContentView {
                     RoundedRectangle(cornerRadius: 8)
                         .stroke(Color.secondary.opacity(0.25), lineWidth: 1)
                 )
-
+            Button("Promote PRD to BDD gate") {
+                guard let prdResult = lastPRDFromFeaturesResult, prdResult.result.isSuccess else {
+                    lastPRDPromotionResult = .failure(.init(message: "Run FEATURES -> PRD successfully before promotion."))
+                    approvedPRDForBDD = ""
+                    return
+                }
+                let candidatePRD = prdDocumentText.trimmingCharacters(in: .whitespacesAndNewlines)
+                approvedPRDForBDD = candidatePRD.isEmpty ? prdResult.promptText : candidatePRD
+                lastPRDPromotionResult = .success
+            }
+            .buttonStyle(.bordered)
             Button("Generate PRD -> BDD prompt") {
+                guard !approvedPRDForBDD.isEmpty else {
+                    lastBDDFromPRDResult = BDDFromPRDPromptResult(
+                        result: .failure(.init(message: "Promote PRD to BDD gate before this step.")),
+                        promptText: "",
+                        promptFingerprint: "",
+                        includesMinimalContext: false,
+                        ideaID: nil,
+                        projectID: nil,
+                        prdLength: 0
+                    )
+                    return
+                }
                 guard let prdResult = lastPRDFromFeaturesResult, prdResult.result.isSuccess else {
                     lastBDDFromPRDResult = BDDFromPRDPromptResult(
                         result: .failure(.init(message: "Run FEATURES -> PRD successfully before this step.")),
@@ -317,13 +318,9 @@ private extension ContentView {
                     )
                     return
                 }
-
                 let projectID = ProjectID(rawValue: flowProjectID.trimmingCharacters(in: .whitespacesAndNewlines))
                 let ideaID = IdeaID(rawValue: flowIdeaID.trimmingCharacters(in: .whitespacesAndNewlines))
                 let ideaTitle = flowIdeaTitle.trimmingCharacters(in: .whitespacesAndNewlines)
-                let candidatePRD = prdDocumentText.trimmingCharacters(in: .whitespacesAndNewlines)
-                let finalPRDDocument = candidatePRD.isEmpty ? prdResult.promptText : candidatePRD
-
                 prdToBDDService.selectActiveProject(id: projectID)
                 prdToBDDService.setContextAvailability(
                     overview: true,
@@ -331,11 +328,10 @@ private extension ContentView {
                     glossary: true,
                     stackRules: true
                 )
-
                 let result = prdToBDDService.generateBDDPrompt(
                     for: ideaID,
                     ideaTitle: ideaTitle,
-                    prdDocument: finalPRDDocument
+                    prdDocument: approvedPRDForBDD
                 )
                 lastBDDFromPRDResult = result
                 persistPromptIfPossible(
@@ -354,10 +350,8 @@ private extension ContentView {
         VStack(alignment: .leading, spacing: 12) {
             Text("BDD -> TESTY")
                 .font(.title2.bold())
-
             Text("Gate operatora: budowa promptu testów na bazie zatwierdzonego dokumentu BDD.")
                 .foregroundStyle(.secondary)
-
             TextEditor(text: $bddDocumentText)
                 .font(.footnote.monospaced())
                 .frame(minHeight: 140)
@@ -365,7 +359,6 @@ private extension ContentView {
                     RoundedRectangle(cornerRadius: 8)
                         .stroke(Color.secondary.opacity(0.25), lineWidth: 1)
                 )
-
             Button("Generate BDD -> TESTS prompt") {
                 guard let bddResult = lastBDDFromPRDResult, bddResult.result.isSuccess else {
                     lastTestsFromBDDResult = TestsFromBDDPromptResult(
@@ -379,13 +372,11 @@ private extension ContentView {
                     )
                     return
                 }
-
                 let projectID = ProjectID(rawValue: flowProjectID.trimmingCharacters(in: .whitespacesAndNewlines))
                 let ideaID = IdeaID(rawValue: flowIdeaID.trimmingCharacters(in: .whitespacesAndNewlines))
                 let ideaTitle = flowIdeaTitle.trimmingCharacters(in: .whitespacesAndNewlines)
                 let candidateBDD = bddDocumentText.trimmingCharacters(in: .whitespacesAndNewlines)
                 let finalBDDDoc = candidateBDD.isEmpty ? bddResult.promptText : candidateBDD
-
                 bddToTestsService.selectActiveProject(id: projectID)
                 bddToTestsService.setContextAvailability(
                     overview: true,
@@ -393,7 +384,6 @@ private extension ContentView {
                     glossary: true,
                     stackRules: true
                 )
-
                 let result = bddToTestsService.generateTestsPrompt(
                     for: ideaID,
                     ideaTitle: ideaTitle,
@@ -421,10 +411,8 @@ private extension ContentView {
         VStack(alignment: .leading, spacing: 12) {
             Text("Otwórz istniejący projekt")
                 .font(.title2.bold())
-
             TextField("Ścieżka do projektu", text: $inspectPath)
                 .textFieldStyle(.roundedBorder)
-
             Button("Inspect project") {
                 let result = bootstrapService.inspectProject(at: inspectPath)
                 lastInspectionResult = result
@@ -436,18 +424,15 @@ private extension ContentView {
                 }
             }
             .buttonStyle(.bordered)
-
             Text("sqlbase sync: DB <-> .ai")
                 .font(.footnote)
                 .foregroundStyle(.secondary)
-
             HStack(spacing: 12) {
                 Button("Export .ai -> sqlbase") {
                     runArtifactSync(.exportAIToSQLBase)
                 }
                 .buttonStyle(.bordered)
                 .disabled(!isSQLBaseProfileActive)
-
                 Button("Import sqlbase -> .ai") {
                     runArtifactSync(.importSQLBaseToAI)
                 }
@@ -461,10 +446,8 @@ private extension ContentView {
         VStack(alignment: .leading, spacing: 12) {
             Text("TESTY -> IMPLEMENTACJA")
                 .font(.title2.bold())
-
             Text("Gate operatora: budowa promptu implementacji na bazie zatwierdzonego dokumentu testów.")
                 .foregroundStyle(.secondary)
-
             TextEditor(text: $testsDocumentText)
                 .font(.footnote.monospaced())
                 .frame(minHeight: 140)
@@ -472,7 +455,6 @@ private extension ContentView {
                     RoundedRectangle(cornerRadius: 8)
                         .stroke(Color.secondary.opacity(0.25), lineWidth: 1)
                 )
-
             Button("Generate TESTS -> IMPLEMENTATION prompt") {
                 guard let testsResult = lastTestsFromBDDResult, testsResult.result.isSuccess else {
                     lastImplementationFromTestsResult = ImplementationFromTestsPromptResult(
@@ -486,13 +468,11 @@ private extension ContentView {
                     )
                     return
                 }
-
                 let projectID = ProjectID(rawValue: flowProjectID.trimmingCharacters(in: .whitespacesAndNewlines))
                 let ideaID = IdeaID(rawValue: flowIdeaID.trimmingCharacters(in: .whitespacesAndNewlines))
                 let ideaTitle = flowIdeaTitle.trimmingCharacters(in: .whitespacesAndNewlines)
                 let candidateTests = testsDocumentText.trimmingCharacters(in: .whitespacesAndNewlines)
                 let finalTestsDoc = candidateTests.isEmpty ? testsResult.promptText : candidateTests
-
                 testsToImplementationService.selectActiveProject(id: projectID)
                 testsToImplementationService.setContextAvailability(
                     overview: true,
@@ -500,7 +480,6 @@ private extension ContentView {
                     glossary: true,
                     stackRules: true
                 )
-
                 let result = testsToImplementationService.generateImplementationPrompt(
                     for: ideaID,
                     ideaTitle: ideaTitle,
@@ -523,10 +502,8 @@ private extension ContentView {
         VStack(alignment: .leading, spacing: 12) {
             Text("IMPLEMENTACJA -> WALIDACJA")
                 .font(.title2.bold())
-
             Text("Gate operatora: budowa promptu walidacji i stabilizacji na bazie opisu implementacji.")
                 .foregroundStyle(.secondary)
-
             TextEditor(text: $implementationDocumentText)
                 .font(.footnote.monospaced())
                 .frame(minHeight: 140)
@@ -534,7 +511,6 @@ private extension ContentView {
                     RoundedRectangle(cornerRadius: 8)
                         .stroke(Color.secondary.opacity(0.25), lineWidth: 1)
                 )
-
             Button("Generate IMPLEMENTATION -> VALIDATION prompt") {
                 guard let implementationResult = lastImplementationFromTestsResult, implementationResult.result.isSuccess else {
                     lastValidationFromImplementationResult = ValidationFromImplementationPromptResult(
@@ -548,13 +524,11 @@ private extension ContentView {
                     )
                     return
                 }
-
                 let projectID = ProjectID(rawValue: flowProjectID.trimmingCharacters(in: .whitespacesAndNewlines))
                 let ideaID = IdeaID(rawValue: flowIdeaID.trimmingCharacters(in: .whitespacesAndNewlines))
                 let ideaTitle = flowIdeaTitle.trimmingCharacters(in: .whitespacesAndNewlines)
                 let candidateImplementation = implementationDocumentText.trimmingCharacters(in: .whitespacesAndNewlines)
                 let finalImplementationDoc = candidateImplementation.isEmpty ? implementationResult.promptText : candidateImplementation
-
                 implementationToValidationService.selectActiveProject(id: projectID)
                 implementationToValidationService.setContextAvailability(
                     overview: true,
@@ -562,7 +536,6 @@ private extension ContentView {
                     glossary: true,
                     stackRules: true
                 )
-
                 let result = implementationToValidationService.generateValidationPrompt(
                     for: ideaID,
                     ideaTitle: ideaTitle,
@@ -585,7 +558,6 @@ private extension ContentView {
         VStack(alignment: .leading, spacing: 8) {
             Text("Status")
                 .font(.title2.bold())
-
             if let bootstrap = lastBootstrapResult {
                 Text("Bootstrap: \(statusText(for: bootstrap.result))")
                 if let path = bootstrap.projectPath {
@@ -604,7 +576,6 @@ private extension ContentView {
                     }
                 }
             }
-
             if let inspection = lastInspectionResult {
                 Text("Inspect: \(statusText(for: inspection.result))")
                 Text("Path: \(inspection.projectPath)")
@@ -623,7 +594,6 @@ private extension ContentView {
                 Text("Storage: \(inspection.detectedStorageProfile?.rawValue ?? "unknown")")
                     .font(.footnote)
             }
-
             if let registration = lastProjectRegistrationResult {
                 Text("Registry: \(statusText(for: registration.result))")
                 if let createdProjectID = registration.createdProjectID {
@@ -633,13 +603,11 @@ private extension ContentView {
                 Text("Registered projects count: \(activeProjectRegistryService.listProjects().count)")
                     .font(.footnote)
             }
-
             if let artifactSync = lastArtifactSyncResult {
                 Text("Artifact Sync: \(statusText(for: artifactSync.result))")
                 Text("Synchronized files: \(artifactSync.synchronizedFiles.count)")
                     .font(.footnote)
             }
-
             if let ideaCreation = lastIdeaCreationResult {
                 Text("Idea create: \(statusText(for: ideaCreation.result))")
                 if let createdIdeaID = ideaCreation.createdIdeaID {
@@ -647,18 +615,15 @@ private extension ContentView {
                         .font(.footnote)
                 }
             }
-
             if let ideaList = lastIdeaListResult {
                 Text("Idea list: \(statusText(for: ideaList.result))")
                 Text("Ideas in active project: \(ideaList.ideas.count)")
                     .font(.footnote)
             }
-
             if let ideaSelection = lastIdeaSelectionResult {
                 Text("Idea selection: \(statusText(for: ideaSelection))")
                     .font(.footnote)
             }
-
             if let features = lastFeaturesResult {
                 Text("IDEA -> FEATURES: \(statusText(for: features.result))")
                 Text("Candidates: \(features.proposedFeatures.count)")
@@ -669,12 +634,10 @@ private extension ContentView {
                         .textSelection(.enabled)
                 }
             }
-
             if let promotion = lastFeaturesPromotionResult {
                 Text("FEATURES promotion: \(statusText(for: promotion))")
                     .font(.footnote)
             }
-
             if let prd = lastPRDFromFeaturesResult {
                 Text("FEATURES -> PRD: \(statusText(for: prd.result))")
                 Text("Features in PRD prompt: \(prd.featuresCount)")
@@ -685,7 +648,10 @@ private extension ContentView {
                         .textSelection(.enabled)
                 }
             }
-
+            if let prdPromotion = lastPRDPromotionResult {
+                Text("PRD promotion: \(statusText(for: prdPromotion))")
+                    .font(.footnote)
+            }
             if let bdd = lastBDDFromPRDResult {
                 Text("PRD -> BDD: \(statusText(for: bdd.result))")
                 Text("PRD length: \(bdd.prdLength)")
@@ -696,7 +662,6 @@ private extension ContentView {
                         .textSelection(.enabled)
                 }
             }
-
             if let tests = lastTestsFromBDDResult {
                 Text("BDD -> TESTS: \(statusText(for: tests.result))")
                 Text("BDD length: \(tests.bddLength)")
@@ -707,7 +672,6 @@ private extension ContentView {
                         .textSelection(.enabled)
                 }
             }
-
             if let implementation = lastImplementationFromTestsResult {
                 Text("TESTS -> IMPLEMENTATION: \(statusText(for: implementation.result))")
                 Text("Tests length: \(implementation.testsLength)")
@@ -718,7 +682,6 @@ private extension ContentView {
                         .textSelection(.enabled)
                 }
             }
-
             if let validation = lastValidationFromImplementationResult {
                 Text("IMPLEMENTATION -> VALIDATION: \(statusText(for: validation.result))")
                 Text("Implementation length: \(validation.implementationLength)")
@@ -729,7 +692,6 @@ private extension ContentView {
                         .textSelection(.enabled)
                 }
             }
-
             if let persistence = lastPersistenceResult {
                 Text("Persistence: \(statusText(for: persistence.result))")
                 if let persistedPath = persistence.persistedPath {
@@ -750,7 +712,6 @@ private extension ContentView {
         guard gateResult.isSuccess else {
             return
         }
-
         let activePath = activeProjectPathForPersistence.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !activePath.isEmpty else {
             lastPersistenceResult = GatePromptPersistenceResult(
@@ -759,7 +720,6 @@ private extension ContentView {
             )
             return
         }
-
         let request = GatePromptPersistenceRequest(
             projectPath: activePath,
             storageProfile: activeStorageProfileForPersistence,
@@ -790,14 +750,12 @@ private extension ContentView {
         } else {
             registrationName = normalizedName
         }
-
         let registryService = projectRegistryService(for: profile)
         let registration = registryService.registerProject(
             name: registrationName,
             localPath: projectPath
         )
         lastProjectRegistrationResult = registration
-
         if let createdProjectID = registration.createdProjectID {
             _ = registryService.selectActiveWorkingProject(id: createdProjectID)
             flowProjectID = createdProjectID.rawValue
@@ -814,7 +772,6 @@ private extension ContentView {
             )
             return
         }
-
         let request = ArtifactSyncRequest(
             projectPath: activePath,
             storageProfile: activeStorageProfileForPersistence,
@@ -846,7 +803,6 @@ private extension ContentView {
         else {
             return
         }
-
         let registry = activeProjectRegistryService
         let current = registry.scopedData(for: projectID) ?? ProjectScopedData(
             ideas: [],
@@ -854,14 +810,12 @@ private extension ContentView {
             progress: [],
             metadata: [:]
         )
-
         let ideaEntries = ([result.ideaID?.rawValue].compactMap { $0 } + current.ideas)
             .reduce(into: [String]()) { acc, item in
                 if !acc.contains(item) {
                     acc.append(item)
                 }
             }
-
         let generatedFeatures = result.proposedFeatures.map { "\($0.key): \($0.name)" }
         let featureEntries = (generatedFeatures + current.features)
             .reduce(into: [String]()) { acc, item in
@@ -869,7 +823,6 @@ private extension ContentView {
                     acc.append(item)
                 }
             }
-
         let progressEntry = "IDEA->FEATURES:\(result.ideaID?.rawValue ?? "unknown")"
         let progressEntries = ([progressEntry] + current.progress)
             .reduce(into: [String]()) { acc, item in
@@ -877,10 +830,8 @@ private extension ContentView {
                     acc.append(item)
                 }
             }
-
         var metadata = current.metadata
         metadata["idea_to_features_last_fingerprint"] = result.promptFingerprint
-
         registry.seedScopedData(
             for: projectID,
             data: ProjectScopedData(
@@ -911,31 +862,24 @@ private extension ContentView {
         VStack(alignment: .leading, spacing: 12) {
             Text("Idea Registry")
                 .font(.title2.bold())
-
             Text("Operator tworzy i wybiera ideę. Wybrana idea zasila kolejne gate'y.")
                 .foregroundStyle(.secondary)
-
             Text("Active project for ideas: \(flowProjectID)")
                 .font(.footnote)
-
             TextField("Nowa idea — tytuł", text: $newIdeaTitle)
                 .textFieldStyle(.roundedBorder)
-
             TextField("Nowa idea — opis (opcjonalnie)", text: $newIdeaDescription)
                 .textFieldStyle(.roundedBorder)
-
             HStack(spacing: 12) {
                 Button("Create idea") {
                     let projectID = ProjectID(rawValue: flowProjectID.trimmingCharacters(in: .whitespacesAndNewlines))
                     activeIdeaRegistryService.selectActiveProject(id: projectID)
-
                     let rawDescription = newIdeaDescription.trimmingCharacters(in: .whitespacesAndNewlines)
                     let description = rawDescription.isEmpty ? nil : rawDescription
                     let creation = activeIdeaRegistryService.createIdea(
                         title: newIdeaTitle.trimmingCharacters(in: .whitespacesAndNewlines),
                         description: description
                     )
-
                     lastIdeaCreationResult = creation
                     if let createdIdeaID = creation.createdIdeaID,
                        let createdIdea = activeIdeaRegistryService.idea(by: createdIdeaID)
@@ -947,13 +891,11 @@ private extension ContentView {
                     refreshIdeasForActiveProject()
                 }
                 .buttonStyle(.borderedProminent)
-
                 Button("Refresh ideas") {
                     refreshIdeasForActiveProject()
                 }
                 .buttonStyle(.bordered)
             }
-
             if ideasForActiveProject.isEmpty {
                 Text("Brak idei dla aktywnego projektu.")
                     .font(.footnote)
@@ -985,10 +927,8 @@ private extension ContentView {
     func applyIdeaToFlow(_ idea: IdeaRecord) {
         let projectID = ProjectID(rawValue: flowProjectID.trimmingCharacters(in: .whitespacesAndNewlines))
         activeIdeaRegistryService.selectActiveProject(id: projectID)
-
         let selectionResult = activeIdeaRegistryService.changeIdeaStatus(id: idea.id, status: .selected)
         lastIdeaSelectionResult = selectionResult
-
         flowIdeaID = idea.id.rawValue
         flowIdeaTitle = idea.title
         flowIdeaStatus = .selected
