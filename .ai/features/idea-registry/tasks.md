@@ -15,5 +15,5 @@ Data: 2026-03-30
 
 ## Odroczone / Następne
 - [x] integracja UI z workflowami `idea-registry`
-- [ ] persystencja rejestru idei (poza zakresem bieżącej partii funkcji)
+- [x] persystencja rejestru idei
 - [x] powiązanie wybranej idei z uruchamianiem flow PRD

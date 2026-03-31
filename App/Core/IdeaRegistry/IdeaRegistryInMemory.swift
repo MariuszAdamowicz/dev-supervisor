@@ -133,4 +133,31 @@ final class IdeaRegistryInMemory: IdeaRegistryContract {
             $0.projectID == projectID && $0.id != excludedID && $0.status == .selected
         }
     }
+
+    func snapshotState() -> IdeaRegistryStateSnapshot {
+        IdeaRegistryStateSnapshot(
+            selectedProjectID: selectedProjectID,
+            ideas: orderedIdeaIDs.compactMap { ideasByID[$0] },
+            nextIdeaNumber: nextIdeaNumber
+        )
+    }
+
+    func restoreState(_ snapshot: IdeaRegistryStateSnapshot) {
+        ideasByID = [:]
+        orderedIdeaIDs = []
+
+        for idea in snapshot.ideas {
+            ideasByID[idea.id] = idea
+            orderedIdeaIDs.append(idea.id)
+        }
+
+        selectedProjectID = snapshot.selectedProjectID
+        nextIdeaNumber = snapshot.nextIdeaNumber
+    }
+}
+
+struct IdeaRegistryStateSnapshot {
+    let selectedProjectID: ProjectID?
+    let ideas: [IdeaRecord]
+    let nextIdeaNumber: Int
 }

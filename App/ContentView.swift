@@ -41,8 +41,11 @@ struct ContentView: View {
         ProjectRegistryPersistentFileSystem(storageProfile: .fileAI)
     private let sqlbaseProjectRegistryService: any ProjectRegistryContract =
         ProjectRegistryPersistentFileSystem(storageProfile: .sqlbase)
+    private let fileAIIdeaRegistryService: IdeaRegistryContract =
+        IdeaRegistryPersistentFileSystem(storageProfile: .fileAI)
+    private let sqlbaseIdeaRegistryService: IdeaRegistryContract =
+        IdeaRegistryPersistentFileSystem(storageProfile: .sqlbase)
     private let artifactSyncService: any ArtifactSyncContract = ArtifactSyncFileSystem()
-    private let ideaRegistryService: IdeaRegistryContract = IdeaRegistryInMemory()
     private let ideaToFeaturesService: any IdeaToFeaturesFlowContract = IdeaToFeaturesFlowInMemory()
     private let featuresToPRDService: any FeaturesToPRDFlowContract = FeaturesToPRDFlowInMemory()
     private let prdToBDDService: any PRDToBDDFlowContract = PRDToBDDFlowInMemory()
@@ -774,6 +777,7 @@ private extension ContentView {
         if let createdProjectID = registration.createdProjectID {
             _ = registryService.selectActiveWorkingProject(id: createdProjectID)
             flowProjectID = createdProjectID.rawValue
+            refreshIdeasForActiveProject()
         }
     }
 
@@ -811,6 +815,19 @@ private extension ContentView {
             return sqlbaseProjectRegistryService
         }
     }
+
+    var activeIdeaRegistryService: IdeaRegistryContract {
+        ideaRegistryService(for: activeStorageProfileForPersistence)
+    }
+
+    func ideaRegistryService(for profile: StorageProfile) -> IdeaRegistryContract {
+        switch profile {
+        case .fileAI:
+            return fileAIIdeaRegistryService
+        case .sqlbase:
+            return sqlbaseIdeaRegistryService
+        }
+    }
 }
 
 private extension ContentView {
@@ -834,18 +851,18 @@ private extension ContentView {
             HStack(spacing: 12) {
                 Button("Create idea") {
                     let projectID = ProjectID(rawValue: flowProjectID.trimmingCharacters(in: .whitespacesAndNewlines))
-                    ideaRegistryService.selectActiveProject(id: projectID)
+                    activeIdeaRegistryService.selectActiveProject(id: projectID)
 
                     let rawDescription = newIdeaDescription.trimmingCharacters(in: .whitespacesAndNewlines)
                     let description = rawDescription.isEmpty ? nil : rawDescription
-                    let creation = ideaRegistryService.createIdea(
+                    let creation = activeIdeaRegistryService.createIdea(
                         title: newIdeaTitle.trimmingCharacters(in: .whitespacesAndNewlines),
                         description: description
                     )
 
                     lastIdeaCreationResult = creation
                     if let createdIdeaID = creation.createdIdeaID,
-                       let createdIdea = ideaRegistryService.idea(by: createdIdeaID)
+                       let createdIdea = activeIdeaRegistryService.idea(by: createdIdeaID)
                     {
                         applyIdeaToFlow(createdIdea)
                         newIdeaTitle = ""
@@ -883,17 +900,17 @@ private extension ContentView {
 
     func refreshIdeasForActiveProject() {
         let projectID = ProjectID(rawValue: flowProjectID.trimmingCharacters(in: .whitespacesAndNewlines))
-        ideaRegistryService.selectActiveProject(id: projectID)
-        let list = ideaRegistryService.listIdeasForActiveProject()
+        activeIdeaRegistryService.selectActiveProject(id: projectID)
+        let list = activeIdeaRegistryService.listIdeasForActiveProject()
         lastIdeaListResult = list
         ideasForActiveProject = list.ideas
     }
 
     func applyIdeaToFlow(_ idea: IdeaRecord) {
         let projectID = ProjectID(rawValue: flowProjectID.trimmingCharacters(in: .whitespacesAndNewlines))
-        ideaRegistryService.selectActiveProject(id: projectID)
+        activeIdeaRegistryService.selectActiveProject(id: projectID)
 
-        let selectionResult = ideaRegistryService.changeIdeaStatus(id: idea.id, status: .selected)
+        let selectionResult = activeIdeaRegistryService.changeIdeaStatus(id: idea.id, status: .selected)
         lastIdeaSelectionResult = selectionResult
 
         flowIdeaID = idea.id.rawValue
