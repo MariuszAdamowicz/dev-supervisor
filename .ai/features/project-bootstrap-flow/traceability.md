@@ -37,3 +37,6 @@
 
 - Reguła: Dla profilu `sqlbase` artefakty muszą być synchronizowalne dwukierunkowo (`DB <-> .ai`).
   - Pokryte przez: Scenariusz 12 "sqlbase import/export synchronizuje artefakty DB <-> .ai"
+
+- Reguła: Rejestr projektów musi być trwały i odtwarzalny po restarcie aplikacji, z separacją per profil.
+  - Pokryte przez: Scenariusz 13 "Rejestr projektów jest odtwarzany po restarcie aplikacji"

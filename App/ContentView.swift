@@ -31,7 +31,10 @@ struct ContentView: View {
     @State private var lastArtifactSyncResult: ArtifactSyncResult?
 
     private let bootstrapService: any ProjectBootstrapContract = ProjectBootstrapFileSystem()
-    private let projectRegistryService: any ProjectRegistryContract = ProjectRegistryInMemory()
+    private let fileAIProjectRegistryService: any ProjectRegistryContract =
+        ProjectRegistryPersistentFileSystem(storageProfile: .fileAI)
+    private let sqlbaseProjectRegistryService: any ProjectRegistryContract =
+        ProjectRegistryPersistentFileSystem(storageProfile: .sqlbase)
     private let artifactSyncService: any ArtifactSyncContract = ArtifactSyncFileSystem()
     private let ideaToFeaturesService: any IdeaToFeaturesFlowContract = IdeaToFeaturesFlowInMemory()
     private let featuresToPRDService: any FeaturesToPRDFlowContract = FeaturesToPRDFlowInMemory()
@@ -110,7 +113,7 @@ struct ContentView: View {
                     activeStorageProfileForPersistence = selectedStorageProfile
                     inspectPath = path
                     lastInspectionResult = bootstrapService.inspectProject(at: path)
-                    autoRegisterBootstrappedProject(at: path)
+                    autoRegisterBootstrappedProject(at: path, profile: selectedStorageProfile)
                 }
             }
             .buttonStyle(.borderedProminent)
@@ -597,7 +600,7 @@ private extension ContentView {
                     Text("Registered project ID: \(createdProjectID.rawValue)")
                         .font(.footnote)
                 }
-                Text("Registered projects count: \(projectRegistryService.listProjects().count)")
+                Text("Registered projects count: \(activeProjectRegistryService.listProjects().count)")
                     .font(.footnote)
             }
 
@@ -723,7 +726,7 @@ private extension ContentView {
         }
     }
 
-    func autoRegisterBootstrappedProject(at projectPath: String) {
+    func autoRegisterBootstrappedProject(at projectPath: String, profile: StorageProfile) {
         let normalizedName = projectName.trimmingCharacters(in: .whitespacesAndNewlines)
         let registrationName: String
         if normalizedName.isEmpty {
@@ -732,14 +735,15 @@ private extension ContentView {
             registrationName = normalizedName
         }
 
-        let registration = projectRegistryService.registerProject(
+        let registryService = projectRegistryService(for: profile)
+        let registration = registryService.registerProject(
             name: registrationName,
             localPath: projectPath
         )
         lastProjectRegistrationResult = registration
 
         if let createdProjectID = registration.createdProjectID {
-            _ = projectRegistryService.selectActiveWorkingProject(id: createdProjectID)
+            _ = registryService.selectActiveWorkingProject(id: createdProjectID)
             flowProjectID = createdProjectID.rawValue
         }
     }
@@ -764,6 +768,19 @@ private extension ContentView {
 
     var isSQLBaseProfileActive: Bool {
         activeStorageProfileForPersistence == .sqlbase
+    }
+
+    var activeProjectRegistryService: any ProjectRegistryContract {
+        projectRegistryService(for: activeStorageProfileForPersistence)
+    }
+
+    func projectRegistryService(for profile: StorageProfile) -> any ProjectRegistryContract {
+        switch profile {
+        case .fileAI:
+            return fileAIProjectRegistryService
+        case .sqlbase:
+            return sqlbaseProjectRegistryService
+        }
     }
 }
 

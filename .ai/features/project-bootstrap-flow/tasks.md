@@ -15,3 +15,4 @@ Data: 2026-03-30
 - [x] integracja bootstrapu z rejestrem projektów domenowych
 - [x] Product Gate w UI (sekcje, checklista, status pass/fail)
 - [x] import/eksport artefaktów dla trybu sqlbase (DB <-> `.ai`)
+- [x] trwała persystencja `project-registry` per profil (`file-ai`, `sqlbase`) z odtwarzaniem po restarcie

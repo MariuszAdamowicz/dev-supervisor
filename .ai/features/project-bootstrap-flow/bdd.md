@@ -77,3 +77,10 @@ Wtedy artefakty produktu są kopiowane do `State/sqlbase/*`
 Kiedy operator uruchamia import `sqlbase -> .ai`
 Wtedy artefakty są odtwarzane z `State/sqlbase/*` do `.ai/*`
 Oraz status synchronizacji jest jawnie raportowany operatorowi
+
+## Scenariusz 13: Rejestr projektów jest odtwarzany po restarcie aplikacji
+Zakładając, że operator zarejestrował projekty i wybrał aktywny projekt roboczy
+Kiedy aplikacja zostaje zamknięta i uruchomiona ponownie
+Wtedy lista projektów zostaje odtworzona z trwałego storage
+Oraz aktywny projekt roboczy zostaje odtworzony
+Oraz dane rejestru są separowane per profil (`file-ai`, `sqlbase`)

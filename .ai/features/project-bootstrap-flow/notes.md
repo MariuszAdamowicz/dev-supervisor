@@ -26,9 +26,10 @@ Funkcja tworzy pierwszy używalny punkt wejścia operatora: bootstrap nowego pro
 - Product Gate jest jawnie raportowany przez inspekcję (`overview`, `constraints`, `glossary`) i blokuje przejście `IDEA -> FEATURES` przy brakach.
 - Po udanym bootstrapie projekt jest automatycznie dodawany do `project-registry` i ustawiany jako aktywny projekt roboczy.
 - Dla `sqlbase` dodano deterministyczny moduł synchronizacji artefaktów (`export .ai -> State/sqlbase`, `import State/sqlbase -> .ai`) z jawnym raportem statusu w UI.
+- `project-registry` został przeniesiony na trwały backend plikowy z separacją storage per profil (`project-registry-file-ai.json`, `project-registry-sqlbase.json`) i odtwarzaniem stanu po restarcie.
 
 ## Braki lub niespójności
-- Rejestr projektów jest obecnie in-memory; po restarcie aplikacji wpisy nie są odtwarzane.
+- Trwała persystencja rejestru nie obejmuje jeszcze jawnego workflow migracji danych między backendami rejestru.
 
 ## Rekomendowany następny pojedynczy krok
-Przenieść `project-registry` z in-memory do trwałego storage (profil `file-ai` i `sqlbase`) z odtwarzaniem aktywnego projektu po restarcie aplikacji.
+Dodać jawny workflow migracji rejestru projektów (`file-ai` <-> `sqlbase`) z raportem konfliktów ścieżek i decyzjami operatora.
