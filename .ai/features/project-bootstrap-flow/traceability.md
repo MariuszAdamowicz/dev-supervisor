@@ -28,3 +28,6 @@
 
 - Reguła: Walidacja testów nie może blokować workflow bez końca (timeout watchdog).
   - Pokryte przez: Scenariusz 9 "Deterministyczny gate testów nie może zawiesić workflow"
+
+- Reguła: Product Gate (`overview/constraints/glossary`) musi być spełniony przed przejściem `IDEA -> FEATURES`.
+  - Pokryte przez: Scenariusz 10 "Product Gate blokuje przejście do flow idei przy brakach"

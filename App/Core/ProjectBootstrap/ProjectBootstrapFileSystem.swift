@@ -82,6 +82,11 @@ struct ProjectBootstrapFileSystem: ProjectBootstrapContract {
                 hasAI: false,
                 hasScripts: false,
                 hasGitRepository: false,
+                hasOverview: false,
+                hasConstraints: false,
+                hasGlossary: false,
+                productGatePassed: false,
+                missingProductArtifacts: [],
                 detectedStorageProfile: nil
             )
         }
@@ -94,6 +99,11 @@ struct ProjectBootstrapFileSystem: ProjectBootstrapContract {
                 hasAI: false,
                 hasScripts: false,
                 hasGitRepository: false,
+                hasOverview: false,
+                hasConstraints: false,
+                hasGlossary: false,
+                productGatePassed: false,
+                missingProductArtifacts: [],
                 detectedStorageProfile: nil
             )
         }
@@ -105,6 +115,19 @@ struct ProjectBootstrapFileSystem: ProjectBootstrapContract {
         let hasAI = fileManager.fileExists(atPath: aiPath)
         let hasScripts = fileManager.fileExists(atPath: scriptsPath)
         let hasGit = fileManager.fileExists(atPath: gitPath)
+        let overviewPath = URL(fileURLWithPath: trimmedPath).appendingPathComponent(".ai/prd/overview.md").path
+        let constraintsPath = URL(fileURLWithPath: trimmedPath).appendingPathComponent(".ai/prd/constraints.md").path
+        let glossaryPath = URL(fileURLWithPath: trimmedPath).appendingPathComponent(".ai/prd/glossary.md").path
+
+        let hasOverview = fileManager.fileExists(atPath: overviewPath)
+        let hasConstraints = fileManager.fileExists(atPath: constraintsPath)
+        let hasGlossary = fileManager.fileExists(atPath: glossaryPath)
+        let missingProductArtifacts = missingArtifacts(
+            hasOverview: hasOverview,
+            hasConstraints: hasConstraints,
+            hasGlossary: hasGlossary
+        )
+        let productGatePassed = missingProductArtifacts.isEmpty
         let storageProfile = detectStorageProfile(projectPath: trimmedPath, fileManager: fileManager)
 
         return ProjectInspectionResult(
@@ -113,8 +136,21 @@ struct ProjectBootstrapFileSystem: ProjectBootstrapContract {
             hasAI: hasAI,
             hasScripts: hasScripts,
             hasGitRepository: hasGit,
+            hasOverview: hasOverview,
+            hasConstraints: hasConstraints,
+            hasGlossary: hasGlossary,
+            productGatePassed: productGatePassed,
+            missingProductArtifacts: missingProductArtifacts,
             detectedStorageProfile: storageProfile
         )
+    }
+
+    private func missingArtifacts(hasOverview: Bool, hasConstraints: Bool, hasGlossary: Bool) -> [String] {
+        var missing: [String] = []
+        if !hasOverview { missing.append("overview") }
+        if !hasConstraints { missing.append("constraints") }
+        if !hasGlossary { missing.append("glossary") }
+        return missing
     }
 
     private func requiredDirectories(for projectURL: URL) -> [URL] {

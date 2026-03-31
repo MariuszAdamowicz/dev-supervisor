@@ -105,6 +105,7 @@ struct ContentView: View {
                     activeProjectPathForPersistence = path
                     activeStorageProfileForPersistence = selectedStorageProfile
                     inspectPath = path
+                    lastInspectionResult = bootstrapService.inspectProject(at: path)
                 }
             }
             .buttonStyle(.borderedProminent)
@@ -137,6 +138,33 @@ struct ContentView: View {
             .pickerStyle(.segmented)
 
             Button("Generate IDEA -> FEATURES prompt") {
+                guard let inspection = lastInspectionResult, inspection.result.isSuccess else {
+                    lastFeaturesResult = FeatureSetPromptGenerationResult(
+                        result: .failure(.init(message: "Inspect project and pass Product Gate before IDEA -> FEATURES.")),
+                        promptText: "",
+                        promptFingerprint: "",
+                        includesMinimalContext: false,
+                        ideaID: nil,
+                        projectID: nil,
+                        proposedFeatures: []
+                    )
+                    return
+                }
+
+                guard inspection.productGatePassed else {
+                    let missing = inspection.missingProductArtifacts.joined(separator: ", ")
+                    lastFeaturesResult = FeatureSetPromptGenerationResult(
+                        result: .failure(.init(message: "Product Gate failed. Missing: \(missing).")),
+                        promptText: "",
+                        promptFingerprint: "",
+                        includesMinimalContext: false,
+                        ideaID: nil,
+                        projectID: nil,
+                        proposedFeatures: []
+                    )
+                    return
+                }
+
                 let projectID = ProjectID(rawValue: flowProjectID.trimmingCharacters(in: .whitespacesAndNewlines))
                 let ideaID = IdeaID(rawValue: flowIdeaID.trimmingCharacters(in: .whitespacesAndNewlines))
                 let ideaTitle = flowIdeaTitle.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -365,14 +393,14 @@ struct ContentView: View {
             .buttonStyle(.bordered)
         }
     }
-
-    private func defaultProjectsRootPath() -> String {
-        let home = FileManager.default.homeDirectoryForCurrentUser.path
-        return "\(home)/Projects"
-    }
 }
 
 private extension ContentView {
+    func defaultProjectsRootPath() -> String {
+        let home = FileManager.default.homeDirectoryForCurrentUser.path
+        return "\(home)/Projects"
+    }
+
     var testsToImplementationSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("TESTY -> IMPLEMENTACJA")
@@ -527,6 +555,15 @@ private extension ContentView {
                     .font(.footnote)
                 Text(".ai: \(inspection.hasAI ? "yes" : "no") | Scripts: \(inspection.hasScripts ? "yes" : "no") | Git: \(inspection.hasGitRepository ? "yes" : "no")")
                     .font(.footnote)
+                Text("Product Gate: \(inspection.productGatePassed ? "pass" : "fail")")
+                    .font(.footnote)
+                Text("overview: \(inspection.hasOverview ? "yes" : "no") | constraints: \(inspection.hasConstraints ? "yes" : "no") | glossary: \(inspection.hasGlossary ? "yes" : "no")")
+                    .font(.footnote)
+                if !inspection.missingProductArtifacts.isEmpty {
+                    Text("Missing artifacts: \(inspection.missingProductArtifacts.joined(separator: ", "))")
+                        .font(.footnote)
+                        .foregroundStyle(.orange)
+                }
                 Text("Storage: \(inspection.detectedStorageProfile?.rawValue ?? "unknown")")
                     .font(.footnote)
             }

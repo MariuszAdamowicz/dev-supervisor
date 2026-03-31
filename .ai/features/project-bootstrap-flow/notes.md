@@ -23,9 +23,10 @@ Funkcja tworzy pierwszy używalny punkt wejścia operatora: bootstrap nowego pro
 - Gate testowy jest deterministyczny: `./Scripts/test.sh` kończy się błędem, gdy nie można potwierdzić `testsCount > 0`.
 - Skrypt testowy domyślnie uruchamia `-only-testing:DevSupervisorTests`, aby uniknąć niestabilności/blokad związanych z UI test target.
 - Skrypt testowy ma watchdog timeout (`TEST_TIMEOUT_SECONDS`, domyślnie 900s), więc zawieszony `xcodebuild` nie blokuje workflow.
+- Product Gate jest jawnie raportowany przez inspekcję (`overview`, `constraints`, `glossary`) i blokuje przejście `IDEA -> FEATURES` przy brakach.
 
 ## Braki lub niespójności
-- UI nie zawiera jeszcze Product Gate i decyzji operatorskich na poziomie workflow (kolejny krok).
+- Integracja bootstrapu z rejestrem projektów domenowych pozostaje otwarta.
 
 ## Rekomendowany następny pojedynczy krok
-Dodać Product Gate do UI: lista wymaganych artefaktów (`overview`, `constraints`, `glossary`) z jawnie widocznym statusem pass/fail i blokadą przejścia do flow idei przy statusie fail.
+Zintegrować bootstrap z rejestrem projektów domenowych, tak aby nowy projekt był automatycznie widoczny w aktywnej liście projektów operatora.

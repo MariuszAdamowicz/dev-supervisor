@@ -49,5 +49,10 @@ struct ProjectInspectionResult: Equatable {
     let hasAI: Bool
     let hasScripts: Bool
     let hasGitRepository: Bool
+    let hasOverview: Bool
+    let hasConstraints: Bool
+    let hasGlossary: Bool
+    let productGatePassed: Bool
+    let missingProductArtifacts: [String]
     let detectedStorageProfile: StorageProfile?
 }

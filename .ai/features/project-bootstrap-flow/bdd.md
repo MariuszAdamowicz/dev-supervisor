@@ -56,3 +56,9 @@ Zakładając, że `xcodebuild` zawiesza się lub przekracza limit czasu
 Kiedy uruchamiany jest `./Scripts/test.sh`
 Wtedy watchdog timeout przerywa proces testów
 Oraz skrypt kończy się jawną porażką zamiast nieskończonego oczekiwania
+
+## Scenariusz 10: Product Gate blokuje przejście do flow idei przy brakach
+Zakładając, że w projekcie brakuje jednego z artefaktów `overview/constraints/glossary`
+Kiedy operator uruchamia inspekcję projektu
+Wtedy wynik Product Gate ma status `fail` z listą braków
+Oraz przejście `IDEA -> FEATURES` jest blokowane jawnym komunikatem

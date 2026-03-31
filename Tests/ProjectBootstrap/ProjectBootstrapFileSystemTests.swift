@@ -69,7 +69,38 @@ final class ProjectBootstrapFileSystemTests: XCTestCase {
         XCTAssertTrue(inspection.result.isSuccess)
         XCTAssertTrue(inspection.hasAI)
         XCTAssertTrue(inspection.hasScripts)
+        XCTAssertTrue(inspection.hasOverview)
+        XCTAssertTrue(inspection.hasConstraints)
+        XCTAssertTrue(inspection.hasGlossary)
+        XCTAssertTrue(inspection.productGatePassed)
+        XCTAssertEqual(inspection.missingProductArtifacts, [])
         XCTAssertEqual(inspection.detectedStorageProfile, .sqlbase)
+    }
+
+    func testInspectProject_whenGlossaryIsMissing_productGateFailsWithExplicitMissingArtifact() throws {
+        let sut = ProjectBootstrapFileSystem()
+        let root = try makeTemporaryDirectory()
+
+        let bootstrap = sut.bootstrapProject(
+            ProjectBootstrapInput(
+                projectName: "Demo Supervisor",
+                projectsRootPath: root.path,
+                storageProfile: .fileAI,
+                initializeGitRepository: false
+            )
+        )
+
+        let projectPath = try XCTUnwrap(bootstrap.projectPath)
+        try FileManager.default.removeItem(atPath: "\(projectPath)/.ai/prd/glossary.md")
+
+        let inspection = sut.inspectProject(at: projectPath)
+
+        XCTAssertTrue(inspection.result.isSuccess)
+        XCTAssertTrue(inspection.hasOverview)
+        XCTAssertTrue(inspection.hasConstraints)
+        XCTAssertFalse(inspection.hasGlossary)
+        XCTAssertFalse(inspection.productGatePassed)
+        XCTAssertEqual(inspection.missingProductArtifacts, ["glossary"])
     }
 }
 

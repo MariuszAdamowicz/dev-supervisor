@@ -13,5 +13,5 @@ Data: 2026-03-30
 
 ## Odroczone / Następne
 - [ ] integracja bootstrapu z rejestrem projektów domenowych
-- [ ] Product Gate w UI (sekcje, checklista, status pass/fail)
+- [x] Product Gate w UI (sekcje, checklista, status pass/fail)
 - [ ] import/eksport artefaktów dla trybu sqlbase (DB <-> `.ai`)
