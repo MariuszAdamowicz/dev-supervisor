@@ -24,9 +24,10 @@ Funkcja tworzy pierwszy używalny punkt wejścia operatora: bootstrap nowego pro
 - Skrypt testowy domyślnie uruchamia `-only-testing:DevSupervisorTests`, aby uniknąć niestabilności/blokad związanych z UI test target.
 - Skrypt testowy ma watchdog timeout (`TEST_TIMEOUT_SECONDS`, domyślnie 900s), więc zawieszony `xcodebuild` nie blokuje workflow.
 - Product Gate jest jawnie raportowany przez inspekcję (`overview`, `constraints`, `glossary`) i blokuje przejście `IDEA -> FEATURES` przy brakach.
+- Po udanym bootstrapie projekt jest automatycznie dodawany do `project-registry` i ustawiany jako aktywny projekt roboczy.
 
 ## Braki lub niespójności
-- Integracja bootstrapu z rejestrem projektów domenowych pozostaje otwarta.
+- Rejestr projektów jest obecnie in-memory; po restarcie aplikacji wpisy nie są odtwarzane.
 
 ## Rekomendowany następny pojedynczy krok
-Zintegrować bootstrap z rejestrem projektów domenowych, tak aby nowy projekt był automatycznie widoczny w aktywnej liście projektów operatora.
+Zaimplementować import/eksport artefaktów dla trybu `sqlbase` (DB <-> `.ai`) jako kolejny deterministyczny krok workflow.

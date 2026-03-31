@@ -31,3 +31,6 @@
 
 - Reguła: Product Gate (`overview/constraints/glossary`) musi być spełniony przed przejściem `IDEA -> FEATURES`.
   - Pokryte przez: Scenariusz 10 "Product Gate blokuje przejście do flow idei przy brakach"
+
+- Reguła: Po udanym bootstrapie projekt jest automatycznie rejestrowany i aktywowany w `project-registry`.
+  - Pokryte przez: Scenariusz 11 "Bootstrap automatycznie rejestruje projekt w rejestrze projektów"

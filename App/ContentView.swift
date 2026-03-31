@@ -27,8 +27,10 @@ struct ContentView: View {
     @State private var lastImplementationFromTestsResult: ImplementationFromTestsPromptResult?
     @State private var lastValidationFromImplementationResult: ValidationFromImplementationPromptResult?
     @State private var lastPersistenceResult: GatePromptPersistenceResult?
+    @State private var lastProjectRegistrationResult: ProjectRegistrationResult?
 
     private let bootstrapService: any ProjectBootstrapContract = ProjectBootstrapFileSystem()
+    private let projectRegistryService: any ProjectRegistryContract = ProjectRegistryInMemory()
     private let ideaToFeaturesService: any IdeaToFeaturesFlowContract = IdeaToFeaturesFlowInMemory()
     private let featuresToPRDService: any FeaturesToPRDFlowContract = FeaturesToPRDFlowInMemory()
     private let prdToBDDService: any PRDToBDDFlowContract = PRDToBDDFlowInMemory()
@@ -106,6 +108,7 @@ struct ContentView: View {
                     activeStorageProfileForPersistence = selectedStorageProfile
                     inspectPath = path
                     lastInspectionResult = bootstrapService.inspectProject(at: path)
+                    autoRegisterBootstrappedProject(at: path)
                 }
             }
             .buttonStyle(.borderedProminent)
@@ -568,6 +571,16 @@ private extension ContentView {
                     .font(.footnote)
             }
 
+            if let registration = lastProjectRegistrationResult {
+                Text("Registry: \(statusText(for: registration.result))")
+                if let createdProjectID = registration.createdProjectID {
+                    Text("Registered project ID: \(createdProjectID.rawValue)")
+                        .font(.footnote)
+                }
+                Text("Registered projects count: \(projectRegistryService.listProjects().count)")
+                    .font(.footnote)
+            }
+
             if let features = lastFeaturesResult {
                 Text("IDEA -> FEATURES: \(statusText(for: features.result))")
                 Text("Candidates: \(features.proposedFeatures.count)")
@@ -681,6 +694,27 @@ private extension ContentView {
             return "success"
         case let .failure(reason):
             return "failure (\(reason.message))"
+        }
+    }
+
+    func autoRegisterBootstrappedProject(at projectPath: String) {
+        let normalizedName = projectName.trimmingCharacters(in: .whitespacesAndNewlines)
+        let registrationName: String
+        if normalizedName.isEmpty {
+            registrationName = URL(fileURLWithPath: projectPath).lastPathComponent
+        } else {
+            registrationName = normalizedName
+        }
+
+        let registration = projectRegistryService.registerProject(
+            name: registrationName,
+            localPath: projectPath
+        )
+        lastProjectRegistrationResult = registration
+
+        if let createdProjectID = registration.createdProjectID {
+            _ = projectRegistryService.selectActiveWorkingProject(id: createdProjectID)
+            flowProjectID = createdProjectID.rawValue
         }
     }
 }

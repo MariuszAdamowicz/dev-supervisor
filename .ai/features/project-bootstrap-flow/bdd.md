@@ -62,3 +62,10 @@ Zakładając, że w projekcie brakuje jednego z artefaktów `overview/constraint
 Kiedy operator uruchamia inspekcję projektu
 Wtedy wynik Product Gate ma status `fail` z listą braków
 Oraz przejście `IDEA -> FEATURES` jest blokowane jawnym komunikatem
+
+## Scenariusz 11: Bootstrap automatycznie rejestruje projekt w rejestrze projektów
+Zakładając, że bootstrap nowego projektu zakończył się sukcesem
+Kiedy aplikacja kończy krok bootstrapu
+Wtedy nowy projekt jest automatycznie rejestrowany w `project-registry`
+Oraz nowy projekt jest ustawiany jako aktywny projekt roboczy
+Oraz status rejestracji jest jawnie raportowany operatorowi

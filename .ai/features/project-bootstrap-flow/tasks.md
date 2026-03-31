@@ -12,6 +12,6 @@ Data: 2026-03-30
 - [x] uzupełnienie traceability i notes po finalnym hardeningu
 
 ## Odroczone / Następne
-- [ ] integracja bootstrapu z rejestrem projektów domenowych
+- [x] integracja bootstrapu z rejestrem projektów domenowych
 - [x] Product Gate w UI (sekcje, checklista, status pass/fail)
 - [ ] import/eksport artefaktów dla trybu sqlbase (DB <-> `.ai`)
