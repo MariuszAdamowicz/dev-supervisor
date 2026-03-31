@@ -205,6 +205,7 @@ struct ContentView: View {
 
                 let result = ideaToFeaturesService.generateFeaturesPrompt(for: ideaID)
                 lastFeaturesResult = result
+                persistFeaturesInProjectScopeIfPossible(result)
                 persistPromptIfPossible(
                     operation: "IDEA -> FEATURES",
                     gateResult: result.result,
@@ -814,6 +815,58 @@ private extension ContentView {
         case .sqlbase:
             return sqlbaseProjectRegistryService
         }
+    }
+
+    func persistFeaturesInProjectScopeIfPossible(_ result: FeatureSetPromptGenerationResult) {
+        guard result.result.isSuccess,
+              let projectID = result.projectID
+        else {
+            return
+        }
+
+        let registry = activeProjectRegistryService
+        let current = registry.scopedData(for: projectID) ?? ProjectScopedData(
+            ideas: [],
+            features: [],
+            progress: [],
+            metadata: [:]
+        )
+
+        let ideaEntries = ([result.ideaID?.rawValue].compactMap { $0 } + current.ideas)
+            .reduce(into: [String]()) { acc, item in
+                if !acc.contains(item) {
+                    acc.append(item)
+                }
+            }
+
+        let generatedFeatures = result.proposedFeatures.map { "\($0.key): \($0.name)" }
+        let featureEntries = (generatedFeatures + current.features)
+            .reduce(into: [String]()) { acc, item in
+                if !acc.contains(item) {
+                    acc.append(item)
+                }
+            }
+
+        let progressEntry = "IDEA->FEATURES:\(result.ideaID?.rawValue ?? "unknown")"
+        let progressEntries = ([progressEntry] + current.progress)
+            .reduce(into: [String]()) { acc, item in
+                if !acc.contains(item) {
+                    acc.append(item)
+                }
+            }
+
+        var metadata = current.metadata
+        metadata["idea_to_features_last_fingerprint"] = result.promptFingerprint
+
+        registry.seedScopedData(
+            for: projectID,
+            data: ProjectScopedData(
+                ideas: ideaEntries,
+                features: featureEntries,
+                progress: progressEntries,
+                metadata: metadata
+            )
+        )
     }
 
     var activeIdeaRegistryService: IdeaRegistryContract {

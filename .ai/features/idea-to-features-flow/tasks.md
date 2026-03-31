@@ -14,5 +14,5 @@ Data: 2026-03-30
 - [x] domknięcie artefaktów funkcji (`tasks.md`, `traceability.md`)
 
 ## Odroczone / Następne
-- [ ] integracja flow `IDEA -> FEATURES` z docelową persystencją projektu (poza zakresem bieżącej partii)
+- [x] integracja flow `IDEA -> FEATURES` z docelową persystencją projektu
 - [ ] automatyczne przejście `FEATURES -> PRD` jako oddzielny gate operatora (poza zakresem tej funkcji)
