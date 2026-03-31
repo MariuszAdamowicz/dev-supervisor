@@ -16,6 +16,12 @@ struct ContentView: View {
     @State private var flowIdeaID = "I-1"
     @State private var flowIdeaTitle = ""
     @State private var flowIdeaStatus: IdeaStatus = .selected
+    @State private var newIdeaTitle = ""
+    @State private var newIdeaDescription = ""
+    @State private var ideasForActiveProject: [IdeaRecord] = []
+    @State private var lastIdeaCreationResult: IdeaCreationResult?
+    @State private var lastIdeaListResult: IdeaListResult?
+    @State private var lastIdeaSelectionResult: RegistryOperationResult?
     @State private var prdDocumentText = ""
     @State private var bddDocumentText = ""
     @State private var testsDocumentText = ""
@@ -36,6 +42,7 @@ struct ContentView: View {
     private let sqlbaseProjectRegistryService: any ProjectRegistryContract =
         ProjectRegistryPersistentFileSystem(storageProfile: .sqlbase)
     private let artifactSyncService: any ArtifactSyncContract = ArtifactSyncFileSystem()
+    private let ideaRegistryService: IdeaRegistryContract = IdeaRegistryInMemory()
     private let ideaToFeaturesService: any IdeaToFeaturesFlowContract = IdeaToFeaturesFlowInMemory()
     private let featuresToPRDService: any FeaturesToPRDFlowContract = FeaturesToPRDFlowInMemory()
     private let prdToBDDService: any PRDToBDDFlowContract = PRDToBDDFlowInMemory()
@@ -53,6 +60,8 @@ struct ContentView: View {
                     .foregroundStyle(.secondary)
 
                 newProjectSection
+                Divider()
+                ideaRegistrySection
                 Divider()
                 ideaToFeaturesSection
                 Divider()
@@ -77,6 +86,7 @@ struct ContentView: View {
             if projectsRootPath.isEmpty {
                 projectsRootPath = defaultProjectsRootPath()
             }
+            refreshIdeasForActiveProject()
         }
     }
 
@@ -610,6 +620,25 @@ private extension ContentView {
                     .font(.footnote)
             }
 
+            if let ideaCreation = lastIdeaCreationResult {
+                Text("Idea create: \(statusText(for: ideaCreation.result))")
+                if let createdIdeaID = ideaCreation.createdIdeaID {
+                    Text("Created idea ID: \(createdIdeaID.rawValue)")
+                        .font(.footnote)
+                }
+            }
+
+            if let ideaList = lastIdeaListResult {
+                Text("Idea list: \(statusText(for: ideaList.result))")
+                Text("Ideas in active project: \(ideaList.ideas.count)")
+                    .font(.footnote)
+            }
+
+            if let ideaSelection = lastIdeaSelectionResult {
+                Text("Idea selection: \(statusText(for: ideaSelection))")
+                    .font(.footnote)
+            }
+
             if let features = lastFeaturesResult {
                 Text("IDEA -> FEATURES: \(statusText(for: features.result))")
                 Text("Candidates: \(features.proposedFeatures.count)")
@@ -781,6 +810,96 @@ private extension ContentView {
         case .sqlbase:
             return sqlbaseProjectRegistryService
         }
+    }
+}
+
+private extension ContentView {
+    var ideaRegistrySection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Idea Registry")
+                .font(.title2.bold())
+
+            Text("Operator tworzy i wybiera ideę. Wybrana idea zasila kolejne gate'y.")
+                .foregroundStyle(.secondary)
+
+            Text("Active project for ideas: \(flowProjectID)")
+                .font(.footnote)
+
+            TextField("Nowa idea — tytuł", text: $newIdeaTitle)
+                .textFieldStyle(.roundedBorder)
+
+            TextField("Nowa idea — opis (opcjonalnie)", text: $newIdeaDescription)
+                .textFieldStyle(.roundedBorder)
+
+            HStack(spacing: 12) {
+                Button("Create idea") {
+                    let projectID = ProjectID(rawValue: flowProjectID.trimmingCharacters(in: .whitespacesAndNewlines))
+                    ideaRegistryService.selectActiveProject(id: projectID)
+
+                    let rawDescription = newIdeaDescription.trimmingCharacters(in: .whitespacesAndNewlines)
+                    let description = rawDescription.isEmpty ? nil : rawDescription
+                    let creation = ideaRegistryService.createIdea(
+                        title: newIdeaTitle.trimmingCharacters(in: .whitespacesAndNewlines),
+                        description: description
+                    )
+
+                    lastIdeaCreationResult = creation
+                    if let createdIdeaID = creation.createdIdeaID,
+                       let createdIdea = ideaRegistryService.idea(by: createdIdeaID)
+                    {
+                        applyIdeaToFlow(createdIdea)
+                        newIdeaTitle = ""
+                        newIdeaDescription = ""
+                    }
+                    refreshIdeasForActiveProject()
+                }
+                .buttonStyle(.borderedProminent)
+
+                Button("Refresh ideas") {
+                    refreshIdeasForActiveProject()
+                }
+                .buttonStyle(.bordered)
+            }
+
+            if ideasForActiveProject.isEmpty {
+                Text("Brak idei dla aktywnego projektu.")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+            } else {
+                ForEach(ideasForActiveProject, id: \.id.rawValue) { idea in
+                    HStack(spacing: 12) {
+                        Text("\(idea.id.rawValue) • \(idea.status.rawValue) • \(idea.title)")
+                            .font(.footnote)
+                        Spacer()
+                        Button("Use in flow") {
+                            applyIdeaToFlow(idea)
+                        }
+                        .buttonStyle(.bordered)
+                    }
+                }
+            }
+        }
+    }
+
+    func refreshIdeasForActiveProject() {
+        let projectID = ProjectID(rawValue: flowProjectID.trimmingCharacters(in: .whitespacesAndNewlines))
+        ideaRegistryService.selectActiveProject(id: projectID)
+        let list = ideaRegistryService.listIdeasForActiveProject()
+        lastIdeaListResult = list
+        ideasForActiveProject = list.ideas
+    }
+
+    func applyIdeaToFlow(_ idea: IdeaRecord) {
+        let projectID = ProjectID(rawValue: flowProjectID.trimmingCharacters(in: .whitespacesAndNewlines))
+        ideaRegistryService.selectActiveProject(id: projectID)
+
+        let selectionResult = ideaRegistryService.changeIdeaStatus(id: idea.id, status: .selected)
+        lastIdeaSelectionResult = selectionResult
+
+        flowIdeaID = idea.id.rawValue
+        flowIdeaTitle = idea.title
+        flowIdeaStatus = .selected
+        refreshIdeasForActiveProject()
     }
 }
 

@@ -14,6 +14,6 @@ Data: 2026-03-30
 - [x] domknięcie artefaktów funkcji (`notes.md`, `tasks.md`, `traceability.md`)
 
 ## Odroczone / Następne
-- [ ] integracja UI z workflowami `idea-registry` (poza zakresem bieżącej partii funkcji)
+- [x] integracja UI z workflowami `idea-registry`
 - [ ] persystencja rejestru idei (poza zakresem bieżącej partii funkcji)
-- [ ] powiązanie wybranej idei z uruchamianiem flow PRD (poza zakresem bieżącej partii funkcji)
+- [x] powiązanie wybranej idei z uruchamianiem flow PRD
