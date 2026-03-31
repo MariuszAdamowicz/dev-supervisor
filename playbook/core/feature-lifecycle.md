@@ -46,7 +46,7 @@ Przed utworzeniem specyfikacji wykonaj mapowanie OP i triggerow:
 - zdefiniuj eventy wejsciowe
 - przygotuj liste PromptTask uruchamianych przez trigger rules
 
-Szczegoly: `orchestration/object-catalog.md`, `orchestration/state-machines.md`, `orchestration/trigger-rules.md`.
+Szczegoly: `layers/op/object-catalog.md`, `layers/op/state-machines.md`, `layers/op/trigger-rules.md`.
 
 ### 3. Spec
 Utwórz folder:

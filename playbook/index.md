@@ -1,54 +1,52 @@
 # Modular Playbook System
 
-Ten playbook jest podzielony na moduły, aby utrzymać minimalny kontekst, spójne źródła prawdy i przewidywalny workflow AI-driven development.
+Ten playbook jest podzielony na moduly, aby utrzymac minimalny kontekst, spojne zrodla prawdy i przewidywalny workflow AI-driven development.
 
 Canonical source:
-- `playbook/*` w repozytorium `dev-supervisor`
+- playbook/* w repozytorium dev-supervisor
 
-Historyczne źródło referencyjne:
-- `operacyjny_playbook_v8.md` (monolit)
+Historyczne zrodlo referencyjne:
+- operacyjny_playbook_v8.md (monolit)
+
+## Jawny Model Warstw
+
+Nadrzedny podzial systemu jest opisany w:
+- layers/index.md
+
+Warstwy nadrzedne:
+1. OP Layer
+2. Playbook Layer
+3. Project Instance Layer
 
 ## Product Direction Guardrails
 
-- `dev-supervisor` jest deterministic supervisor, nie agent AI.
-- Proces jest operator-driven: człowiek uruchamia prompty w zewnętrznym narzędziu.
-- Operator podejmuje jawne decyzje na gate'ach procesu; automatyzacja nie zastępuje decyzji.
+- dev-supervisor jest deterministic supervisor, nie agent AI.
+- Proces jest operator-driven: czlowiek uruchamia prompty w zewnetrznym narzedziu.
+- Operator podejmuje jawne decyzje na gate.
 - System pozostaje local-first.
 - System pozostaje tool-agnostic i provider-agnostic.
-- Tożsamość produktu jest stack-agnostic in principle; stack profile to konfiguracja, nie definicja produktu.
 
-## Warstwy
+## Moduly Playbook Layer
 
 ### core
-Reguły globalne i niezmienne fundamenty procesu:
-- zasady operacyjne
-- source of truth
-- lifecycle feature
-- rewrite protocol
-- traceability
-- validation
-- git workflow
+Reguly globalne i niezmienne fundamenty procesu.
 
 ### workflow
-Procedury wykonywania pracy:
-- setup projektu
-- codzienny loop
-- zamykanie sesji
-- checklisty
+Procedury wykonywania pracy.
 
 ### experience
-Warstwa UX/interaction orchestration:
-- operator journey
-- maszyna stanów UI
-- reguły widoczności
-- model nawigacji
-- wzorce interakcji
-- walidacja UX
+Warstwa UX/interaction orchestration dla operatora.
 
-Cel warstwy:
-- nie pokazywać operatorowi zbędnych paneli
-- odblokowywać akcje wyłącznie wtedy, gdy są naprawdę potrzebne
-- utrzymywać state-driven flow zamiast "wszystko na jednym ekranie"
+### profiles
+Nakladki konfiguracyjne dla konkretnego kontekstu.
+
+### prompts
+Kanoniczne prompty robocze per etap.
+
+### templates
+Gotowe wzorce plikow AI i skryptow.
+
+## Moduly OP Layer
 
 ### orchestration
 Warstwa obiektow procesu i regul reakcji (event-driven):
@@ -56,69 +54,51 @@ Warstwa obiektow procesu i regul reakcji (event-driven):
 - maszyny stanow OP
 - triggery event -> prompt task -> gate
 
-Pliki kanoniczne: `orchestration/object-catalog.md`, `orchestration/state-machines.md`, `orchestration/trigger-rules.md`.
-
-### profiles
-Nakładki konfiguracyjne dla konkretnego kontekstu:
-- stack (np. macos-swiftui)
-- architecture (np. modular-monolith)
-- language (pl/en)
-- execution style (iterative, batch, hybrid)
-- storage (file-ai, sqlbase)
-- optional git mode (np. `profiles/git-solo-no-pr.md`)
-
-Pełna lista profili: `profiles/index.md`.
-
-### prompts
-Kanoniczne prompty robocze per etap.
-
-### templates
-Gotowe wzorce plików AI i skryptów.
-
-Zasada separacji:
-- `core` i `workflow` nie kodują szczegółów konkretnej platformy.
-- Szczegóły platformowe trafiają do `profiles/stack/*`.
+Pliki kanoniczne:
+- layers/op/object-catalog.md
+- layers/op/state-machines.md
+- layers/op/trigger-rules.md
 
 ## Example Configuration
 
-- stack: `macos-swiftui`
-- architecture: `modular-monolith`
-- language: `pl`
-- execution-style: `iterative-tdd`
-- storage: `file-ai`
+- stack: macos-swiftui
+- architecture: modular-monolith
+- language: pl
+- execution-style: iterative-tdd
+- storage: file-ai
 
 ## How To Use
 
-Moduły obowiązkowe:
-- `core/*`
-- `workflow/*`
-- `experience/*`
-- `orchestration/*`
-- jeden profil `stack/*`
-- jeden profil `architecture/*`
-- jeden profil `language/*`
-- jeden profil `execution-style/*`
-- jeden profil `storage/*`
+Moduly obowiazkowe:
+- core/*
+- workflow/*
+- experience/*
+- layers/op/*
+- jeden profil stack/*
+- jeden profil architecture/*
+- jeden profil language/*
+- jeden profil execution-style/*
+- jeden profil storage/*
 
-Moduły kontekstowe:
-- `prompts/*` używane zależnie od etapu pracy
-- `templates/*` używane przy inicjalizacji lub odtwarzaniu artefaktów
-- opcjonalnie profil `git-solo-no-pr.md` dla pracy jednoosobowej bez platformowego PR
+Moduly kontekstowe:
+- prompts/*
+- templates/*
+- opcjonalnie profil git-solo-no-pr.md
 
-Sposób kompozycji:
-1. Start od `core/` jako zasad nadrzędnych.
-2. Wybierz i dołącz profile (`stack`, `architecture`, `language`, `execution-style`, `storage`).
-3. Domknij Product Gate (`overview.md`, `constraints.md`, `glossary.md` + decyzja operatora).
-4. Zdefiniuj UX orchestration w `experience/*`.
-5. Realizuj pracę przez `workflow/daily-workflow.md` z etapem `idea -> feature(s)`.
-6. Używaj promptów kanonicznych z `prompts/`; transport można zautomatyzować przez MCP.
-7. Każdą iterację zamykaj review package (diff + mapowanie do BDD + walidacja) i decyzją operatora.
-8. Zamykaj iteracje checklistami i `workflow/session-closure.md`.
+Sposob kompozycji:
+1. Start od modelu warstw: layers/index.md
+2. Start od core/ jako zasad nadrzednych.
+3. Wybierz i dolacz profile.
+4. Domknij Product Gate (overview.md, constraints.md, glossary.md + decyzja operatora).
+5. Zdefiniuj UX orchestration w experience/*.
+6. Realizuj prace przez workflow/daily-workflow.md.
+7. Uzywaj promptow kanonicznych z prompts/*.
+8. Kazda iteracje zamykaj review package i decyzja operatora.
+9. Zamykaj iteracje checklistami i workflow/session-closure.md.
 
 ## Zaktualizowany Lifecycle
 
-```text
 idea -> feature(s) -> PRD -> UX contract -> BDD -> tests -> implementation -> validation -> stabilization
-```
 
-Szczegóły lifecycle: `core/feature-lifecycle.md`.
+Szczegoly lifecycle:
+- core/feature-lifecycle.md

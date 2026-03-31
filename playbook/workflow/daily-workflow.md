@@ -19,7 +19,7 @@ Zmapuj zmianę na Obiekty Procesu (OP):
 - jakie eventy zajdą
 - jakie PromptTask muszą powstać z trigger rules
 
-Szczegóły: `orchestration/object-catalog.md`, `orchestration/trigger-rules.md`.
+Szczegóły: `layers/op/object-catalog.md`, `layers/op/trigger-rules.md`.
 
 ### 2. minimalny kontekst
 Ładuj tylko:
