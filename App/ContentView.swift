@@ -1,30 +1,18 @@
 import SwiftUI
 
 struct ContentView: View {
-    @State private var projectName = ""
-    @State private var projectsRootPath = ""
-    @State private var selectedStorageProfile: StorageProfile = .fileAI
-    @State private var initializeGitRepository = true
-    @State private var inspectPath = ""
-    @State private var activeProjectPathForPersistence = ""
-    @State private var activeStorageProfileForPersistence: StorageProfile = .fileAI
-    @State private var lastBootstrapResult: ProjectBootstrapResult?
-    @State private var lastInspectionResult: ProjectInspectionResult?
-    @State private var flowProjectID = "P-1"
-    @State private var flowIdeaID = "I-1"
-    @State private var flowIdeaTitle = ""
-    @State private var flowIdeaStatus: IdeaStatus = .selected
-    @State private var newIdeaTitle = ""
-    @State private var newIdeaDescription = ""
-    @State private var ideasForActiveProject: [IdeaRecord] = []
-    @State private var lastIdeaCreationResult: IdeaCreationResult?
-    @State private var lastIdeaListResult: IdeaListResult?
-    @State private var lastIdeaSelectionResult: RegistryOperationResult?
-    @State private var prdDocumentText = ""
-    @State private var bddDocumentText = ""
-    @State private var testsDocumentText = ""
-    @State private var implementationDocumentText = ""
-    @State private var lastFeaturesResult: FeatureSetPromptGenerationResult?
+    @State private var projectName = ""; @State private var projectsRootPath = ""
+    @State private var selectedStorageProfile: StorageProfile = .fileAI; @State private var initializeGitRepository = true
+    @State private var inspectPath = ""; @State private var activeProjectPathForPersistence = ""
+    @State private var activeStorageProfileForPersistence: StorageProfile = .fileAI; @State private var lastBootstrapResult: ProjectBootstrapResult?
+    @State private var lastInspectionResult: ProjectInspectionResult?; @State private var flowProjectID = "P-1"
+    @State private var flowIdeaID = "I-1"; @State private var flowIdeaTitle = ""
+    @State private var flowIdeaStatus: IdeaStatus = .selected; @State private var newIdeaTitle = ""
+    @State private var newIdeaDescription = ""; @State private var ideasForActiveProject: [IdeaRecord] = []
+    @State private var lastIdeaCreationResult: IdeaCreationResult?; @State private var lastIdeaListResult: IdeaListResult?
+    @State private var lastIdeaSelectionResult: RegistryOperationResult?; @State private var prdDocumentText = ""
+    @State private var bddDocumentText = ""; @State private var testsDocumentText = ""
+    @State private var implementationDocumentText = ""; @State private var lastFeaturesResult: FeatureSetPromptGenerationResult?
     @State private var approvedFeaturesForPRD: [FeatureCandidate] = []
     @State private var lastFeaturesPromotionResult: RegistryOperationResult?
     @State private var lastPRDFromFeaturesResult: PRDFromFeaturesPromptResult?
@@ -713,70 +701,65 @@ private extension ContentView {
                     .font(.footnote)
             }
             if let prd = lastPRDFromFeaturesResult {
-                Text("FEATURES -> PRD: \(statusText(for: prd.result))")
-                Text("Features in PRD prompt: \(prd.featuresCount)")
-                    .font(.footnote)
-                if !prd.promptText.isEmpty {
-                    Text(prd.promptText)
-                        .font(.footnote.monospaced())
-                        .textSelection(.enabled)
-                }
+                gateStatusBlock(
+                    title: "FEATURES -> PRD",
+                    result: prd.result,
+                    detailsLabel: "Features in PRD prompt",
+                    detailsValue: prd.featuresCount,
+                    promptText: prd.promptText
+                )
             }
             if let prdPromotion = lastPRDPromotionResult {
                 Text("PRD promotion: \(statusText(for: prdPromotion))")
                     .font(.footnote)
             }
             if let bdd = lastBDDFromPRDResult {
-                Text("PRD -> BDD: \(statusText(for: bdd.result))")
-                Text("PRD length: \(bdd.prdLength)")
-                    .font(.footnote)
-                if !bdd.promptText.isEmpty {
-                    Text(bdd.promptText)
-                        .font(.footnote.monospaced())
-                        .textSelection(.enabled)
-                }
+                gateStatusBlock(
+                    title: "PRD -> BDD",
+                    result: bdd.result,
+                    detailsLabel: "PRD length",
+                    detailsValue: bdd.prdLength,
+                    promptText: bdd.promptText
+                )
             }
             if let bddPromotion = lastBDDPromotionResult {
                 Text("BDD promotion: \(statusText(for: bddPromotion))")
                     .font(.footnote)
             }
             if let tests = lastTestsFromBDDResult {
-                Text("BDD -> TESTS: \(statusText(for: tests.result))")
-                Text("BDD length: \(tests.bddLength)")
-                    .font(.footnote)
-                if !tests.promptText.isEmpty {
-                    Text(tests.promptText)
-                        .font(.footnote.monospaced())
-                        .textSelection(.enabled)
-                }
+                gateStatusBlock(
+                    title: "BDD -> TESTS",
+                    result: tests.result,
+                    detailsLabel: "BDD length",
+                    detailsValue: tests.bddLength,
+                    promptText: tests.promptText
+                )
             }
             if let testsPromotion = lastTestsPromotionResult {
                 Text("TESTS promotion: \(statusText(for: testsPromotion))")
                     .font(.footnote)
             }
             if let implementation = lastImplementationFromTestsResult {
-                Text("TESTS -> IMPLEMENTATION: \(statusText(for: implementation.result))")
-                Text("Tests length: \(implementation.testsLength)")
-                    .font(.footnote)
-                if !implementation.promptText.isEmpty {
-                    Text(implementation.promptText)
-                        .font(.footnote.monospaced())
-                        .textSelection(.enabled)
-                }
+                gateStatusBlock(
+                    title: "TESTS -> IMPLEMENTATION",
+                    result: implementation.result,
+                    detailsLabel: "Tests length",
+                    detailsValue: implementation.testsLength,
+                    promptText: implementation.promptText
+                )
             }
             if let implementationPromotion = lastImplementationPromotionResult {
                 Text("IMPLEMENTATION promotion: \(statusText(for: implementationPromotion))")
                     .font(.footnote)
             }
             if let validation = lastValidationFromImplementationResult {
-                Text("IMPLEMENTATION -> VALIDATION: \(statusText(for: validation.result))")
-                Text("Implementation length: \(validation.implementationLength)")
-                    .font(.footnote)
-                if !validation.promptText.isEmpty {
-                    Text(validation.promptText)
-                        .font(.footnote.monospaced())
-                        .textSelection(.enabled)
-                }
+                gateStatusBlock(
+                    title: "IMPLEMENTATION -> VALIDATION",
+                    result: validation.result,
+                    detailsLabel: "Implementation length",
+                    detailsValue: validation.implementationLength,
+                    promptText: validation.promptText
+                )
             }
             if let persistence = lastPersistenceResult {
                 Text("Persistence: \(statusText(for: persistence.result))")
@@ -815,6 +798,24 @@ private extension ContentView {
             promptText: promptText
         )
         lastPersistenceResult = gatePersistenceService.persistPrompt(request)
+    }
+
+    @ViewBuilder
+    func gateStatusBlock(
+        title: String,
+        result: RegistryOperationResult,
+        detailsLabel: String,
+        detailsValue: Int,
+        promptText: String
+    ) -> some View {
+        Text("\(title): \(statusText(for: result))")
+        Text("\(detailsLabel): \(detailsValue)")
+            .font(.footnote)
+        if !promptText.isEmpty {
+            Text(promptText)
+                .font(.footnote.monospaced())
+                .textSelection(.enabled)
+        }
     }
 }
 
