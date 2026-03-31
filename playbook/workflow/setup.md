@@ -72,3 +72,11 @@ Podczas setup aktywuj wykonawcza warstwe playbooka:
 
 Wymaganie:
 - dla kazdego krytycznego transition OP musi istniec binding transition -> action -> tool.
+
+## Validation bootstrap
+
+Podczas setup aktywuj walidacje kontraktow playbooka:
+- validation/playbook-contracts.md
+
+Wymaganie:
+- kazda zmiana warstwy playbooka (workflow/core/experience/tooling/profiles) przechodzi przez validation contracts przed zatwierdzeniem.

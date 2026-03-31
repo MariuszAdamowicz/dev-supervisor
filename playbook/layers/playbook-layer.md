@@ -7,6 +7,7 @@ Zakres:
 - profile konfiguracji,
 - projection rules (OP -> UI/Prompt/Checklist),
 - tooling model (OP -> Action -> Tool),
+- kontrakty walidacyjne playbooka,
 - biblioteka promptow i templatek,
 - polityki operacyjne i jakosciowe.
 
@@ -18,6 +19,7 @@ Moduly tej warstwy:
 - ../prompts/*
 - ../templates/*
 - ../tooling/*
+- ../validation/*
 
 Kontrakt wobec OP Layer:
 - nie duplikuje definicji OP,

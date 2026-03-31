@@ -52,6 +52,12 @@ Warstwa wykonawcza Playbook Layer:
 - action catalog
 - OP -> Action -> Tool bindings
 
+### validation
+Kontrakty poprawnosci Playbook Layer:
+- coverage transition -> binding
+- capability consistency
+- gate/audit safety
+
 ## Moduly OP Layer
 
 ### layers/op
@@ -81,6 +87,7 @@ Moduly obowiazkowe:
 - experience/*
 - layers/op/*
 - tooling/*
+- validation/*
 - jeden profil stack/*
 - jeden profil architecture/*
 - jeden profil language/*
@@ -100,8 +107,9 @@ Sposob kompozycji:
 5. Wyznacz next_transition z OP Layer.
 6. Wygeneruj projection OP -> UI/Prompt/Checklist.
 7. Wyznacz Action i Tool plan z tooling/*.
-8. Wykonaj akcje, walidacje i GateDecision.
-9. Powtorz az do domkniecia celu runtime.
+8. Zwaliduj kontrakty z validation/*.
+9. Wykonaj akcje, walidacje i GateDecision.
+10. Powtorz az do domkniecia celu runtime.
 
 ## Zasada wykonania
 

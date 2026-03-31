@@ -47,3 +47,11 @@
 - kazda akcja z action_plan ma capability w tool-registry.md
 - profile nie zmieniaja intent akcji, tylko mapowanie tool_plan
 - brak uruchomien narzedzi poza zadeklarowanym bindingiem
+
+## Checklista audytu playbook contracts
+
+- coverage contract: transition OP -> binding
+- capability contract: action -> capability -> tool
+- gate contract: gate-required ma decide_gate + operator-ui
+- audit contract: krytyczne akcje maja ProcessEvent
+- source-of-truth contract: brak konfliktu z layers/op/*
