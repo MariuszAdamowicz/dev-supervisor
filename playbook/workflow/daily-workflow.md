@@ -1,5 +1,11 @@
 ## 🔁 Codzienny workflow
 
+### 0. wybór aktywnego kroku (state-driven)
+Sprawdź aktualny stan procesu i wykonuj tylko jeden następny krok.
+Nie pracuj równolegle na kilku krokach pipeline.
+
+Szczegóły: `experience/ui-state-machine.md`.
+
 ### 1. wybór idei i scoping
 Wybierz ideę i podejmij decyzję:
 - czy to jeden feature czy kilka
@@ -93,3 +99,11 @@ Przed finalnym merge:
 - sprawdź duplikacje między feature
 - sprawdź dryf PRD <-> BDD <-> testy
 - sprawdź czy nowe capability ma punkt wejścia UI lub jawne odroczenie
+
+### 12. UX/Gate consistency check
+Sprawdź, czy zmiana nie narusza:
+- reguł widoczności
+- reguł dostępności akcji
+- reguł invalidation downstream
+
+Szczegóły: `experience/visibility-rules.md`, `experience/ux-validation.md`.

@@ -2,8 +2,11 @@
 
 Ten playbook jest podzielony na moduły, aby utrzymać minimalny kontekst, spójne źródła prawdy i przewidywalny workflow AI-driven development.
 
-Source artifact:
-- `operacyjny_playbook_v8.md` (monolit referencyjny)
+Canonical source:
+- `playbook/*` w repozytorium `dev-supervisor`
+
+Historyczne źródło referencyjne:
+- `operacyjny_playbook_v8.md` (monolit)
 
 ## Product Direction Guardrails
 
@@ -32,6 +35,20 @@ Procedury wykonywania pracy:
 - codzienny loop
 - zamykanie sesji
 - checklisty
+
+### experience
+Warstwa UX/interaction orchestration:
+- operator journey
+- maszyna stanów UI
+- reguły widoczności
+- model nawigacji
+- wzorce interakcji
+- walidacja UX
+
+Cel warstwy:
+- nie pokazywać operatorowi zbędnych paneli
+- odblokowywać akcje wyłącznie wtedy, gdy są naprawdę potrzebne
+- utrzymywać state-driven flow zamiast "wszystko na jednym ekranie"
 
 ### profiles
 Nakładki konfiguracyjne dla konkretnego kontekstu:
@@ -67,6 +84,7 @@ Zasada separacji:
 Moduły obowiązkowe:
 - `core/*`
 - `workflow/*`
+- `experience/*`
 - jeden profil `stack/*`
 - jeden profil `architecture/*`
 - jeden profil `language/*`
@@ -82,7 +100,16 @@ Sposób kompozycji:
 1. Start od `core/` jako zasad nadrzędnych.
 2. Wybierz i dołącz profile (`stack`, `architecture`, `language`, `execution-style`, `storage`).
 3. Domknij Product Gate (`overview.md`, `constraints.md`, `glossary.md` + decyzja operatora).
-4. Realizuj pracę przez `workflow/daily-workflow.md` z etapem `idea -> feature(s)`.
-5. Używaj promptów kanonicznych z `prompts/`; transport można zautomatyzować przez MCP.
-6. Każdą iterację zamykaj review package (diff + mapowanie do BDD + walidacja) i decyzją operatora.
-7. Zamykaj iteracje checklistami i `workflow/session-closure.md`.
+4. Zdefiniuj UX orchestration w `experience/*`.
+5. Realizuj pracę przez `workflow/daily-workflow.md` z etapem `idea -> feature(s)`.
+6. Używaj promptów kanonicznych z `prompts/`; transport można zautomatyzować przez MCP.
+7. Każdą iterację zamykaj review package (diff + mapowanie do BDD + walidacja) i decyzją operatora.
+8. Zamykaj iteracje checklistami i `workflow/session-closure.md`.
+
+## Zaktualizowany Lifecycle
+
+```text
+idea -> feature(s) -> PRD -> UX contract -> BDD -> tests -> implementation -> validation -> stabilization
+```
+
+Szczegóły lifecycle: `core/feature-lifecycle.md`.

@@ -6,6 +6,10 @@
 [ ] utworzone .ai/prd/overview.md
 [ ] utworzony .ai/prd/constraints.md
 [ ] utworzony .ai/prd/glossary.md
+[ ] utworzone .ai/ux/state-machine.md
+[ ] utworzone .ai/ux/visibility.md
+[ ] utworzone .ai/ux/navigation.md
+[ ] utworzone .ai/ux/interaction-patterns.md
 [ ] Product Gate przeszedł (kompletność + spójność + decyzja operatora)
 [ ] utworzone .ai/stack/core.md
 [ ] utworzone .ai/stack/architecture.md
@@ -34,6 +38,7 @@
 [ ] utworzony folder .ai/features/<feature>/
 [ ] utworzony branch feat/<feature>
 [ ] utworzony prd.md
+[ ] utworzony UX contract (stany + widoczność + gates)
 [ ] utworzony bdd.md
 [ ] utworzony tasks.md
 [ ] utworzony notes.md
@@ -43,6 +48,7 @@
 [ ] kod zaimplementowany krokami
 [ ] review package pokazany operatorowi (diff + mapowanie do BDD + walidacja)
 [ ] decyzja gate operatora zapisana (approve/request changes/defer/reject)
+[ ] sprawdzono reguły visibility i gate availability
 [ ] build przechodzi
 [ ] testy przechodzą
 [ ] lint przechodzi
@@ -62,6 +68,7 @@
 
 ```text
 [ ] zaktualizowany prd.md
+[ ] zaktualizowany UX contract
 [ ] zaktualizowany bdd.md
 [ ] zaktualizowane lub wygenerowane od nowa testy
 [ ] zaktualizowany traceability.md
@@ -70,6 +77,7 @@
 [ ] stary kod usunięty lub zastąpiony
 [ ] nieaktualne testy usunięte
 [ ] nieaktualne referencje w traceability usunięte
+[ ] sprawdzono invalidation downstream po zmianie upstream
 [ ] build przechodzi
 [ ] testy przechodzą
 [ ] lint przechodzi
@@ -92,4 +100,17 @@
 [ ] drugi podobny przypadek został zgłoszony do extraction
 [ ] współdzielony kod trafił do właściwego modułu (Domain / Shared / Providers / Routing)
 [ ] zaktualizowano .ai/stack/shared-code.md jeśli pojawiła się nowa reguła organizacji kodu
+```
+
+---
+
+## ✅ Checklista UX warstwy procesu
+
+```text
+[ ] zdefiniowane stany procesu
+[ ] zdefiniowane przejścia między stanami
+[ ] zdefiniowane reguły widoczności komponentów
+[ ] zdefiniowane reguły dostępności akcji
+[ ] zdefiniowane reguły invalidation downstream
+[ ] przygotowane testy visibility/state transitions/gates
 ```

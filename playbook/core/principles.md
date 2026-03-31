@@ -102,13 +102,15 @@ Nie rób:
 ## 🔥 Finalny model pracy
 
 ```text
-idea → feature PRD → BDD → tests → code → validate → cleanup → merge → evolve
+idea → feature(s) → feature PRD → UX contract → BDD → tests → code → validate → cleanup → merge → evolve
 ```
 
 ### Ostateczna interpretacja modelu
 
 - idea → zapisujesz pomysł
+- feature(s) → materializujesz pomysł do capability
 - feature PRD → definiujesz kontrakt
+- UX contract → definiujesz dostępność i widoczność interakcji
 - BDD → definiujesz zachowanie
 - tests → egzekwujesz zachowanie
 - code → dopasowujesz implementację

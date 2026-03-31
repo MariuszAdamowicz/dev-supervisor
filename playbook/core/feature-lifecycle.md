@@ -14,7 +14,7 @@ Zasada:
 Feature = jedna odpowiedzialność
 
 ```text
-idea → feature(s) → feature PRD → BDD → testy → implementacja → walidacja → stabilizacja
+idea → feature(s) → feature PRD → UX contract → BDD → testy → implementacja → walidacja → stabilizacja
 ```
 
 ### 🔍 Interpretacja etapów
@@ -22,6 +22,7 @@ idea → feature(s) → feature PRD → BDD → testy → implementacja → wali
 - idea → wpis w `ideas.md` (brak zobowiązania)
 - feature(s) → scoping idei na jeden lub więcej feature
 - feature PRD → kontrakt (co ma powstać dla konkretnego feature)
+- UX contract → kontrakt interakcji (co, kiedy i komu pokazać)
 - BDD → zachowanie (jak ma działać)
 - testy → egzekucja zachowania
 - implementacja → dopasowanie kodu do testów
@@ -52,20 +53,29 @@ Minimalnie dodaj:
 - `notes.md`
 - `traceability.md`
 
-### 4. BDD
+### 4. UX Contract
+Zdefiniuj kontrakt UX przed BDD:
+- stany procesu
+- widoczność komponentów
+- dostępność akcji (gates)
+- reguły invalidation downstream
+
+Szczegóły: `experience/ui-state-machine.md`, `experience/visibility-rules.md`.
+
+### 5. BDD
 Opisz scenariusze zachowania w `bdd.md`.
 
-### 5. Testy
+### 6. Testy
 Na podstawie `bdd.md` wygeneruj lub popraw testy.
 
-### 5a. Traceability
+### 6a. Traceability
 Powiąż reguły z `prd.md` ze scenariuszami z `bdd.md`.
 Nie chodzi o ciężki system śledzenia, tylko o prostą mapę reguła → scenariusz.
 
-### 6. Implementacja
+### 7. Implementacja
 Implementuj kod dopiero po przygotowaniu scenariuszy i testów. Dla feature tworzących model domenowy preferuj test-by-test / scenario-by-scenario implementation
 
-### 6a. Gate operatorski po każdej iteracji
+### 7a. Gate operatorski po każdej iteracji
 Po każdej iteracji operator musi podjąć decyzję:
 - approve
 - request changes
@@ -79,7 +89,7 @@ Decyzja ma być oparta o:
 
 Transport promptów i wyników może być zautomatyzowany przez MCP, ale decyzja gate pozostaje po stronie operatora.
 
-### 7. Stabilizacja
+### 8. Stabilizacja
 Po implementacji:
 - porównaj kod z `prd.md`
 - porównaj testy z `bdd.md`
@@ -87,7 +97,7 @@ Po implementacji:
 - uzupełnij `notes.md`
 - zaktualizuj `traceability.md`
 
-### 8. Integration Hardening
+### 9. Integration Hardening
 Po domknięciu feature wykonaj kontrolę integracyjną:
 - duplikacja modeli i helperów między feature
 - spójność PRD <-> BDD <-> testy

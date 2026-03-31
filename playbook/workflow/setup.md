@@ -46,6 +46,11 @@ Jedna nazwa = jeden feature = jeden branch
 ```text
 .ai/
 ├── ideas.md
+├── ux/
+│   ├── state-machine.md
+│   ├── visibility.md
+│   ├── navigation.md
+│   └── interaction-patterns.md
 ├── prd/
 │   ├── overview.md
 │   ├── constraints.md
@@ -106,6 +111,18 @@ Słownik pojęć używanych w projekcie:
 - active provider
 
 Dzięki temu AI nie zmienia znaczenia terminów.
+
+### `.ai/ux/state-machine.md`
+Definicja stanów procesu i przejść.
+
+### `.ai/ux/visibility.md`
+Reguły widoczności UI: co jest widoczne w danym stanie.
+
+### `.ai/ux/navigation.md`
+Model nawigacji operatora po krokach procesu.
+
+### `.ai/ux/interaction-patterns.md`
+Wzorce interakcji operatora z gate i artefaktami.
 
 ### `.ai/stack/architecture.md`
 Opis architektury projektu:
