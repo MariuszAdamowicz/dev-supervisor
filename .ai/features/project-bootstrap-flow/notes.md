@@ -25,9 +25,10 @@ Funkcja tworzy pierwszy używalny punkt wejścia operatora: bootstrap nowego pro
 - Skrypt testowy ma watchdog timeout (`TEST_TIMEOUT_SECONDS`, domyślnie 900s), więc zawieszony `xcodebuild` nie blokuje workflow.
 - Product Gate jest jawnie raportowany przez inspekcję (`overview`, `constraints`, `glossary`) i blokuje przejście `IDEA -> FEATURES` przy brakach.
 - Po udanym bootstrapie projekt jest automatycznie dodawany do `project-registry` i ustawiany jako aktywny projekt roboczy.
+- Dla `sqlbase` dodano deterministyczny moduł synchronizacji artefaktów (`export .ai -> State/sqlbase`, `import State/sqlbase -> .ai`) z jawnym raportem statusu w UI.
 
 ## Braki lub niespójności
 - Rejestr projektów jest obecnie in-memory; po restarcie aplikacji wpisy nie są odtwarzane.
 
 ## Rekomendowany następny pojedynczy krok
-Zaimplementować import/eksport artefaktów dla trybu `sqlbase` (DB <-> `.ai`) jako kolejny deterministyczny krok workflow.
+Przenieść `project-registry` z in-memory do trwałego storage (profil `file-ai` i `sqlbase`) z odtwarzaniem aktywnego projektu po restarcie aplikacji.

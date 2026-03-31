@@ -34,3 +34,6 @@
 
 - Reguła: Po udanym bootstrapie projekt jest automatycznie rejestrowany i aktywowany w `project-registry`.
   - Pokryte przez: Scenariusz 11 "Bootstrap automatycznie rejestruje projekt w rejestrze projektów"
+
+- Reguła: Dla profilu `sqlbase` artefakty muszą być synchronizowalne dwukierunkowo (`DB <-> .ai`).
+  - Pokryte przez: Scenariusz 12 "sqlbase import/export synchronizuje artefakty DB <-> .ai"

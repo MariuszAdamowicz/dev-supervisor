@@ -28,9 +28,11 @@ struct ContentView: View {
     @State private var lastValidationFromImplementationResult: ValidationFromImplementationPromptResult?
     @State private var lastPersistenceResult: GatePromptPersistenceResult?
     @State private var lastProjectRegistrationResult: ProjectRegistrationResult?
+    @State private var lastArtifactSyncResult: ArtifactSyncResult?
 
     private let bootstrapService: any ProjectBootstrapContract = ProjectBootstrapFileSystem()
     private let projectRegistryService: any ProjectRegistryContract = ProjectRegistryInMemory()
+    private let artifactSyncService: any ArtifactSyncContract = ArtifactSyncFileSystem()
     private let ideaToFeaturesService: any IdeaToFeaturesFlowContract = IdeaToFeaturesFlowInMemory()
     private let featuresToPRDService: any FeaturesToPRDFlowContract = FeaturesToPRDFlowInMemory()
     private let prdToBDDService: any PRDToBDDFlowContract = PRDToBDDFlowInMemory()
@@ -374,8 +376,15 @@ struct ContentView: View {
             .buttonStyle(.borderedProminent)
         }
     }
+}
 
-    private var inspectProjectSection: some View {
+private extension ContentView {
+    func defaultProjectsRootPath() -> String {
+        let home = FileManager.default.homeDirectoryForCurrentUser.path
+        return "\(home)/Projects"
+    }
+
+    var inspectProjectSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Otwórz istniejący projekt")
                 .font(.title2.bold())
@@ -394,14 +403,25 @@ struct ContentView: View {
                 }
             }
             .buttonStyle(.bordered)
-        }
-    }
-}
 
-private extension ContentView {
-    func defaultProjectsRootPath() -> String {
-        let home = FileManager.default.homeDirectoryForCurrentUser.path
-        return "\(home)/Projects"
+            Text("sqlbase sync: DB <-> .ai")
+                .font(.footnote)
+                .foregroundStyle(.secondary)
+
+            HStack(spacing: 12) {
+                Button("Export .ai -> sqlbase") {
+                    runArtifactSync(.exportAIToSQLBase)
+                }
+                .buttonStyle(.bordered)
+                .disabled(!isSQLBaseProfileActive)
+
+                Button("Import sqlbase -> .ai") {
+                    runArtifactSync(.importSQLBaseToAI)
+                }
+                .buttonStyle(.bordered)
+                .disabled(!isSQLBaseProfileActive)
+            }
+        }
     }
 
     var testsToImplementationSection: some View {
@@ -581,6 +601,12 @@ private extension ContentView {
                     .font(.footnote)
             }
 
+            if let artifactSync = lastArtifactSyncResult {
+                Text("Artifact Sync: \(statusText(for: artifactSync.result))")
+                Text("Synchronized files: \(artifactSync.synchronizedFiles.count)")
+                    .font(.footnote)
+            }
+
             if let features = lastFeaturesResult {
                 Text("IDEA -> FEATURES: \(statusText(for: features.result))")
                 Text("Candidates: \(features.proposedFeatures.count)")
@@ -716,6 +742,28 @@ private extension ContentView {
             _ = projectRegistryService.selectActiveWorkingProject(id: createdProjectID)
             flowProjectID = createdProjectID.rawValue
         }
+    }
+
+    func runArtifactSync(_ direction: ArtifactSyncDirection) {
+        let activePath = activeProjectPathForPersistence.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !activePath.isEmpty else {
+            lastArtifactSyncResult = ArtifactSyncResult(
+                result: .failure(.init(message: "Artifact sync skipped: active project path is not set.")),
+                synchronizedFiles: []
+            )
+            return
+        }
+
+        let request = ArtifactSyncRequest(
+            projectPath: activePath,
+            storageProfile: activeStorageProfileForPersistence,
+            direction: direction
+        )
+        lastArtifactSyncResult = artifactSyncService.synchronize(request)
+    }
+
+    var isSQLBaseProfileActive: Bool {
+        activeStorageProfileForPersistence == .sqlbase
     }
 }
 

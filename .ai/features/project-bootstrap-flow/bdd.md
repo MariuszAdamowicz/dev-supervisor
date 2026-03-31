@@ -69,3 +69,11 @@ Kiedy aplikacja kończy krok bootstrapu
 Wtedy nowy projekt jest automatycznie rejestrowany w `project-registry`
 Oraz nowy projekt jest ustawiany jako aktywny projekt roboczy
 Oraz status rejestracji jest jawnie raportowany operatorowi
+
+## Scenariusz 12: sqlbase import/export synchronizuje artefakty DB <-> .ai
+Zakładając, że aktywny projekt działa w profilu `sqlbase`
+Kiedy operator uruchamia eksport `.ai -> sqlbase`
+Wtedy artefakty produktu są kopiowane do `State/sqlbase/*`
+Kiedy operator uruchamia import `sqlbase -> .ai`
+Wtedy artefakty są odtwarzane z `State/sqlbase/*` do `.ai/*`
+Oraz status synchronizacji jest jawnie raportowany operatorowi
