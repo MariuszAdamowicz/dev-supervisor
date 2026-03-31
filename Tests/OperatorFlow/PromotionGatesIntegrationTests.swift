@@ -232,6 +232,92 @@ final class PromotionGatesIntegrationTests: XCTestCase {
         XCTAssertTrue(testsB.result.isSuccess)
         XCTAssertNotEqual(testsA.promptFingerprint, testsB.promptFingerprint)
     }
+
+    func testScenario04_regeneratedTests_requiresFreshPromotionBeforeImplementationGate() {
+        let projectID = ProjectID(rawValue: "P-INT-4")
+        let ideaID = IdeaID(rawValue: "I-INT-4")
+        let ideaTitle = "Tests reset integration"
+        let featureA = FeatureCandidate(key: "F-A", name: "A", description: "A")
+        let featureB = FeatureCandidate(key: "F-B", name: "B", description: "B")
+
+        let featuresToPRD = configuredFeaturesToPRD(projectID: projectID)
+        let prdToBDD = configuredPRDToBDD(projectID: projectID)
+        let bddToTests = configuredBDDToTests(projectID: projectID)
+        let testsToImplementation = configuredTestsToImplementation(projectID: projectID)
+
+        let prdA = generatePRDWithPromotionGate(
+            approvedFeaturesForPRD: [featureA],
+            featuresToPRD: featuresToPRD,
+            ideaID: ideaID,
+            ideaTitle: ideaTitle
+        )
+        XCTAssertTrue(prdA.result.isSuccess)
+
+        let bddA = generateBDDWithPromotionGate(
+            approvedPRDForBDD: prdA.promptText,
+            prdToBDD: prdToBDD,
+            ideaID: ideaID,
+            ideaTitle: ideaTitle
+        )
+        XCTAssertTrue(bddA.result.isSuccess)
+
+        let testsA = generateTestsWithPromotionGate(
+            approvedBDDForTests: bddA.promptText,
+            bddToTests: bddToTests,
+            ideaID: ideaID,
+            ideaTitle: ideaTitle
+        )
+        XCTAssertTrue(testsA.result.isSuccess)
+
+        let implementationA = generateImplementationWithPromotionGate(
+            approvedTestsForImplementation: testsA.promptText,
+            testsToImplementation: testsToImplementation,
+            ideaID: ideaID,
+            ideaTitle: ideaTitle
+        )
+        XCTAssertTrue(implementationA.result.isSuccess)
+
+        let prdB = generatePRDWithPromotionGate(
+            approvedFeaturesForPRD: [featureB],
+            featuresToPRD: featuresToPRD,
+            ideaID: ideaID,
+            ideaTitle: ideaTitle
+        )
+        XCTAssertTrue(prdB.result.isSuccess)
+
+        let bddB = generateBDDWithPromotionGate(
+            approvedPRDForBDD: prdB.promptText,
+            prdToBDD: prdToBDD,
+            ideaID: ideaID,
+            ideaTitle: ideaTitle
+        )
+        XCTAssertTrue(bddB.result.isSuccess)
+
+        let testsB = generateTestsWithPromotionGate(
+            approvedBDDForTests: bddB.promptText,
+            bddToTests: bddToTests,
+            ideaID: ideaID,
+            ideaTitle: ideaTitle
+        )
+        XCTAssertTrue(testsB.result.isSuccess)
+
+        let blockedAfterReset = generateImplementationWithPromotionGate(
+            approvedTestsForImplementation: "",
+            testsToImplementation: testsToImplementation,
+            ideaID: ideaID,
+            ideaTitle: ideaTitle
+        )
+        XCTAssertFalse(blockedAfterReset.result.isSuccess)
+
+        let implementationB = generateImplementationWithPromotionGate(
+            approvedTestsForImplementation: testsB.promptText,
+            testsToImplementation: testsToImplementation,
+            ideaID: ideaID,
+            ideaTitle: ideaTitle
+        )
+        XCTAssertTrue(implementationB.result.isSuccess)
+        XCTAssertNotEqual(implementationA.promptFingerprint, implementationB.promptFingerprint)
+    }
 }
 
 private extension PromotionGatesIntegrationTests {
