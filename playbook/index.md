@@ -48,8 +48,8 @@ Gotowe wzorce plikow AI i skryptow.
 
 ## Moduly OP Layer
 
-### orchestration
-Warstwa obiektow procesu i regul reakcji (event-driven):
+### layers/op
+Kanoniczna warstwa OP (event-driven):
 - katalog OP
 - maszyny stanow OP
 - triggery event -> prompt task -> gate

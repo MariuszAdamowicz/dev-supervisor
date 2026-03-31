@@ -1,11 +1,13 @@
-## 🧠 Zamykanie sesji (session closure)
+## Session closure (OP-aligned)
 
-Przed zakończeniem pracy:
-- dokumentacja aktualna
-- testy aktualne
+Przed zakonczeniem pracy:
+- dokumentacja feature zaktualizowana (prd, bdd, traceability)
+- testy i walidacja aktualne (build/test/lint)
 - brak martwego kodu
-- branch gotowy
-- notes.md uzupełniony
+- status brancha gotowy do dalszej iteracji lub merge
+- notes/tasks zaktualizowane
+- GateDecision i QualitySignal zapisane
+- ProcessEvent zapisany dla kluczowych przejsc sesji
 
 Zasada:
-Projekt musi być czytelny dla kolejnej iteracji.
+Kolejna iteracja ma startowac z czytelnym stanem OP i czytelnym stanem kodu.
