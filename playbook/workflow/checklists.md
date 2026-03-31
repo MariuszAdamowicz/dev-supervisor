@@ -114,3 +114,16 @@
 [ ] zdefiniowane reguły invalidation downstream
 [ ] przygotowane testy visibility/state transitions/gates
 ```
+
+---
+
+## ✅ Checklista orchestration (OP + triggery)
+
+```text
+[ ] zmiana zmapowana na OP (co najmniej jeden obiekt)
+[ ] zdefiniowane eventy dla zmiany
+[ ] wygenerowane PromptTask wynikajace z trigger rules
+[ ] kazdy PromptTask ma ustawione target-op
+[ ] wykonane decyzje gate zapisane jako GateDecision
+[ ] brak krytycznych otwartych PromptTask przed zamknieciem feature
+```

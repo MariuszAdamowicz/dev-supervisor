@@ -13,6 +13,14 @@ Wybierz ideę i podejmij decyzję:
 
 Dopiero po tej decyzji tworzysz aktywny feature.
 
+### 1a. mapowanie OP i triggerów
+Zmapuj zmianę na Obiekty Procesu (OP):
+- które OP są tworzone lub aktualizowane
+- jakie eventy zajdą
+- jakie PromptTask muszą powstać z trigger rules
+
+Szczegóły: `orchestration/object-catalog.md`, `orchestration/trigger-rules.md`.
+
 ### 2. minimalny kontekst
 Ładuj tylko:
 - `.ai/features/<feature>/prd.md`

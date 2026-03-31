@@ -50,6 +50,14 @@ Cel warstwy:
 - odblokowywać akcje wyłącznie wtedy, gdy są naprawdę potrzebne
 - utrzymywać state-driven flow zamiast "wszystko na jednym ekranie"
 
+### orchestration
+Warstwa obiektow procesu i regul reakcji (event-driven):
+- katalog OP
+- maszyny stanow OP
+- triggery event -> prompt task -> gate
+
+Pliki kanoniczne: `orchestration/object-catalog.md`, `orchestration/state-machines.md`, `orchestration/trigger-rules.md`.
+
 ### profiles
 Nakładki konfiguracyjne dla konkretnego kontekstu:
 - stack (np. macos-swiftui)
@@ -85,6 +93,7 @@ Moduły obowiązkowe:
 - `core/*`
 - `workflow/*`
 - `experience/*`
+- `orchestration/*`
 - jeden profil `stack/*`
 - jeden profil `architecture/*`
 - jeden profil `language/*`

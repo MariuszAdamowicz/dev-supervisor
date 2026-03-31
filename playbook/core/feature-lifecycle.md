@@ -40,6 +40,14 @@ Podejmij decyzję operatorską:
 
 Bez tej decyzji nie twórz PRD.
 
+### 2a. Orchestration seed
+Przed utworzeniem specyfikacji wykonaj mapowanie OP i triggerow:
+- wskaz OP, ktore beda modyfikowane
+- zdefiniuj eventy wejsciowe
+- przygotuj liste PromptTask uruchamianych przez trigger rules
+
+Szczegoly: `orchestration/object-catalog.md`, `orchestration/state-machines.md`, `orchestration/trigger-rules.md`.
+
 ### 3. Spec
 Utwórz folder:
 ```text
