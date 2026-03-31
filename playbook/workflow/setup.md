@@ -332,3 +332,24 @@ Zasada rozstrzygania konfliktu:
 Zasada gate:
 - wartosci i efekty GateDecision pochodza z OP Layer,
 - setup i ux moga je tylko wizualizowac i mapowac na kroki operatora.
+
+## OP-driven startup rule
+
+Po setup operator nie wybiera recznie etapu pipeline.
+Operator wybiera entrypoint OP, a dalszy flow wynika z:
+- current_state
+- legal transitions
+- guards
+- trigger rules
+
+Playbook mapuje OP na:
+- widok UI
+- prompt
+- checklisty
+
+Zasada projekcji:
+- mapping jest jednokierunkowy: OP -> UI/Prompt/Checklist.
+
+Zasada wyboru profili:
+- wybor profili powinien byc prowadzony przez wizard/decision flow,
+  a nie przez reczne przegladanie listy plikow.

@@ -1,14 +1,13 @@
 # Playbook Layer
 
 Rola:
-- projekcja OP na metodologie pracy operatora.
+- projekcja OP na prace operatora.
 
 Zakres:
-- polityki procesu,
-- workflow i checklisty,
 - profile konfiguracji,
-- warstwa UX dla operatora,
-- biblioteka promptow i templatek.
+- projection rules (OP -> UI/Prompt/Checklist),
+- biblioteka promptow i templatek,
+- polityki operacyjne i jakosciowe.
 
 Moduly tej warstwy:
 - ../core/*
@@ -20,14 +19,11 @@ Moduly tej warstwy:
 
 Kontrakt wobec OP Layer:
 - nie duplikuje definicji OP,
-- nie zmienia semantyki triggerow,
-- nie definiuje alternatywnych gate values,
-- mapuje kroki operatora na przejscia OP.
-
-Zasada upraszczania:
-- Playbook Layer opisuje procedury i mapowania,
-- OP Layer opisuje semantyke procesu.
+- nie zmienia semantyki triggerow i gate,
+- nie definiuje alternatywnych state transitions,
+- wyznacza dzialanie operatora na bazie next_transition z OP.
 
 Czego ta warstwa NIE robi:
 - nie jest runtime storage projektu,
-- nie jest implementacja kodu produktu.
+- nie jest implementacja kodu produktu,
+- nie jest zrodlem semantyki procesu.

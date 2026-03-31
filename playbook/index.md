@@ -29,16 +29,16 @@ Warstwy nadrzedne:
 ## Moduly Playbook Layer
 
 ### core
-Reguly globalne i niezmienne fundamenty procesu.
+Reguly globalne i polityki operacyjne.
 
 ### workflow
-Procedury wykonywania pracy.
+Reguly uruchamiania pracy jako OP-driven entrypoints.
 
 ### experience
-Warstwa UX/interaction orchestration dla operatora.
+Projection OP -> UI/UX dla operatora.
 
 ### profiles
-Nakladki konfiguracyjne dla konkretnego kontekstu.
+Nakladki konfiguracyjne dla kontekstu projektu i pracy.
 
 ### prompts
 Kanoniczne prompty robocze per etap.
@@ -87,18 +87,15 @@ Moduly kontekstowe:
 
 Sposob kompozycji:
 1. Start od modelu warstw: layers/index.md
-2. Start od core/ jako zasad nadrzednych.
-3. Wybierz i dolacz profile.
-4. Domknij Product Gate (overview.md, constraints.md, glossary.md + decyzja operatora).
-5. Zdefiniuj UX orchestration w experience/*.
-6. Realizuj prace przez workflow/daily-workflow.md.
-7. Uzywaj promptow kanonicznych z prompts/*.
-8. Kazda iteracje zamykaj review package i decyzja operatora.
-9. Zamykaj iteracje checklistami i workflow/session-closure.md.
+2. Wybierz i dolacz profile.
+3. Domknij Product Gate (baseline produktu).
+4. Wybierz entrypoint OP.
+5. Wyznacz next_transition z OP Layer.
+6. Wygeneruj projection OP -> UI/Prompt/Checklist.
+7. Wykonaj akcje, walidacje i GateDecision.
+8. Powtorz az do domkniecia celu runtime.
 
-## Zaktualizowany Lifecycle
+## Zasada wykonania
 
-idea -> feature(s) -> PRD -> UX contract -> BDD -> tests -> implementation -> validation -> stabilization
-
-Szczegoly lifecycle:
-- core/feature-lifecycle.md
+Playbook nie prowadzi recznego pipeline krok po kroku.
+Playbook prowadzi operatora przez kolejne transitions wynikajace z OP Layer.

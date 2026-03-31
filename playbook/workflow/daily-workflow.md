@@ -1,77 +1,80 @@
-## Codzienny workflow (OP-aligned)
+## Daily workflow (OP-driven)
 
 Zasada nadrzedna:
-To jest procedura operatora mapowana na OP Layer.
-Kanoniczne stany, triggery i gate values sa w layers/op.
+Operator nie wybiera "kroku pipeline" recznie.
+Operator wybiera entrypoint OP, a system wyznacza next_transition z OP Layer.
 
-### 0. Wybierz aktywny krok
-Wykonuj tylko jeden nastepny krok pipeline.
-Szczegoly UI: experience/ui-state-machine.md.
-
-### 1. Wybierz idee i zrob scoping
-Zdecyduj:
-- jeden feature czy wiele
-- ktory feature jest aktywny teraz
-
-### 1a. Zmapuj OP i triggery
-Dla zmiany okresl:
-- target OP
-- eventy
-- wymagane PromptTask
-- guardy do kolejnego przejscia
-
-Szczegoly:
+Kanoniczna semantyka:
 - layers/op/object-catalog.md
+- layers/op/state-machines.md
 - layers/op/trigger-rules.md
 
-### 2. Zaladuj minimalny kontekst
-- feature/prd.md
-- feature/bdd.md
-- overview.md
-- constraints.md
-- glossary.md
-- odpowiednie pliki stack
+## 1. Wybierz entrypoint OP
 
-### 3. Plan
-Wygeneruj maly plan krokow.
+Dopuszczalne entrypointy (zalezne od kontekstu):
+- Project (nowy projekt / re-konfiguracja)
+- Idea (intake i scoping)
+- Feature (spec/test/implement)
+- Term/UIComponent (UX alignment)
+- Release (delivery)
+- Exception/Timeout (obsluga awarii)
 
-### 4. Test-first
-Wygeneruj lub popraw testy na bazie bdd.
+## 2. Odczytaj stan instancji OP
 
-### 5. Implementacja
-Wykonaj jeden krok planu bez zmian niepowiazanych.
+Dla wybranego OP ustal:
+- current_state
+- legalne przejscia
+- guardy blokujace
+- pending PromptTask
+- latest GateDecision
 
-### 6. Review package
-Pokaz operatorowi:
+## 3. Wyznacz next_transition
+
+Next transition wynika z OP state machine + guardow.
+Playbook nie tworzy alternatywnej logiki przejsc.
+
+## 4. Zbuduj projection dla operatora
+
+Z OP -> UI/Prompt/Checklist:
+- jaka jedna akcje pokazac (next best action)
+- jaki minimalny kontekst zaladowac
+- jaki prompt uruchomic
+- jakie warunki gate musza byc spelnione
+
+## 5. Wykonaj akcje i review package
+
+Po akcji przygotuj review package:
 - diff
-- mapowanie zmiana -> scenariusz
+- mapowanie do scenariuszy/testow
 - build/test/lint
-- status OP (eventy i guardy)
+- status OP po wykonaniu akcji
 
-### 7. Walidacja
-Uruchom:
-- Scripts/build.sh
-- Scripts/test.sh
-- Scripts/lint.sh
+## 6. GateDecision
 
-### 8. Gate decyzji operatora
-Operator podejmuje decyzje gate.
-Wartosci decyzji i efekty sa kanoniczne w OP Layer.
+Operator podejmuje decyzje gate:
+- approve
+- request_changes
+- defer
+- reject
 
-### 9. Poprawki
-Jesli gate nie jest approve, wykonaj minimalne poprawki i powtorz loop.
+Efekty decyzji sa zdefiniowane przez OP trigger rules.
 
-### 10. Stabilizacja
-Porownaj implementacje z prd i bdd.
-Usun dead code.
-Zaktualizuj notes i traceability.
+## 7. Walidacja i audit
 
-### 11. Integration hardening
-Sprawdz:
-- duplikacje miedzy feature
-- dryf PRD-BDD-testy
-- readiness UI lub jawne odroczenie
-- dependency/risk status
+Obowiazkowo:
+- QualitySignal (pass/fail)
+- ProcessEvent
+- aktualizacja stanu OP
 
-### 12. Release handoff
-Jesli feature jest stabilny, przygotuj przekazanie do Release OP.
+## 8. Petla
+
+Jesli transition nie jest domkniety:
+- wykonaj poprawki,
+- odswiez stan OP,
+- wyznacz nowe next_transition.
+
+## 9. Release handoff
+
+Gdy Feature OP osiagnie gotowosc release:
+- przekaz do Release OP,
+- przejdz przez Deployment/Rollback wg guardow OP.
