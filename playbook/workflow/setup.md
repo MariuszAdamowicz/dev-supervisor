@@ -319,3 +319,16 @@ Kanoniczne definicje lifecycle i triggerow sa w:
 Wymaganie:
 - setup nie moze definiowac alternatywnych gate values, trigger semantics ani state transitions.
 - setup mapuje czynnosci operatora na OP transitions.
+
+## Interpretacja .ai w modelu OP
+
+- `.ai/prd/*` i `.ai/features/*` sa artefaktami runtime (Project Instance Layer).
+- `.ai/ux/*` opisuje projekcje UX dla operatora, nie kanoniczna semantyke procesu.
+- semantyka state/trigger/gate jest definiowana tylko w layers/op/*.
+
+Zasada rozstrzygania konfliktu:
+- jesli opis w `.ai/ux/*` koliduje z layers/op/*, nadrzedna jest definicja OP.
+
+Zasada gate:
+- wartosci i efekty GateDecision pochodza z OP Layer,
+- setup i ux moga je tylko wizualizowac i mapowac na kroki operatora.
