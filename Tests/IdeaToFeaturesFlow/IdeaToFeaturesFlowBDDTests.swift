@@ -158,7 +158,7 @@ final class IdeaToFeaturesFlowBDDTests: XCTestCase {
 }
 
 private extension IdeaToFeaturesFlowBDDTests {
-    func makeSUT() -> any IdeaToFeaturesFlowContract {
+    func makeSUT() -> IdeaToFeaturesFlowInMemory {
         IdeaToFeaturesFlowInMemory()
     }
 

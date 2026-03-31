@@ -4,6 +4,8 @@ final class ProjectRegistryPersistentFileSystem: ProjectRegistryContract {
     private let storageURL: URL
     private let memoryRegistry = ProjectRegistryInMemory()
 
+    nonisolated deinit {}
+
     init(storageProfile: StorageProfile, storageRootPath: String? = nil) {
         if let storageRootPath {
             let root = URL(fileURLWithPath: storageRootPath)

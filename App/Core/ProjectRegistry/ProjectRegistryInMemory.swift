@@ -1,6 +1,8 @@
 import Foundation
 
 final class ProjectRegistryInMemory: ProjectRegistryContract {
+    nonisolated deinit {}
+
     private var projectsByID: [ProjectID: ProjectRecord] = [:]
     private var orderedProjectIDs: [ProjectID] = []
     private var selectedProjectID: ProjectID?

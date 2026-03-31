@@ -137,7 +137,7 @@ final class TestsToImplementationFlowBDDTests: XCTestCase {
 }
 
 private extension TestsToImplementationFlowBDDTests {
-    func makeSUT() -> any TestsToImplementationFlowContract {
+    func makeSUT() -> TestsToImplementationFlowInMemory {
         TestsToImplementationFlowInMemory()
     }
 

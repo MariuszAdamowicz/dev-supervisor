@@ -1,6 +1,8 @@
 import Foundation
 
 final class FeaturesToPRDFlowInMemory: FeaturesToPRDFlowContract {
+    nonisolated deinit {}
+
     private struct ContextAvailability {
         var overview = true
         var constraints = true

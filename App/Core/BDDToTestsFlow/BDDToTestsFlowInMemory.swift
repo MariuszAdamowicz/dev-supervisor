@@ -1,6 +1,8 @@
 import Foundation
 
 final class BDDToTestsFlowInMemory: BDDToTestsFlowContract {
+    nonisolated deinit {}
+
     private struct ContextAvailability {
         var overview = true
         var constraints = true

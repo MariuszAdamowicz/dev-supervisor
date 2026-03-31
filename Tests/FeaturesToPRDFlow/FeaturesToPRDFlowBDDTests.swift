@@ -137,7 +137,7 @@ final class FeaturesToPRDFlowBDDTests: XCTestCase {
 }
 
 private extension FeaturesToPRDFlowBDDTests {
-    func makeSUT() -> any FeaturesToPRDFlowContract {
+    func makeSUT() -> FeaturesToPRDFlowInMemory {
         FeaturesToPRDFlowInMemory()
     }
 

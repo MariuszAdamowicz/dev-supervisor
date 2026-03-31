@@ -32,17 +32,18 @@ wait "$xcodebuild_pid"
 xcodebuild_status=$?
 set -e
 kill "$watchdog_pid" 2>/dev/null || true
+wait "$watchdog_pid" 2>/dev/null || true
 
 if [[ "$xcodebuild_status" -ne 0 ]]; then
   echo "ERROR: xcodebuild test failed with code $xcodebuild_status." >&2
   exit "$xcodebuild_status"
 fi
 
-executed_tests=$(grep -Eo 'Executed [0-9]+ tests?' "$LOG_PATH" | tail -n 1 | awk '{print $2}')
+executed_tests=$(grep -Eo 'Executed [0-9]+ tests?' "$LOG_PATH" | tail -n 1 | awk '{print $2}' || true)
 
 if [[ -z "$executed_tests" ]]; then
-  echo "ERROR: Unable to confirm executed tests count from xcodebuild output." >&2
-  exit 1
+  # Fallback for xcodebuild formats that omit "Executed N tests" summary lines.
+  executed_tests=$(grep -Ec "Test case '.*' (passed|failed)" "$LOG_PATH" || true)
 fi
 
 if [[ "$executed_tests" -le 0 ]]; then

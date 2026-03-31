@@ -153,7 +153,7 @@ final class IdeaToPRDFlowBDDTests: XCTestCase {
 }
 
 private extension IdeaToPRDFlowBDDTests {
-    func makeSUT() -> any IdeaToPRDFlowContract {
+    func makeSUT() -> IdeaToPRDFlowInMemory {
         IdeaToPRDFlowInMemory()
     }
 

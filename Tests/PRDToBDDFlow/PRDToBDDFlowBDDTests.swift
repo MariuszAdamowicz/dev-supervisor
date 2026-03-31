@@ -137,7 +137,7 @@ final class PRDToBDDFlowBDDTests: XCTestCase {
 }
 
 private extension PRDToBDDFlowBDDTests {
-    func makeSUT() -> any PRDToBDDFlowContract {
+    func makeSUT() -> PRDToBDDFlowInMemory {
         PRDToBDDFlowInMemory()
     }
 

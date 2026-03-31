@@ -329,7 +329,7 @@ final class ProjectRegistryBDDTests: XCTestCase {
 }
 
 private extension ProjectRegistryBDDTests {
-    func makeSUT() -> any ProjectRegistryContract {
+    func makeSUT() -> ProjectRegistryInMemory {
         ProjectRegistryInMemory()
     }
 

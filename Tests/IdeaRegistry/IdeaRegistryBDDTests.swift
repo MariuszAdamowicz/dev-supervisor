@@ -217,7 +217,7 @@ final class IdeaRegistryBDDTests: XCTestCase {
 }
 
 private extension IdeaRegistryBDDTests {
-    func makeSUT() -> any IdeaRegistryContract {
+    func makeSUT() -> IdeaRegistryInMemory {
         IdeaRegistryInMemory()
     }
 

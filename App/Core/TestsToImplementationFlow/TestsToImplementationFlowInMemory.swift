@@ -1,6 +1,8 @@
 import Foundation
 
 final class TestsToImplementationFlowInMemory: TestsToImplementationFlowContract {
+    nonisolated deinit {}
+
     private struct ContextAvailability {
         var overview = true
         var constraints = true

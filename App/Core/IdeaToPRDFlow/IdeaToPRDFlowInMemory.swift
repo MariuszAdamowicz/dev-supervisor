@@ -1,6 +1,8 @@
 import Foundation
 
 final class IdeaToPRDFlowInMemory: IdeaToPRDFlowContract {
+    nonisolated deinit {}
+
     private struct ContextAvailability {
         var overview = true
         var constraints = true

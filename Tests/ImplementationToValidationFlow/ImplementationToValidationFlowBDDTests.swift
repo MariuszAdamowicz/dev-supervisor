@@ -137,7 +137,7 @@ final class ImplementationToValidationFlowBDDTests: XCTestCase {
 }
 
 private extension ImplementationToValidationFlowBDDTests {
-    func makeSUT() -> any ImplementationToValidationFlowContract {
+    func makeSUT() -> ImplementationToValidationFlowInMemory {
         ImplementationToValidationFlowInMemory()
     }
 
