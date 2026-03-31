@@ -1,25 +1,36 @@
-# Interaction Patterns
+# Interaction Patterns (OP-aligned)
 
-## Pattern 1: Next Best Action
-UI zawsze pokazuje jedną główną akcję "co dalej".
+## Pattern 1: Next OP Action
+UI pokazuje jedna glowna akcje wynikajaca z next_transition dla current_op.
 
-## Pattern 2: Gate Card
-Każdy krok pipeline ma kartę gate:
-- input artifact
-- output artifact
-- status: pending/ready/accepted/invalidated
-- akcje: generate, review, accept, regenerate
+## Pattern 2: Transition Card
+Kazdy krok ma karte przejscia:
+- target OP
+- from_state -> to_state
+- required guards
+- status guardow
+- akcje operatora
 
-## Pattern 3: Review Before Accept
-Operator zawsze akceptuje artefakt jawnie.
-Akceptacja zapisuje fingerprint artefaktu.
+## Pattern 3: Review Before GateDecision
+Operator podejmuje GateDecision po review package:
+- diff
+- mapowanie do scenariuszy
+- quality signals
+- event history
 
-## Pattern 4: Invalidation Warning
-Przy zmianie upstream UI pokazuje listę gate, które zostaną unieważnione.
+## Pattern 4: Invalidation Preview
+Przy zmianie upstream UI pokazuje dokladne downstream OP, ktore beda invalidated.
 
 ## Pattern 5: Deterministic Audit Trail
-Każda akcja operatora jest logowana:
-- kto
-- kiedy
-- jaka akcja
-- jaki artefakt/fingerprint
+Kazda akcja operatora zapisuje ProcessEvent:
+- actor
+- timestamp
+- event_type
+- target_op
+- payload fingerprint
+
+## Pattern 6: Exception First
+Dla Exception/Timeout UI pokazuje najpierw:
+- severity
+- impact
+- failure policy (retry/compensation/escalation)

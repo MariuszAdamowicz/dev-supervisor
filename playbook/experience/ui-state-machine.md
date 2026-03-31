@@ -1,35 +1,29 @@
-# UI State Machine
+# UI State Machine (OP-aligned)
 
 ## Cel
-Widoczność i dostępność akcji są sterowane maszyną stanów, nie ręcznie przez widoki.
+UI nie definiuje lokalnej semantyki procesu.
+UI odzwierciedla stany OP z layers/op/state-machines.md.
 
-## Stany główne
-- `project_uninitialized`
-- `project_ready`
-- `idea_backlog`
-- `idea_selected`
-- `features_ready`
-- `prd_ready`
-- `ux_contract_ready`
-- `bdd_ready`
-- `tests_ready`
-- `implementation_ready`
-- `validation_ready`
-- `stabilized`
+## Zasada mapowania
+- Jeden aktywny krok UI = jeden aktywny target OP + oczekiwane przejscie stanu.
+- Przejscia UI sa skutkiem eventow OP, nie oddzielna logika.
 
-## Przejścia
-- `project_uninitialized -> project_ready`: zakończony setup + baseline product docs
-- `project_ready -> idea_backlog`: istnieje co najmniej jedna idea
-- `idea_backlog -> idea_selected`: jedna idea oznaczona jako aktywna
-- `idea_selected -> features_ready`: zaakceptowany artefakt Features
-- `features_ready -> prd_ready`: zaakceptowany artefakt PRD
-- `prd_ready -> ux_contract_ready`: zaakceptowany UX Contract
-- `ux_contract_ready -> bdd_ready`: zaakceptowany artefakt BDD
-- `bdd_ready -> tests_ready`: zaakceptowany artefakt Tests
-- `tests_ready -> implementation_ready`: zaakceptowany artefakt Implementation
-- `implementation_ready -> validation_ready`: zielony build/test/lint
-- `validation_ready -> stabilized`: cleanup + sync dokumentacji
+## Kanoniczne zrodla stanu
+- layers/op/object-catalog.md
+- layers/op/state-machines.md
+- layers/op/trigger-rules.md
 
-## Reguła invalidation
-Zmiana artefaktu w stanie `X` resetuje wszystkie bramki downstream.
-Przykład: zmiana PRD resetuje `UX/BDD/Tests/Implementation/Validation`.
+## Minimalny model widoku stanu
+- current_op: typ OP aktualnie obslugiwany
+- current_state: aktualny stan OP
+- next_transition: oczekiwane przejscie
+- blocking_guards: lista guardow blokujacych przejscie
+- pending_tasks: otwarte PromptTask dla current_op
+- latest_gate: ostatnia GateDecision dla current_op
+
+## Regula invalidation
+Zmiana upstream OP powoduje invalidation downstream zgodnie z trigger rules OP.
+UI pokazuje invalidation jako efekt OP, nie jako lokalna regule.
+
+## Regula spojnosc
+Jesli UI i OP sa niespojne, prawda procesu jest po stronie OP.

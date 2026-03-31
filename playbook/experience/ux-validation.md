@@ -1,21 +1,21 @@
-# UX Validation
+# UX Validation (OP-aligned)
 
-## Kryteria jakości UX
-- Operator bez znajomości kodu potrafi wykonać cały flow krok po kroku.
-- UI nie pokazuje zbędnych paneli.
-- Brak akcji, które kończą się "silent failure".
-- Każdy stan blokady ma explicit reason.
+## Kryteria jakosci UX
+- Operator bez znajomosci kodu przechodzi flow przez current_op -> next_transition.
+- UI nie pokazuje akcji bez spelnionych guardow.
+- Kazda blokada ma reason pochodzacy z OP.
+- Kazda decyzja operatora jest audytowalna (ProcessEvent).
 
-## Testy UX (obowiązkowe)
-1. Visibility tests
-2. State transition tests
-3. Gate availability tests
-4. Invalidation tests
-5. Navigation continuity tests
+## Testy UX (obowiazkowe)
+1. OP state reflection tests (UI pokazuje prawidlowy current_state)
+2. Guard visibility tests (CTA aktywne tylko przy spelnionych guardach)
+3. Gate decision tests (approve/request_changes/defer/reject)
+4. Invalidation propagation tests (upstream -> downstream)
+5. Permission tests (ActorRolePermission)
+6. Exception/timeout handling tests
+7. Audit continuity tests (ProcessEvent completeness)
 
 ## Definition of Done (UX)
-- Każdy nowy krok pipeline ma:
-  - definicję stanu
-  - reguły widoczności
-  - reguły dostępności akcji
-  - testy przejść i blokad
+- Kazdy nowy krok ma jawne mapowanie do OP transition.
+- Widocznosc i CTA wynikaja z guardow OP.
+- Testy UX pokrywaja stany, blokady, invalidation i audit.

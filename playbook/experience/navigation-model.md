@@ -1,19 +1,19 @@
-# Navigation Model
+# Navigation Model (OP-aligned)
 
 ## Model nawigacji
-- Lewy panel: etapy procesu (timeline)
-- Środek: aktywny krok
-- Prawy panel: kontekst i artefakty (read-only + diff)
+- Lewy panel: timeline OP transitions dla aktywnego scope.
+- Srodek: aktywny krok (current_op + current_state + next_transition).
+- Prawy panel: kontekst, artefakty i audit (ProcessEvent, GateDecision, QualitySignal).
 
-## Reguły nawigacji
-- Domyślnie otwarty jest tylko aktywny krok.
-- Przejście do kroku następnego jest możliwe dopiero po spełnieniu gate.
-- Krok wcześniejszy jest zawsze dostępny do podglądu.
-- Wejście w edycję kroku wcześniejszego pokazuje ostrzeżenie o invalidation downstream.
+## Reguly nawigacji
+- Domyslnie otwarty jest tylko aktywny krok.
+- Przejscie dalej jest mozliwe tylko po spelnieniu guardow OP.
+- Wczesniejsze kroki sa dostepne read-only.
+- Edycja kroku upstream pokazuje liste downstream invalidations z trigger rules.
 
 ## Widoki minimalne
-- Setup View
-- Product Docs View
-- Idea Registry View
-- Feature Pipeline View (Features/PRD/UX/BDD/Tests/Implementation/Validation)
-- Stabilization View
+- Project Setup View (Project/Requirement/Constraint/DecisionRecord)
+- Idea & Feature View (Idea/Feature/Scenario)
+- UX View (Term/UIComponent/UIScreen)
+- Delivery View (Release/Deployment/Rollback)
+- Audit View (ProcessEvent/GateDecision/QualitySignal/Exception)

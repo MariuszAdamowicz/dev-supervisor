@@ -1,38 +1,32 @@
-# Operator Journey
+# Operator Journey (OP-aligned)
 
 ## Cel
-Operator nie zarządza "wszystkim naraz". Operator zawsze wykonuje jeden następny krok wskazany przez stan procesu.
+Operator wykonuje jeden nastepny krok wskazany przez OP, nie przez reczny wybor etapu.
 
-## Zasada główna
-Interfejs pokazuje tylko:
-- bieżący krok
-- dane wejściowe wymagane do tego kroku
-- artefakty potrzebne do decyzji
+## Zasada glowna
+Interfejs pokazuje:
+- current_op i current_state,
+- wymagane wejscia do next_transition,
+- artefakty potrzebne do GateDecision.
 
-Wszystkie pozostałe sekcje są ukryte lub zwinięte.
-
-## Główny przebieg pracy (nowy projekt)
-1. Project setup
-2. Product baseline (`overview.md`, `constraints.md`, `glossary.md`)
-3. Idea registry
-4. Idea selection
-5. Idea -> Features
-6. Features -> PRD
-7. PRD -> UX Contract
-8. UX Contract -> BDD
-9. BDD -> Tests
-10. Tests -> Implementation
-11. Implementation -> Validation
-12. Stabilization and close
+## Glowny przebieg (nowy projekt)
+1. Project setup (Project + ActorRolePermission)
+2. Product baseline (Requirement + Constraint + DecisionRecord)
+3. Idea intake (Idea)
+4. Idea scoping (Idea -> Feature)
+5. Feature spec/test loop (Feature + Scenario + PromptTask + GateDecision)
+6. UX alignment (Term + UIComponent + UIScreen)
+7. Quality and hardening (QualitySignal + Risk + Dependency)
+8. Delivery (Release -> Deployment -> Rollback)
+9. Audit closure (ProcessEvent + final GateDecision)
 
 ## Decyzje operatora
-Operator podejmuje decyzje w punktach:
-- akceptacja/odrzucenie wyniku bramki
-- wybór aktywnej idei
-- wybór strategii wykonania (`iterative`, `batch`, `hybrid`)
-- decyzja o przejściu do kolejnego kroku
-- decyzja o cofnięciu i regeneracji artefaktu upstream
+Operator podejmuje decyzje:
+- wybór aktywnej idei/feature,
+- GateDecision (approve/request_changes/defer/reject),
+- acceptance lub escalation dla Risk/Exception,
+- publikacja release i ewentualny rollback.
 
 ## Cofanie i regeneracja
-Jeśli artefakt upstream został zmieniony, downstream gate traci ważność.
-Przykład: zmiana `bdd.md` unieważnia gate `BDD -> Tests`.
+Zmiana upstream OP invaliduje downstream OP zgodnie z trigger rules.
+UI pokazuje scope invalidation i wymagane kroki odtworzenia.
