@@ -34,22 +34,17 @@ struct ContentView: View {
     @State private var approvedBDDForTests = ""
     @State private var lastBDDPromotionResult: RegistryOperationResult?
     @State private var lastTestsFromBDDResult: TestsFromBDDPromptResult?
-    @State private var approvedTestsForImplementation = ""
-    @State private var lastTestsPromotionResult: RegistryOperationResult?
+    @State private var approvedTestsForImplementation = ""; @State private var lastTestsPromotionResult: RegistryOperationResult?
     @State private var lastImplementationFromTestsResult: ImplementationFromTestsPromptResult?
+    @State private var approvedImplementationForValidation = ""; @State private var lastImplementationPromotionResult: RegistryOperationResult?
     @State private var lastValidationFromImplementationResult: ValidationFromImplementationPromptResult?
-    @State private var lastPersistenceResult: GatePromptPersistenceResult?
-    @State private var lastProjectRegistrationResult: ProjectRegistrationResult?
+    @State private var lastPersistenceResult: GatePromptPersistenceResult?; @State private var lastProjectRegistrationResult: ProjectRegistrationResult?
     @State private var lastArtifactSyncResult: ArtifactSyncResult?
     private let bootstrapService: any ProjectBootstrapContract = ProjectBootstrapFileSystem()
-    private let fileAIProjectRegistryService: any ProjectRegistryContract =
-        ProjectRegistryPersistentFileSystem(storageProfile: .fileAI)
-    private let sqlbaseProjectRegistryService: any ProjectRegistryContract =
-        ProjectRegistryPersistentFileSystem(storageProfile: .sqlbase)
-    private let fileAIIdeaRegistryService: IdeaRegistryContract =
-        IdeaRegistryPersistentFileSystem(storageProfile: .fileAI)
-    private let sqlbaseIdeaRegistryService: IdeaRegistryContract =
-        IdeaRegistryPersistentFileSystem(storageProfile: .sqlbase)
+    private let fileAIProjectRegistryService: any ProjectRegistryContract = ProjectRegistryPersistentFileSystem(storageProfile: .fileAI)
+    private let sqlbaseProjectRegistryService: any ProjectRegistryContract = ProjectRegistryPersistentFileSystem(storageProfile: .sqlbase)
+    private let fileAIIdeaRegistryService: IdeaRegistryContract = IdeaRegistryPersistentFileSystem(storageProfile: .fileAI)
+    private let sqlbaseIdeaRegistryService: IdeaRegistryContract = IdeaRegistryPersistentFileSystem(storageProfile: .sqlbase)
     private let artifactSyncService: any ArtifactSyncContract = ArtifactSyncFileSystem()
     private let ideaToFeaturesService: any IdeaToFeaturesFlowContract = IdeaToFeaturesFlowInMemory()
     private let featuresToPRDService: any FeaturesToPRDFlowContract = FeaturesToPRDFlowInMemory()
@@ -540,6 +535,8 @@ private extension ContentView {
                     testsDocument: approvedTestsForImplementation
                 )
                 lastImplementationFromTestsResult = result
+                approvedImplementationForValidation = ""
+                lastImplementationPromotionResult = .failure(.init(message: "Run IMPLEMENTATION promotion gate before IMPLEMENTATION -> VALIDATION."))
                 persistPromptIfPossible(
                     operation: "TESTS -> IMPLEMENTATION",
                     gateResult: result.result,
@@ -558,6 +555,8 @@ private extension ContentView {
                 .font(.title2.bold())
             Text("Gate operatora: budowa promptu walidacji i stabilizacji na bazie opisu implementacji.")
                 .foregroundStyle(.secondary)
+            Text("Approved IMPLEMENTATION length for VALIDATION gate: \(approvedImplementationForValidation.count)")
+                .font(.footnote)
             TextEditor(text: $implementationDocumentText)
                 .font(.footnote.monospaced())
                 .frame(minHeight: 140)
@@ -565,7 +564,30 @@ private extension ContentView {
                     RoundedRectangle(cornerRadius: 8)
                         .stroke(Color.secondary.opacity(0.25), lineWidth: 1)
                 )
+            Button("Promote IMPLEMENTATION to VALIDATION gate") {
+                guard let implementationResult = lastImplementationFromTestsResult, implementationResult.result.isSuccess else {
+                    lastImplementationPromotionResult = .failure(.init(message: "Run TESTS -> IMPLEMENTATION successfully before promotion."))
+                    approvedImplementationForValidation = ""
+                    return
+                }
+                let candidateImplementation = implementationDocumentText.trimmingCharacters(in: .whitespacesAndNewlines)
+                approvedImplementationForValidation = candidateImplementation.isEmpty ? implementationResult.promptText : candidateImplementation
+                lastImplementationPromotionResult = .success
+            }
+            .buttonStyle(.bordered)
             Button("Generate IMPLEMENTATION -> VALIDATION prompt") {
+                guard !approvedImplementationForValidation.isEmpty else {
+                    lastValidationFromImplementationResult = ValidationFromImplementationPromptResult(
+                        result: .failure(.init(message: "Promote IMPLEMENTATION to VALIDATION gate before this step.")),
+                        promptText: "",
+                        promptFingerprint: "",
+                        includesMinimalContext: false,
+                        ideaID: nil,
+                        projectID: nil,
+                        implementationLength: 0
+                    )
+                    return
+                }
                 guard let implementationResult = lastImplementationFromTestsResult, implementationResult.result.isSuccess else {
                     lastValidationFromImplementationResult = ValidationFromImplementationPromptResult(
                         result: .failure(.init(message: "Run TESTS -> IMPLEMENTATION successfully before this step.")),
@@ -581,8 +603,6 @@ private extension ContentView {
                 let projectID = ProjectID(rawValue: flowProjectID.trimmingCharacters(in: .whitespacesAndNewlines))
                 let ideaID = IdeaID(rawValue: flowIdeaID.trimmingCharacters(in: .whitespacesAndNewlines))
                 let ideaTitle = flowIdeaTitle.trimmingCharacters(in: .whitespacesAndNewlines)
-                let candidateImplementation = implementationDocumentText.trimmingCharacters(in: .whitespacesAndNewlines)
-                let finalImplementationDoc = candidateImplementation.isEmpty ? implementationResult.promptText : candidateImplementation
                 implementationToValidationService.selectActiveProject(id: projectID)
                 implementationToValidationService.setContextAvailability(
                     overview: true,
@@ -593,7 +613,7 @@ private extension ContentView {
                 let result = implementationToValidationService.generateValidationPrompt(
                     for: ideaID,
                     ideaTitle: ideaTitle,
-                    implementationDocument: finalImplementationDoc
+                    implementationDocument: approvedImplementationForValidation
                 )
                 lastValidationFromImplementationResult = result
                 persistPromptIfPossible(
@@ -743,6 +763,10 @@ private extension ContentView {
                         .font(.footnote.monospaced())
                         .textSelection(.enabled)
                 }
+            }
+            if let implementationPromotion = lastImplementationPromotionResult {
+                Text("IMPLEMENTATION promotion: \(statusText(for: implementationPromotion))")
+                    .font(.footnote)
             }
             if let validation = lastValidationFromImplementationResult {
                 Text("IMPLEMENTATION -> VALIDATION: \(statusText(for: validation.result))")
@@ -998,6 +1022,4 @@ private extension ContentView {
     }
 }
 
-#Preview {
-    ContentView()
-}
+#Preview { ContentView() }
