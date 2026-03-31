@@ -1,117 +1,77 @@
-## 🔁 Codzienny workflow
+## Codzienny workflow (OP-aligned)
 
-### 0. wybór aktywnego kroku (state-driven)
-Sprawdź aktualny stan procesu i wykonuj tylko jeden następny krok.
-Nie pracuj równolegle na kilku krokach pipeline.
+Zasada nadrzedna:
+To jest procedura operatora mapowana na OP Layer.
+Kanoniczne stany, triggery i gate values sa w layers/op.
 
-Szczegóły: `experience/ui-state-machine.md`.
+### 0. Wybierz aktywny krok
+Wykonuj tylko jeden nastepny krok pipeline.
+Szczegoly UI: experience/ui-state-machine.md.
 
-### 1. wybór idei i scoping
-Wybierz ideę i podejmij decyzję:
-- czy to jeden feature czy kilka
-- który feature realizujesz teraz
+### 1. Wybierz idee i zrob scoping
+Zdecyduj:
+- jeden feature czy wiele
+- ktory feature jest aktywny teraz
 
-Dopiero po tej decyzji tworzysz aktywny feature.
+### 1a. Zmapuj OP i triggery
+Dla zmiany okresl:
+- target OP
+- eventy
+- wymagane PromptTask
+- guardy do kolejnego przejscia
 
-### 1a. mapowanie OP i triggerów
-Zmapuj zmianę na Obiekty Procesu (OP):
-- które OP są tworzone lub aktualizowane
-- jakie eventy zajdą
-- jakie PromptTask muszą powstać z trigger rules
+Szczegoly:
+- layers/op/object-catalog.md
+- layers/op/trigger-rules.md
 
-Szczegóły: `layers/op/object-catalog.md`, `layers/op/trigger-rules.md`.
+### 2. Zaladuj minimalny kontekst
+- feature/prd.md
+- feature/bdd.md
+- overview.md
+- constraints.md
+- glossary.md
+- odpowiednie pliki stack
 
-### 2. minimalny kontekst
-Ładuj tylko:
-- `.ai/features/<feature>/prd.md`
-- `.ai/features/<feature>/bdd.md`
-- `.ai/prd/overview.md`
-- `.ai/prd/constraints.md`
-- `.ai/prd/glossary.md`
-- odpowiednie pliki z `.ai/stack/`
+### 3. Plan
+Wygeneruj maly plan krokow.
 
-### 🔍 Reguła kontekstu
+### 4. Test-first
+Wygeneruj lub popraw testy na bazie bdd.
 
-Im mniejszy kontekst → tym lepsza jakość AI.
+### 5. Implementacja
+Wykonaj jeden krok planu bez zmian niepowiazanych.
 
-Nigdy nie:
-- ładuj całego repo
-- ładuj wszystkich feature
+### 6. Review package
+Pokaz operatorowi:
+- diff
+- mapowanie zmiana -> scenariusz
+- build/test/lint
+- status OP (eventy i guardy)
 
-Zawsze:
-- jeden feature
-- minimalny stack
-
-### 3. plan
-Prompt:
-```text
-Read the feature spec, BDD scenarios and relevant stack files.
-Propose a small step-by-step implementation plan.
-```
-
-### 4. test-first
-Prompt:
-```text
-Generate or update unit tests based on bdd.md.
-```
-
-### 5. implementacja
-Prompt:
-```text
-Implement step 1 from the plan.
-Do not modify unrelated files.
-```
-
-### 6. review package (obowiązkowe przed decyzją)
-Aplikacja musi pokazać operatorowi:
-- diff zmian plików
-- mapowanie zmiana -> scenariusz BDD
-- wynik build/test/lint
-
-Bez review package nie przechodź dalej.
-
-### 7. loop walidacyjny
+### 7. Walidacja
 Uruchom:
-```text
-./Scripts/build.sh
-./Scripts/test.sh
-./Scripts/lint.sh
-```
+- Scripts/build.sh
+- Scripts/test.sh
+- Scripts/lint.sh
 
-### 8. gate decyzji operatora
-Po każdej iteracji operator wybiera:
-- approve
-- request changes
-- defer
-- reject
+### 8. Gate decyzji operatora
+Operator podejmuje decyzje gate.
+Wartosci decyzji i efekty sa kanoniczne w OP Layer.
 
-Transport promptów i wyników może być zautomatyzowany przez MCP, ale decyzja gate należy do operatora.
+### 9. Poprawki
+Jesli gate nie jest approve, wykonaj minimalne poprawki i powtorz loop.
 
-### 9. poprawki
-Prompt:
-```text
-Here are the build/test/lint results.
-Fix the issues with minimal changes.
-```
+### 10. Stabilizacja
+Porownaj implementacje z prd i bdd.
+Usun dead code.
+Zaktualizuj notes i traceability.
 
-### 10. stabilizacja
-Prompt:
-```text
-Compare the implementation with prd.md and bdd.md.
-Remove dead code.
-Update notes.md and traceability.md if needed.
-```
+### 11. Integration hardening
+Sprawdz:
+- duplikacje miedzy feature
+- dryf PRD-BDD-testy
+- readiness UI lub jawne odroczenie
+- dependency/risk status
 
-### 11. integration hardening
-Przed finalnym merge:
-- sprawdź duplikacje między feature
-- sprawdź dryf PRD <-> BDD <-> testy
-- sprawdź czy nowe capability ma punkt wejścia UI lub jawne odroczenie
-
-### 12. UX/Gate consistency check
-Sprawdź, czy zmiana nie narusza:
-- reguł widoczności
-- reguł dostępności akcji
-- reguł invalidation downstream
-
-Szczegóły: `experience/visibility-rules.md`, `experience/ux-validation.md`.
+### 12. Release handoff
+Jesli feature jest stabilny, przygotuj przekazanie do Release OP.

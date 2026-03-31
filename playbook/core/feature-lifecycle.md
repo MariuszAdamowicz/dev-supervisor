@@ -1,125 +1,98 @@
-## 🔁 Lifecycle feature
+## Lifecycle feature (Playbook projection)
 
-## 🧠 Granice feature
+Cel:
+Ten dokument jest projekcja operacyjna lifecycle OP typu Feature.
+Kanoniczny lifecycle i guardy sa w layers/op/state-machines.md.
+
+## Granice feature
 
 Nowy feature:
 - nowe zachowanie biznesowe
-- nowa odpowiedzialność
+- nowa odpowiedzialnosc
 
 Rozszerzenie feature:
-- wariant istniejącego zachowania
+- wariant istniejacego zachowania
 - brak nowego kontekstu
 
 Zasada:
-Feature = jedna odpowiedzialność
+Feature = jedna odpowiedzialnosc
 
-```text
-idea → feature(s) → feature PRD → UX contract → BDD → testy → implementacja → walidacja → stabilizacja
-```
+Playbook projection:
+idea -> feature(s) -> feature PRD -> UX contract -> BDD -> testy -> implementacja -> walidacja -> stabilizacja -> release-ready
 
-### 🔍 Interpretacja etapów
+## Interpretacja etapow
 
-- idea → wpis w `ideas.md` (brak zobowiązania)
-- feature(s) → scoping idei na jeden lub więcej feature
-- feature PRD → kontrakt (co ma powstać dla konkretnego feature)
-- UX contract → kontrakt interakcji (co, kiedy i komu pokazać)
-- BDD → zachowanie (jak ma działać)
-- testy → egzekucja zachowania
-- implementacja → dopasowanie kodu do testów
-- walidacja → build + test + lint
-- stabilizacja → cleanup + synchronizacja dokumentacji
+- idea: wpis w ideas.md
+- feature(s): scoping idei
+- feature PRD: kontrakt feature
+- UX contract: kontrakt interakcji
+- BDD: scenariusze zachowania
+- testy: wykonywalna specyfikacja
+- implementacja: dopasowanie kodu do testow
+- walidacja: build + test + lint
+- stabilizacja: cleanup + sync dokumentacji
+- release-ready: gotowosc do OP Release
 
-### 1. Idea
-Wpisz pomysł do `.ai/ideas.md`.
+## Kroki
 
-### 2. Idea -> Feature(s) (scoping)
-Podejmij decyzję operatorską:
-- czy idea to jeden feature czy kilka
-- co jest in-scope dla pierwszego feature
-- co trafia do odroczenia
+1. Idea
+Wpisz pomysl do .ai/ideas.md.
 
-Bez tej decyzji nie twórz PRD.
+2. Idea to Feature(s)
+Podejmij decyzje operatorska o zakresie i odroczeniach.
 
-### 2a. Orchestration seed
-Przed utworzeniem specyfikacji wykonaj mapowanie OP i triggerow:
-- wskaz OP, ktore beda modyfikowane
-- zdefiniuj eventy wejsciowe
-- przygotuj liste PromptTask uruchamianych przez trigger rules
+2a. OP seed
+Przed specyfikacja wykonaj mapowanie OP i triggerow:
+- jakie OP beda modyfikowane
+- jakie eventy zajda
+- jakie PromptTask musza powstac
 
-Szczegoly: `layers/op/object-catalog.md`, `layers/op/state-machines.md`, `layers/op/trigger-rules.md`.
+Szczegoly:
+- layers/op/object-catalog.md
+- layers/op/state-machines.md
+- layers/op/trigger-rules.md
 
-### 3. Spec
-Utwórz folder:
-```text
-.ai/features/<feature>/
-```
+3. Spec
+Utworz feature capsule:
+- prd.md
+- bdd.md
+- tasks.md
+- notes.md
+- traceability.md
 
-Minimalnie dodaj:
-- `prd.md`
-- `bdd.md`
-- `tasks.md`
-- `notes.md`
-- `traceability.md`
+4. UX contract
+Zdefiniuj stany, widocznosc i dostepnosc akcji.
 
-### 4. UX Contract
-Zdefiniuj kontrakt UX przed BDD:
-- stany procesu
-- widoczność komponentów
-- dostępność akcji (gates)
-- reguły invalidation downstream
+5. BDD
+Opisz scenariusze.
 
-Szczegóły: `experience/ui-state-machine.md`, `experience/visibility-rules.md`.
+6. Testy
+Wygeneruj lub popraw testy.
 
-### 5. BDD
-Opisz scenariusze zachowania w `bdd.md`.
+6a. Traceability
+Powiaz reguly z prd z scenariuszami bdd.
 
-### 6. Testy
-Na podstawie `bdd.md` wygeneruj lub popraw testy.
+7. Implementacja
+Kod dopiero po scenariuszach i testach.
 
-### 6a. Traceability
-Powiąż reguły z `prd.md` ze scenariuszami z `bdd.md`.
-Nie chodzi o ciężki system śledzenia, tylko o prostą mapę reguła → scenariusz.
+7a. Gate operatorski
+Decyzje gate sa kanoniczne w OP Layer.
+Operator podejmuje decyzje na podstawie review package.
 
-### 7. Implementacja
-Implementuj kod dopiero po przygotowaniu scenariuszy i testów. Dla feature tworzących model domenowy preferuj test-by-test / scenario-by-scenario implementation
+8. Stabilizacja
+Porownaj kod z prd i bdd, usun dead code, zaktualizuj notes i traceability.
 
-### 7a. Gate operatorski po każdej iteracji
-Po każdej iteracji operator musi podjąć decyzję:
-- approve
-- request changes
-- defer
-- reject
+9. Integration hardening
+Sprawdz duplikacje, dryf dokumentacji i gotowosc UI.
 
-Decyzja ma być oparta o:
-- diff kodu i dokumentacji
-- mapowanie zmiana -> scenariusz BDD
-- wynik walidacji
+10. Release handoff
+Przekaz feature do OP Release/Deployment zgodnie z guardami OP.
 
-Transport promptów i wyników może być zautomatyzowany przez MCP, ale decyzja gate pozostaje po stronie operatora.
+## Lifecycle projektu
 
-### 8. Stabilizacja
-Po implementacji:
-- porównaj kod z `prd.md`
-- porównaj testy z `bdd.md`
-- usuń nieużywany kod
-- uzupełnij `notes.md`
-- zaktualizuj `traceability.md`
+setup -> feature loop -> stabilizacja -> rozwoj
 
-### 9. Integration Hardening
-Po domknięciu feature wykonaj kontrolę integracyjną:
-- duplikacja modeli i helperów między feature
-- spójność PRD <-> BDD <-> testy
-- ewentualny drift dokumentacji globalnej (`overview.md`, `constraints.md`, `glossary.md`)
-- gotowość punktów wejścia UI dla nowego capability (lub jawne odroczenie)
-
----
-
-## 🔁 Lifecycle projektu
-
-```text
-setup → feature loop → stabilizacja → rozwój
-```
-
-Szczegóły fazy setup: `workflow/setup.md`.
-Szczegóły pętli dziennej: `workflow/daily-workflow.md`.
-Szczegóły stabilizacji i domknięcia: `workflow/session-closure.md`.
+Szczegoly:
+- workflow/setup.md
+- workflow/daily-workflow.md
+- workflow/session-closure.md

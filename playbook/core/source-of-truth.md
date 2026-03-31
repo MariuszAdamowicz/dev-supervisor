@@ -1,53 +1,50 @@
-## 🧠 Ujednolicenie PRD i feature files
+## Source of Truth (OP-aligned)
 
-## 🧠 Źródła prawdy (Source of Truth)
+Cel:
+Playbook Layer nie definiuje semantyki procesu. Semantyka procesu jest kanoniczna w OP Layer.
 
-Każdy element systemu ma jedno źródło prawdy:
-- overview.md → czym jest produkt
-- constraints.md → ograniczenia systemu
-- feature/prd.md → wymagania feature
-- feature/bdd.md → zachowanie feature
-- testy → wykonywalna prawda
+Kanoniczne definicje OP:
+- layers/op/object-catalog.md
+- layers/op/state-machines.md
+- layers/op/trigger-rules.md
 
-Elementy pomocnicze (NIE są źródłem prawdy):
-- tasks.md → plan implementacji
-- notes.md → decyzje i kontekst
-- traceability.md → mapowanie
+## Zrodla prawdy per typ OP
 
-Zasada:
+Project:
+- overview.md (opis produktu)
+- constraints.md (ograniczenia)
+- glossary.md (slownik)
+
+Feature:
+- feature/prd.md (kontrakt feature)
+- feature/bdd.md (zachowanie)
+- testy (wykonywalna specyfikacja)
+
+Delivery:
+- release/deployment/rollback status (w stanie OP, nie w notatkach)
+
+Quality and Audit:
+- quality signals (pass/fail) i decyzje gate
+- ProcessEvent jako audit trail
+
+## Zasada priorytetu
+
+Dla implementacji zachowania:
 PRD < BDD < TESTY
-Testy wygrywają zawsze.
 
-Nie duplikuj feature speców jednocześnie w:
-- `.ai/prd/features/...`
-- i osobno w `Features/...`
+Dla procesu:
+state machine + trigger rules + gate decisions z OP Layer wygrywaja nad opisami operacyjnymi.
 
-To prowadzi do dryfu.
+## Czego nie traktowac jako source of truth
 
-### Zalecany model
-- globalny PRD trzymasz w `.ai/prd/`
-- każdy feature trzymasz tylko w `.ai/features/<feature>/`
+- tasks.md (plan)
+- notes.md (kontekst)
+- traceability.md (mapowanie)
 
-Czyli:
-- `.ai/prd/overview.md` opisuje produkt
-- `.ai/prd/constraints.md` opisuje ograniczenia
-- `.ai/features/routing/prd.md` opisuje konkretny feature
-- `.ai/features/routing/bdd.md` opisuje zachowanie feature
-- `.ai/features/routing/traceability.md` wiąże reguły z testami
+Te artefakty sa pomocnicze i musza byc spojne z OP i testami.
 
-To jest prostsze, spójniejsze i bardziej AI-friendly.
+## Zasada anty-duplikacyjna
 
-### 🔥 Kluczowa zasada operacyjna
-
-PRD NIE jest źródłem prawdy dla implementacji.
-
-Źródło prawdy =  
-👉 BDD + TESTY
-
-PRD:
-- definiuje kontrakt
-- ale nie egzekwuje zachowania
-
-Testy:
-- egzekwują zachowanie
-- blokują regresję
+Nie duplikuj definicji procesu w kilku miejscach.
+- Lifecycle, trigger i gate value definiujemy tylko w OP Layer.
+- Playbook Layer zawiera mapowanie krokow operatora na OP.

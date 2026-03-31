@@ -1,129 +1,68 @@
-## ✅ Checklista startowa projektu
+## Checklista startowa projektu (OP-aligned)
 
-```text
-[ ] utworzone repo
-[ ] utworzony folder .ai
-[ ] utworzone .ai/prd/overview.md
-[ ] utworzony .ai/prd/constraints.md
-[ ] utworzony .ai/prd/glossary.md
-[ ] utworzone .ai/ux/state-machine.md
-[ ] utworzone .ai/ux/visibility.md
-[ ] utworzone .ai/ux/navigation.md
-[ ] utworzone .ai/ux/interaction-patterns.md
-[ ] Product Gate przeszedł (kompletność + spójność + decyzja operatora)
-[ ] utworzone .ai/stack/core.md
-[ ] utworzone .ai/stack/architecture.md
-[ ] utworzone .ai/stack/shared-code.md
-[ ] utworzone .ai/stack/ui.md
-[ ] utworzone .ai/stack/api.md
-[ ] utworzone .ai/stack/rules.md
-[ ] utworzony .ai/agent.md
-[ ] utworzone Scripts/build.sh
-[ ] utworzone Scripts/test.sh
-[ ] utworzone Scripts/lint.sh
-[ ] wybrany profil storage (`profiles/storage/file-ai.md` lub `profiles/storage/sqlbase.md`)
-[ ] skonfigurowany podstawowy workflow Git (main + feat/<feature>)
-[ ] utworzony .gitignore
-[ ] ukończony setup stack profile (np. `profiles/stack/macos-swiftui.md`)
-[ ] potwierdzone realne wykonanie testów (`testsCount > 0`)
-```
+- repo utworzone
+- wybrany storage profile (file-ai lub sqlbase)
+- baseline produktu utworzony: overview, constraints, glossary
+- Requirement OP utworzone i powiazane z baseline
+- Constraint OP utworzone i sklasyfikowane
+- DecisionRecord OP utworzony dla kluczowych decyzji startowych
+- ActorRolePermission OP zdefiniowany
+- Product Gate zatwierdzony przez operatora
+- .ai lub SQLBase zainicjalizowane zgodnie ze storage
+- scripts build/test/lint gotowe
+- potwierdzone realne wykonanie testow (testsCount > 0)
 
----
+## Checklista dodania feature
 
-## ✅ Checklista dodania feature
+- idea dodana i scoped do feature(s)
+- Feature OP utworzony
+- Requirement OP powiazane z Feature OP
+- Dependency OP zidentyfikowane i ocenione
+- Risk OP zidentyfikowane i ocenione
+- feature capsule utworzony (prd, bdd, tasks, notes, traceability)
+- UX contract utworzony
+- Scenario OP utworzone i powiazane z testami
+- PromptTask utworzone zgodnie z trigger rules
+- review package przygotowany
+- GateDecision zapisany
+- quality sygnaly zebrane (build/test/lint)
+- QualitySignal OP oceniony (pass/fail)
+- integration hardening wykonany
+- brak krytycznych otwartych PromptTask
 
-```text
-[ ] idea dodana do .ai/ideas.md
-[ ] wykonany scoping idea -> feature(s)
-[ ] utworzony folder .ai/features/<feature>/
-[ ] utworzony branch feat/<feature>
-[ ] utworzony prd.md
-[ ] utworzony UX contract (stany + widoczność + gates)
-[ ] utworzony bdd.md
-[ ] utworzony tasks.md
-[ ] utworzony notes.md
-[ ] utworzony traceability.md
-[ ] wygenerowane / poprawione testy
-[ ] przygotowany plan implementacji
-[ ] kod zaimplementowany krokami
-[ ] review package pokazany operatorowi (diff + mapowanie do BDD + walidacja)
-[ ] decyzja gate operatora zapisana (approve/request changes/defer/reject)
-[ ] sprawdzono reguły visibility i gate availability
-[ ] build przechodzi
-[ ] testy przechodzą
-[ ] lint przechodzi
-[ ] testy faktycznie wykonane (nie tylko green status)
-[ ] notes.md uzupełniony
-[ ] tasks.md uzupełniony (status wykonania + deferred)
-[ ] traceability.md uzupełniony
-[ ] sprawdzono czy nie ma duplikacji do extraction
-[ ] wykonany integration hardening
-[ ] brak dead code
-[ ] PR przygotowany i gotowy do merge
-```
+## Checklista zmiany feature
 
----
+- Feature OP w stanie wymagajacym zmiany
+- Requirement/Constraint/DecisionRecord zaktualizowane jesli dotkniete
+- bdd i testy zaktualizowane
+- traceability zaktualizowane
+- dependency/risk status zaktualizowany
+- review package + GateDecision zapisane
+- quality sygnaly ponownie ocenione
+- exceptiony i timeouty obsluzone (retry lub compensation)
+- ProcessEvent zapisany dla kluczowych przejsc
 
-## ✅ Checklista zmiany feature
+## Checklista release handoff
 
-```text
-[ ] zaktualizowany prd.md
-[ ] zaktualizowany UX contract
-[ ] zaktualizowany bdd.md
-[ ] zaktualizowane lub wygenerowane od nowa testy
-[ ] zaktualizowany traceability.md
-[ ] wykonana analiza rozbieżności
-[ ] przygotowany plan migracji
-[ ] stary kod usunięty lub zastąpiony
-[ ] nieaktualne testy usunięte
-[ ] nieaktualne referencje w traceability usunięte
-[ ] sprawdzono invalidation downstream po zmianie upstream
-[ ] build przechodzi
-[ ] testy przechodzą
-[ ] lint przechodzi
-[ ] testy faktycznie wykonane (nie tylko green status)
-[ ] tasks.md zaktualizowany (status wykonania + deferred)
-[ ] traceability.md zaktualizowany
-[ ] review package pokazany operatorowi i decyzja gate zapisana
-[ ] wykonany integration hardening
-[ ] brak martwego kodu po starej implementacji
-[ ] branch gotowy do merge po review
-```
+- Feature OP: stabilized lub release-ready
+- Release OP utworzony (candidate)
+- GateDecision approve dla release
+- QualitySignal pass w wymaganym oknie
+- Deployment OP przygotowany
+- plan rollback i compensation gotowy
 
----
+## Checklista UX warstwy procesu
 
-## ✅ Checklista współdzielonego kodu
+- stany procesu zdefiniowane
+- przejscia zdefiniowane
+- reguly widocznosci zdefiniowane
+- reguly dostepnosci akcji zdefiniowane
+- invalidation downstream zdefiniowane
+- testy visibility i state transitions przygotowane
 
-```text
-[ ] sprawdzono czy podobna logika już istnieje w Core/*
-[ ] brak lokalnych helperów dublujących wspólny kod
-[ ] drugi podobny przypadek został zgłoszony do extraction
-[ ] współdzielony kod trafił do właściwego modułu (Domain / Shared / Providers / Routing)
-[ ] zaktualizowano .ai/stack/shared-code.md jeśli pojawiła się nowa reguła organizacji kodu
-```
+## Checklista audytu OP
 
----
-
-## ✅ Checklista UX warstwy procesu
-
-```text
-[ ] zdefiniowane stany procesu
-[ ] zdefiniowane przejścia między stanami
-[ ] zdefiniowane reguły widoczności komponentów
-[ ] zdefiniowane reguły dostępności akcji
-[ ] zdefiniowane reguły invalidation downstream
-[ ] przygotowane testy visibility/state transitions/gates
-```
-
----
-
-## ✅ Checklista orchestration (OP + triggery)
-
-```text
-[ ] zmiana zmapowana na OP (co najmniej jeden obiekt)
-[ ] zdefiniowane eventy dla zmiany
-[ ] wygenerowane PromptTask wynikajace z trigger rules
-[ ] kazdy PromptTask ma ustawione target-op
-[ ] wykonane decyzje gate zapisane jako GateDecision
-[ ] brak krytycznych otwartych PromptTask przed zamknieciem feature
-```
+- kazde krytyczne przejscie ma event + guard + actor
+- kazda decyzja gate ma ProcessEvent
+- brak osieroconych OP
+- brak niespojnych stanow miedzy OP nadrzednym i podrzednym

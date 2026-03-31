@@ -305,3 +305,17 @@ Dokumentacja zmienia się tylko wtedy, gdy zmienia się zachowanie systemu.
 - rozszerzanie testów
 - doprecyzowywanie constraints i rules
 - aktualizacja `architecture.md` i `shared-code.md`, jeśli zmienił się sposób organizacji kodu
+
+---
+
+## OP alignment rule for Setup
+
+Setup w Playbook Layer jest projekcja OP Layer.
+Kanoniczne definicje lifecycle i triggerow sa w:
+- layers/op/object-catalog.md
+- layers/op/state-machines.md
+- layers/op/trigger-rules.md
+
+Wymaganie:
+- setup nie moze definiowac alternatywnych gate values, trigger semantics ani state transitions.
+- setup mapuje czynnosci operatora na OP transitions.
