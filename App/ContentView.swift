@@ -34,6 +34,8 @@ struct ContentView: View {
     @State private var approvedBDDForTests = ""
     @State private var lastBDDPromotionResult: RegistryOperationResult?
     @State private var lastTestsFromBDDResult: TestsFromBDDPromptResult?
+    @State private var approvedTestsForImplementation = ""
+    @State private var lastTestsPromotionResult: RegistryOperationResult?
     @State private var lastImplementationFromTestsResult: ImplementationFromTestsPromptResult?
     @State private var lastValidationFromImplementationResult: ValidationFromImplementationPromptResult?
     @State private var lastPersistenceResult: GatePromptPersistenceResult?
@@ -417,6 +419,8 @@ private extension ContentView {
                     bddDocument: approvedBDDForTests
                 )
                 lastTestsFromBDDResult = result
+                approvedTestsForImplementation = ""
+                lastTestsPromotionResult = .failure(.init(message: "Run TESTS promotion gate before TESTS -> IMPLEMENTATION."))
                 persistPromptIfPossible(
                     operation: "BDD -> TESTS",
                     gateResult: result.result,
@@ -475,6 +479,8 @@ private extension ContentView {
                 .font(.title2.bold())
             Text("Gate operatora: budowa promptu implementacji na bazie zatwierdzonego dokumentu testów.")
                 .foregroundStyle(.secondary)
+            Text("Approved TESTS length for IMPLEMENTATION gate: \(approvedTestsForImplementation.count)")
+                .font(.footnote)
             TextEditor(text: $testsDocumentText)
                 .font(.footnote.monospaced())
                 .frame(minHeight: 140)
@@ -482,7 +488,30 @@ private extension ContentView {
                     RoundedRectangle(cornerRadius: 8)
                         .stroke(Color.secondary.opacity(0.25), lineWidth: 1)
                 )
+            Button("Promote TESTS to IMPLEMENTATION gate") {
+                guard let testsResult = lastTestsFromBDDResult, testsResult.result.isSuccess else {
+                    lastTestsPromotionResult = .failure(.init(message: "Run BDD -> TESTS successfully before promotion."))
+                    approvedTestsForImplementation = ""
+                    return
+                }
+                let candidateTests = testsDocumentText.trimmingCharacters(in: .whitespacesAndNewlines)
+                approvedTestsForImplementation = candidateTests.isEmpty ? testsResult.promptText : candidateTests
+                lastTestsPromotionResult = .success
+            }
+            .buttonStyle(.bordered)
             Button("Generate TESTS -> IMPLEMENTATION prompt") {
+                guard !approvedTestsForImplementation.isEmpty else {
+                    lastImplementationFromTestsResult = ImplementationFromTestsPromptResult(
+                        result: .failure(.init(message: "Promote TESTS to IMPLEMENTATION gate before this step.")),
+                        promptText: "",
+                        promptFingerprint: "",
+                        includesMinimalContext: false,
+                        ideaID: nil,
+                        projectID: nil,
+                        testsLength: 0
+                    )
+                    return
+                }
                 guard let testsResult = lastTestsFromBDDResult, testsResult.result.isSuccess else {
                     lastImplementationFromTestsResult = ImplementationFromTestsPromptResult(
                         result: .failure(.init(message: "Run BDD -> TESTS successfully before this step.")),
@@ -498,8 +527,6 @@ private extension ContentView {
                 let projectID = ProjectID(rawValue: flowProjectID.trimmingCharacters(in: .whitespacesAndNewlines))
                 let ideaID = IdeaID(rawValue: flowIdeaID.trimmingCharacters(in: .whitespacesAndNewlines))
                 let ideaTitle = flowIdeaTitle.trimmingCharacters(in: .whitespacesAndNewlines)
-                let candidateTests = testsDocumentText.trimmingCharacters(in: .whitespacesAndNewlines)
-                let finalTestsDoc = candidateTests.isEmpty ? testsResult.promptText : candidateTests
                 testsToImplementationService.selectActiveProject(id: projectID)
                 testsToImplementationService.setContextAvailability(
                     overview: true,
@@ -510,7 +537,7 @@ private extension ContentView {
                 let result = testsToImplementationService.generateImplementationPrompt(
                     for: ideaID,
                     ideaTitle: ideaTitle,
-                    testsDocument: finalTestsDoc
+                    testsDocument: approvedTestsForImplementation
                 )
                 lastImplementationFromTestsResult = result
                 persistPromptIfPossible(
@@ -702,6 +729,10 @@ private extension ContentView {
                         .font(.footnote.monospaced())
                         .textSelection(.enabled)
                 }
+            }
+            if let testsPromotion = lastTestsPromotionResult {
+                Text("TESTS promotion: \(statusText(for: testsPromotion))")
+                    .font(.footnote)
             }
             if let implementation = lastImplementationFromTestsResult {
                 Text("TESTS -> IMPLEMENTATION: \(statusText(for: implementation.result))")

@@ -8,4 +8,5 @@ Data: 2026-03-30
 - [x] implementacja kontraktu `tests-to-implementation-flow` in-memory
 - [x] dodanie artefaktów traceability i notes
 - [x] podpięcie gate do aplikacji operatora
+- [x] dodanie jawnego gate operatora `TESTS approved -> IMPLEMENTATION`
 - [x] uruchomienie pętli walidacyjnej (`build`, `test`, `lint`)
