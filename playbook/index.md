@@ -46,6 +46,12 @@ Kanoniczne prompty robocze per etap.
 ### templates
 Gotowe wzorce plikow AI i skryptow.
 
+### tooling
+Warstwa wykonawcza Playbook Layer:
+- tool registry
+- action catalog
+- OP -> Action -> Tool bindings
+
 ## Moduly OP Layer
 
 ### layers/op
@@ -74,6 +80,7 @@ Moduly obowiazkowe:
 - workflow/*
 - experience/*
 - layers/op/*
+- tooling/*
 - jeden profil stack/*
 - jeden profil architecture/*
 - jeden profil language/*
@@ -92,8 +99,9 @@ Sposob kompozycji:
 4. Wybierz entrypoint OP.
 5. Wyznacz next_transition z OP Layer.
 6. Wygeneruj projection OP -> UI/Prompt/Checklist.
-7. Wykonaj akcje, walidacje i GateDecision.
-8. Powtorz az do domkniecia celu runtime.
+7. Wyznacz Action i Tool plan z tooling/*.
+8. Wykonaj akcje, walidacje i GateDecision.
+9. Powtorz az do domkniecia celu runtime.
 
 ## Zasada wykonania
 

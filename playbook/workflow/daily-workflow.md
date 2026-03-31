@@ -41,6 +41,20 @@ Z OP -> UI/Prompt/Checklist:
 - jaki prompt uruchomic
 - jakie warunki gate musza byc spelnione
 
+## 4a. Wyznacz Action i Tool plan
+
+Na bazie tooling:
+- tooling/action-catalog.md
+- tooling/tool-registry.md
+- tooling/bindings.md
+
+Aplikacja mapuje:
+transition OP -> action_plan -> tool_plan.
+
+Uwaga:
+- tool_plan moze zawierac narzedzia CLI/service oraz operator-ui.
+- klikniecie/akceptacja w UI to legalna tool invocation, a nie wyjatek od modelu.
+
 ## 5. Wykonaj akcje i review package
 
 Po akcji przygotuj review package:

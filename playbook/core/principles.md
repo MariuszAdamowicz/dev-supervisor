@@ -37,6 +37,8 @@ Dokumenty kanoniczne OP:
 5. Kazda decyzja gate musi byc jawna i audytowalna.
 6. Kod wspoldzielony jest zarzadzany jawnie (bez przypadkowego copy-paste).
 7. Feature konczy sie dopiero po stabilizacji i gotowosci do release handoff.
+8. Kazda zmiana stanu OP musi przejsc przez legalny binding: transition -> action_plan -> tool_plan.
+9. Akcja operatora w UI jest narzedziem (`operator-ui`) i podlega tym samym zasadom audytu co CLI/service.
 
 ## Zasady negatywne
 
@@ -44,4 +46,5 @@ Nie rob:
 - implementacji bez testow,
 - zmian zaczynanych od kodu,
 - merge bez walidacji,
-- cichych zmian stanu procesu bez decyzji operatora.
+- cichych zmian stanu procesu bez decyzji operatora,
+- zmian stanu wykonywanych poza zadeklarowanym bindingiem tooling.

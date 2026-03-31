@@ -12,6 +12,7 @@ Playbook Layer:
 - profiles/*
 - prompts/*
 - templates/*
+- tooling/*
 - index.md
 
 Project Instance Layer (runtime, poza folderem playbook):

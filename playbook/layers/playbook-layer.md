@@ -6,6 +6,7 @@ Rola:
 Zakres:
 - profile konfiguracji,
 - projection rules (OP -> UI/Prompt/Checklist),
+- tooling model (OP -> Action -> Tool),
 - biblioteka promptow i templatek,
 - polityki operacyjne i jakosciowe.
 
@@ -16,6 +17,7 @@ Moduly tej warstwy:
 - ../profiles/*
 - ../prompts/*
 - ../templates/*
+- ../tooling/*
 
 Kontrakt wobec OP Layer:
 - nie duplikuje definicji OP,

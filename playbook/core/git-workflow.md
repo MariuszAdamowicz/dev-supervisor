@@ -44,3 +44,14 @@ Wymagane artefakty audytu:
 - ProcessEvent,
 - GateDecision,
 - quality outcome.
+
+## Tooling alignment
+
+Dzialania git sa uruchamiane jako akcje procesu, nie jako przypadkowe komendy.
+Mapowanie jest kanoniczne w:
+- tooling/action-catalog.md
+- tooling/tool-registry.md
+- tooling/bindings.md
+
+Zasada:
+- commit/merge/rebase/push sa dozwolone tylko gdy wynikaja z legalnego transition i przypisanego action_plan.

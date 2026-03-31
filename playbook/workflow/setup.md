@@ -62,3 +62,13 @@ Po setup operator:
 
 Szczegoly codziennej pracy:
 - workflow/daily-workflow.md
+
+## Tooling bootstrap
+
+Podczas setup aktywuj wykonawcza warstwe playbooka:
+- tooling/tool-registry.md
+- tooling/action-catalog.md
+- tooling/bindings.md
+
+Wymaganie:
+- dla kazdego krytycznego transition OP musi istniec binding transition -> action -> tool.

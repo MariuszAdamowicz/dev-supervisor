@@ -6,10 +6,12 @@
 - sprawdzone guardy transition
 - okreslone pending PromptTask
 - okreslony wymagany GateDecision
+- znaleziony binding transition -> action -> tool
 
 ## Checklista wykonania transition
 
 - wykonany prompt/akcja dla transition
+- uruchomiony tool_plan zgodny z bindingiem
 - przygotowany review package (diff + mapowanie + build/test/lint)
 - decyzja GateDecision zapisana
 - QualitySignal zaktualizowany
@@ -38,3 +40,10 @@
 - kazda decyzja gate ma ProcessEvent
 - brak osieroconych OP
 - brak niespojnych stanow OP nadrzedny/podrzedny
+
+## Checklista audytu tooling
+
+- kazdy krytyczny transition ma binding w tooling/bindings.md
+- kazda akcja z action_plan ma capability w tool-registry.md
+- profile nie zmieniaja intent akcji, tylko mapowanie tool_plan
+- brak uruchomien narzedzi poza zadeklarowanym bindingiem
