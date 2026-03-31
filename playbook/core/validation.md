@@ -1,79 +1,46 @@
-## 🧪 Testy jako specyfikacja
+## Validation (OP-aligned)
 
-## 🧠 Strategia testów
+## Testy jako specyfikacja
 
-Poziomy:
-- Unit → większość
-- Integration → przepływy
-- UI → minimum
+Dla implementacji zachowania:
+1. zaktualizuj prd,
+2. zaktualizuj bdd,
+3. zaktualizuj testy,
+4. dopiero potem kod.
 
-Zasada:
-Im niżej, tym lepiej. Unikaj nadmiaru testów UI.
+Testy sa wykonywalna specyfikacja.
 
-Tak — przy zmianie feature testy powinny być potraktowane jako część specyfikacji.
+## Strategia testow
 
-### Zasada
-Jeśli zmienia się feature:
-1. najpierw zmień `prd.md`
-2. potem zmień `bdd.md`
-3. potem zmień testy
-4. dopiero potem zmień kod
+- Unit: wiekszosc przypadkow
+- Integration: przeplywy
+- UI: minimum niezbedne
 
-Nie odwrotnie.
+## Build/Test/Lint loop
 
-### Dlaczego
-Bo inaczej stara implementacja zacznie „ciągnąć” stare założenia.
+Kazda iteracja konczy sie:
+- Scripts/build.sh
+- Scripts/test.sh
+- Scripts/lint.sh
 
-### Czy usuwać stare testy?
-Tak, jeśli opisują już nieprawdziwe zachowanie.  
-Nie trzymaj testów dla starej logiki, jeśli ta logika nie ma dalej obowiązywać.
+Green status bez wykonanych testow nie przechodzi gate.
 
-### Czy generować testy od nowa?
-Często tak.  
-Jeśli zmiana jest większa, lepiej:
-- usunąć nieaktualne scenariusze
-- napisać nowe `bdd.md`
-- wygenerować nowy zestaw testów
-- zostawić tylko te testy, które nadal opisują prawdziwe wymagania
+## OP quality contract
 
----
+Walidacja musi zasilic OP:
+- QualitySignal (pass/fail)
+- GateDecision (approve/request_changes/defer/reject)
+- ProcessEvent (audit)
 
-## 🧠 Obsługa błędów i logowanie
+## Failure paths
 
-Każdy feature powinien:
-- mieć scenariusze błędów w BDD
-- logować błędy
-- nie ukrywać failure
+Kazdy failure path powinien miec:
+- scenariusz BDD,
+- test,
+- log,
+- policy w OP (retry/compensation/escalation).
 
-Zasada:
-Każdy failure path musi być opisany, testowany i logowany.
-
----
-
-## Build/Test/Lint Loop
-
-Każda iteracja AI powinna kończyć się:
-- build
-- test
-- lint
-
-Wynik `test` jest ważny tylko wtedy, gdy testy faktycznie zostały wykonane.
-Green status bez wykonanych testów nie przechodzi gate.
-
-### Zasada użycia skryptów
-AI powinno używać skryptów jako jedynego wejścia do walidacji.
-Nie polegaj na luźnym opisywaniu błędów — przekazuj pełny output ze skryptów.
-
-Uruchom:
-```text
-./Scripts/build.sh
-./Scripts/test.sh
-./Scripts/lint.sh
-```
-
-Dodatkowa kontrola:
-- potwierdź, że raport testów pokazuje wykonane testy (`testsCount > 0`)
-- potwierdź, że wykonywane są właściwe suite dla aktywnego feature
-
-Implementacje skryptów: `templates/scripts/`.
-Konfiguracja narzędzi Swift/Xcode: `profiles/stack/macos-swiftui.md`.
+Jesli wystapi Exception/Timeout:
+- zarejestruj OP Exception/Timeout,
+- wykonaj retry lub compensation,
+- podejmij jawna decyzje gate.

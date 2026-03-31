@@ -1,62 +1,33 @@
-## 🔄 Zmiana feature (rewrite protocol)
+## Rewrite Protocol (OP-aligned)
 
-### ⚠️ Najważniejsza zasada
+Zmiana feature bez aktualizacji testow jest bledem procesu.
 
-Zmiana feature bez zmiany testów = błąd procesu.
+## Kanoniczny flow rewrite
 
-Jeśli zmieniasz feature:
-- stare testy MUSZĄ przestać przechodzić
-- nowe testy MUSZĄ definiować nowe zachowanie
+update spec -> update BDD -> update tests -> migrate code -> cleanup -> stabilize -> release handoff
 
-Zmiana feature nie powinna zaczynać się od zmiany kodu.
+## Kroki
 
-Prawidłowy flow:
+1. Zaktualizuj prd.
+2. Zaktualizuj bdd.
+3. Zaktualizuj testy.
+4. Zaktualizuj traceability.
+5. Porownaj mismatch implementacji vs nowa spec.
+6. Przygotuj plan migracji.
+7. Zastosuj migracje i usun obsolete code/tests.
+8. Uruchom build/test/lint.
+9. Zapisz GateDecision.
 
-```text
-update spec → update BDD → update tests → migrate code → cleanup → stabilize
-```
+## OP requirements
 
-### krok 1 — zaktualizuj `prd.md`
-Najpierw opisz nowe zachowanie.
+Podczas rewrite musza byc zaktualizowane:
+- Feature OP state,
+- Scenario OP i linki testow,
+- Requirement/Constraint/DecisionRecord (jesli dotkniete),
+- QualitySignal,
+- ProcessEvent.
 
-### krok 2 — zaktualizuj `bdd.md`
-Scenariusze muszą odzwierciedlać nową specyfikację.
-
-### krok 3 — zaktualizuj testy
-Najpierw popraw lub wygeneruj od nowa testy.
-Testy są executable spec.
-Stara implementacja ma teraz nie przechodzić.
-
-### krok 3a — zaktualizuj traceability
-Upewnij się, że każda nowa lub zmieniona reguła z `prd.md` ma odpowiadający scenariusz w `bdd.md`.
-Usuń referencje do starych scenariuszy, które już nie obowiązują.
-
-### krok 4 — porównaj stan aktualny z nową specyfikacją
-Prompt:
-```text
-Compare current implementation, BDD scenarios and tests with the new feature spec.
-List mismatches.
-```
-
-### krok 5 — przygotuj plan migracji
-Prompt:
-```text
-Create a migration plan to replace the old implementation with the new one.
-Include cleanup of obsolete logic and tests.
-```
-
-### krok 6 — wdrożenie
-Prompt:
-```text
-Apply the migration plan.
-Remove obsolete code.
-Remove or rewrite obsolete tests.
-Do not leave compatibility shims unless explicitly requested.
-```
-
-### krok 7 — stabilizacja
-- build
-- test
-- lint
-- cleanup
-- update traceability
+Jesli rewrite powoduje regression risk:
+- utworz Risk OP,
+- zweryfikuj Dependency OP,
+- wykonaj dodatkowy gate przed release handoff.
