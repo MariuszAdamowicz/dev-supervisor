@@ -111,6 +111,58 @@ final class PromotionGatesIntegrationTests: XCTestCase {
         )
         XCTAssertTrue(validation.result.isSuccess)
     }
+
+    func testScenario02_regeneratedUpstreamArtifact_requiresFreshPromotionBeforeNextGate() {
+        let projectID = ProjectID(rawValue: "P-INT-2")
+        let ideaID = IdeaID(rawValue: "I-INT-2")
+        let ideaTitle = "Gate reset integration"
+        let featureA = FeatureCandidate(key: "F-A", name: "A", description: "A")
+        let featureB = FeatureCandidate(key: "F-B", name: "B", description: "B")
+
+        let featuresToPRD = configuredFeaturesToPRD(projectID: projectID)
+        let prdToBDD = configuredPRDToBDD(projectID: projectID)
+
+        let prdA = generatePRDWithPromotionGate(
+            approvedFeaturesForPRD: [featureA],
+            featuresToPRD: featuresToPRD,
+            ideaID: ideaID,
+            ideaTitle: ideaTitle
+        )
+        XCTAssertTrue(prdA.result.isSuccess)
+
+        let bddA = generateBDDWithPromotionGate(
+            approvedPRDForBDD: prdA.promptText,
+            prdToBDD: prdToBDD,
+            ideaID: ideaID,
+            ideaTitle: ideaTitle
+        )
+        XCTAssertTrue(bddA.result.isSuccess)
+
+        let prdB = generatePRDWithPromotionGate(
+            approvedFeaturesForPRD: [featureB],
+            featuresToPRD: featuresToPRD,
+            ideaID: ideaID,
+            ideaTitle: ideaTitle
+        )
+        XCTAssertTrue(prdB.result.isSuccess)
+
+        let blockedAfterReset = generateBDDWithPromotionGate(
+            approvedPRDForBDD: "",
+            prdToBDD: prdToBDD,
+            ideaID: ideaID,
+            ideaTitle: ideaTitle
+        )
+        XCTAssertFalse(blockedAfterReset.result.isSuccess)
+
+        let bddB = generateBDDWithPromotionGate(
+            approvedPRDForBDD: prdB.promptText,
+            prdToBDD: prdToBDD,
+            ideaID: ideaID,
+            ideaTitle: ideaTitle
+        )
+        XCTAssertTrue(bddB.result.isSuccess)
+        XCTAssertNotEqual(bddA.promptFingerprint, bddB.promptFingerprint)
+    }
 }
 
 private extension PromotionGatesIntegrationTests {
