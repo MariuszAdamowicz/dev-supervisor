@@ -2,11 +2,21 @@
 
 Pełna lista profili modularnego playbooka.
 
+Model selekcji i zależności:
+- `profiles/selection-model.md`
+
 ## Obowiązkowe wymiary
 - stack:
   - `profiles/stack/macos-swiftui.md`
+  - `profiles/stack/react-node-postgres.md`
+  - `profiles/stack/python-fastapi-react.md`
+  - `profiles/stack/kotlin-android.md`
+  - `profiles/stack/flutter-dart.md`
 - architecture:
   - `profiles/architecture/modular-monolith.md`
+  - `profiles/architecture/layered-monolith.md`
+  - `profiles/architecture/clean-architecture.md`
+  - `profiles/architecture/hexagonal.md`
 - language:
   - `profiles/language/pl.md`
   - `profiles/language/en.md`
