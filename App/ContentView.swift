@@ -31,6 +31,8 @@ struct ContentView: View {
     @State private var approvedPRDForBDD = ""
     @State private var lastPRDPromotionResult: RegistryOperationResult?
     @State private var lastBDDFromPRDResult: BDDFromPRDPromptResult?
+    @State private var approvedBDDForTests = ""
+    @State private var lastBDDPromotionResult: RegistryOperationResult?
     @State private var lastTestsFromBDDResult: TestsFromBDDPromptResult?
     @State private var lastImplementationFromTestsResult: ImplementationFromTestsPromptResult?
     @State private var lastValidationFromImplementationResult: ValidationFromImplementationPromptResult?
@@ -334,6 +336,8 @@ private extension ContentView {
                     prdDocument: approvedPRDForBDD
                 )
                 lastBDDFromPRDResult = result
+                approvedBDDForTests = ""
+                lastBDDPromotionResult = .failure(.init(message: "Run BDD promotion gate before BDD -> TESTS."))
                 persistPromptIfPossible(
                     operation: "PRD -> BDD",
                     gateResult: result.result,
@@ -352,6 +356,8 @@ private extension ContentView {
                 .font(.title2.bold())
             Text("Gate operatora: budowa promptu testów na bazie zatwierdzonego dokumentu BDD.")
                 .foregroundStyle(.secondary)
+            Text("Approved BDD length for TESTS gate: \(approvedBDDForTests.count)")
+                .font(.footnote)
             TextEditor(text: $bddDocumentText)
                 .font(.footnote.monospaced())
                 .frame(minHeight: 140)
@@ -359,7 +365,30 @@ private extension ContentView {
                     RoundedRectangle(cornerRadius: 8)
                         .stroke(Color.secondary.opacity(0.25), lineWidth: 1)
                 )
+            Button("Promote BDD to TESTS gate") {
+                guard let bddResult = lastBDDFromPRDResult, bddResult.result.isSuccess else {
+                    lastBDDPromotionResult = .failure(.init(message: "Run PRD -> BDD successfully before promotion."))
+                    approvedBDDForTests = ""
+                    return
+                }
+                let candidateBDD = bddDocumentText.trimmingCharacters(in: .whitespacesAndNewlines)
+                approvedBDDForTests = candidateBDD.isEmpty ? bddResult.promptText : candidateBDD
+                lastBDDPromotionResult = .success
+            }
+            .buttonStyle(.bordered)
             Button("Generate BDD -> TESTS prompt") {
+                guard !approvedBDDForTests.isEmpty else {
+                    lastTestsFromBDDResult = TestsFromBDDPromptResult(
+                        result: .failure(.init(message: "Promote BDD to TESTS gate before this step.")),
+                        promptText: "",
+                        promptFingerprint: "",
+                        includesMinimalContext: false,
+                        ideaID: nil,
+                        projectID: nil,
+                        bddLength: 0
+                    )
+                    return
+                }
                 guard let bddResult = lastBDDFromPRDResult, bddResult.result.isSuccess else {
                     lastTestsFromBDDResult = TestsFromBDDPromptResult(
                         result: .failure(.init(message: "Run PRD -> BDD successfully before this step.")),
@@ -375,8 +404,6 @@ private extension ContentView {
                 let projectID = ProjectID(rawValue: flowProjectID.trimmingCharacters(in: .whitespacesAndNewlines))
                 let ideaID = IdeaID(rawValue: flowIdeaID.trimmingCharacters(in: .whitespacesAndNewlines))
                 let ideaTitle = flowIdeaTitle.trimmingCharacters(in: .whitespacesAndNewlines)
-                let candidateBDD = bddDocumentText.trimmingCharacters(in: .whitespacesAndNewlines)
-                let finalBDDDoc = candidateBDD.isEmpty ? bddResult.promptText : candidateBDD
                 bddToTestsService.selectActiveProject(id: projectID)
                 bddToTestsService.setContextAvailability(
                     overview: true,
@@ -387,7 +414,7 @@ private extension ContentView {
                 let result = bddToTestsService.generateTestsPrompt(
                     for: ideaID,
                     ideaTitle: ideaTitle,
-                    bddDocument: finalBDDDoc
+                    bddDocument: approvedBDDForTests
                 )
                 lastTestsFromBDDResult = result
                 persistPromptIfPossible(
@@ -661,6 +688,10 @@ private extension ContentView {
                         .font(.footnote.monospaced())
                         .textSelection(.enabled)
                 }
+            }
+            if let bddPromotion = lastBDDPromotionResult {
+                Text("BDD promotion: \(statusText(for: bddPromotion))")
+                    .font(.footnote)
             }
             if let tests = lastTestsFromBDDResult {
                 Text("BDD -> TESTS: \(statusText(for: tests.result))")
