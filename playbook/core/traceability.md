@@ -1,43 +1,39 @@
-## 🔗 Referencje między PRD a testami
+## Traceability (OP-aligned)
 
-Tak — warto mieć lekką warstwę traceability.
+Cel:
+utrzymac lekka, praktyczna mapowalnosc miedzy wymaganiem, scenariuszem i testem,
+bez budowy ciezkiego systemu.
 
-Nie buduj ciężkiego systemu.
-Wystarczy `traceability.md` w folderze feature.
+## Minimalny kontrakt
 
-### Minimalna zasada
-Każda ważna reguła z `prd.md` powinna mieć odniesienie do scenariusza w `bdd.md`.
+Dla kazdej istotnej reguly:
+- Requirement/Rule -> Scenario -> Test
 
-**Przykład:**
-```markdown
-# Traceability
+W runtime mozna to zapisywac lekko (traceability.md), ale musi byc zgodne z OP:
+- Scenario OP
+- Feature OP
+- ProcessEvent (audit zmian)
+
+## Co jest wystarczajace
+
+W feature/traceability.md trzymaj mapowanie:
+- Rule/Requirement
+- Scenario ID lub nazwa
+- Test reference
+
+## Dodatkowa zasada OP
+
+Przy zmianie scenariuszy lub testow:
+- zaktualizuj traceability.md,
+- zapisz ProcessEvent,
+- upewnij sie, ze GateDecision opiera sie na aktualnym mapowaniu.
+
+## Przyklad
 
 - Rule: fallback on provider error
   - Scenario: fallback to next provider
+  - Test: ProviderRoutingTests/testFallbackOnError
 
 - Rule: skip disabled provider
   - Scenario: disabled provider is ignored
-```
-
-To wystarczy, żeby:
-- AI widziało związek między wymaganiem i testem
-- łatwo było poprawiać testy przy zmianie feature
-- nie zostawiać starych scenariuszy po refactorze
-
----
-
-## Rule → Scenario Mapping
-
-`traceability.md` wiąże reguły z `prd.md` ze scenariuszami z `bdd.md`.
-Nie chodzi o ciężki system śledzenia, tylko o prostą mapę reguła → scenariusz.
-
-Dodatkowy przykład mapowania:
-```markdown
-# Traceability
-
-- Rule: fallback on provider error
-  - Covered by: Scenario "fallback to next provider"
-
-- Rule: skip disabled provider
-  - Covered by: Scenario "disabled provider is ignored"
-```
+  - Test: ProviderRoutingTests/testSkipDisabledProvider
