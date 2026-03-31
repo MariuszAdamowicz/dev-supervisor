@@ -15,4 +15,4 @@ Data: 2026-03-30
 
 ## Odroczone / Następne
 - [x] integracja flow `IDEA -> FEATURES` z docelową persystencją projektu
-- [ ] automatyczne przejście `FEATURES -> PRD` jako oddzielny gate operatora (poza zakresem tej funkcji)
+- [x] automatyczne przejście `FEATURES -> PRD` jako oddzielny gate operatora

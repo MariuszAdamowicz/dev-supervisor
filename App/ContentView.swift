@@ -5,11 +5,9 @@ struct ContentView: View {
     @State private var projectsRootPath = ""
     @State private var selectedStorageProfile: StorageProfile = .fileAI
     @State private var initializeGitRepository = true
-
     @State private var inspectPath = ""
     @State private var activeProjectPathForPersistence = ""
     @State private var activeStorageProfileForPersistence: StorageProfile = .fileAI
-
     @State private var lastBootstrapResult: ProjectBootstrapResult?
     @State private var lastInspectionResult: ProjectInspectionResult?
     @State private var flowProjectID = "P-1"
@@ -27,6 +25,8 @@ struct ContentView: View {
     @State private var testsDocumentText = ""
     @State private var implementationDocumentText = ""
     @State private var lastFeaturesResult: FeatureSetPromptGenerationResult?
+    @State private var approvedFeaturesForPRD: [FeatureCandidate] = []
+    @State private var lastFeaturesPromotionResult: RegistryOperationResult?
     @State private var lastPRDFromFeaturesResult: PRDFromFeaturesPromptResult?
     @State private var lastBDDFromPRDResult: BDDFromPRDPromptResult?
     @State private var lastTestsFromBDDResult: TestsFromBDDPromptResult?
@@ -35,7 +35,6 @@ struct ContentView: View {
     @State private var lastPersistenceResult: GatePromptPersistenceResult?
     @State private var lastProjectRegistrationResult: ProjectRegistrationResult?
     @State private var lastArtifactSyncResult: ArtifactSyncResult?
-
     private let bootstrapService: any ProjectBootstrapContract = ProjectBootstrapFileSystem()
     private let fileAIProjectRegistryService: any ProjectRegistryContract =
         ProjectRegistryPersistentFileSystem(storageProfile: .fileAI)
@@ -92,7 +91,9 @@ struct ContentView: View {
             refreshIdeasForActiveProject()
         }
     }
+}
 
+private extension ContentView {
     private var newProjectSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Nowy projekt")
@@ -205,6 +206,8 @@ struct ContentView: View {
 
                 let result = ideaToFeaturesService.generateFeaturesPrompt(for: ideaID)
                 lastFeaturesResult = result
+                approvedFeaturesForPRD = []
+                lastFeaturesPromotionResult = .failure(.init(message: "Run promotion gate before FEATURES -> PRD."))
                 persistFeaturesInProjectScopeIfPossible(result)
                 persistPromptIfPossible(
                     operation: "IDEA -> FEATURES",
@@ -226,10 +229,25 @@ struct ContentView: View {
             Text("Gate operatora: budowa promptu PRD na bazie wygenerowanego feature-setu.")
                 .foregroundStyle(.secondary)
 
-            Button("Generate FEATURES -> PRD prompt") {
+            Text("Approved features for PRD gate: \(approvedFeaturesForPRD.count)")
+                .font(.footnote)
+
+            Button("Promote generated features to PRD gate") {
                 guard let featuresResult = lastFeaturesResult, featuresResult.result.isSuccess else {
+                    lastFeaturesPromotionResult = .failure(.init(message: "Run IDEA -> FEATURES successfully before promotion."))
+                    approvedFeaturesForPRD = []
+                    return
+                }
+
+                approvedFeaturesForPRD = featuresResult.proposedFeatures
+                lastFeaturesPromotionResult = .success
+            }
+            .buttonStyle(.bordered)
+
+            Button("Generate FEATURES -> PRD prompt") {
+                guard !approvedFeaturesForPRD.isEmpty else {
                     lastPRDFromFeaturesResult = PRDFromFeaturesPromptResult(
-                        result: .failure(.init(message: "Run IDEA -> FEATURES successfully before this step.")),
+                        result: .failure(.init(message: "Promote features to PRD gate before this step.")),
                         promptText: "",
                         promptFingerprint: "",
                         includesMinimalContext: false,
@@ -255,7 +273,7 @@ struct ContentView: View {
                 let result = featuresToPRDService.generatePRDPrompt(
                     for: ideaID,
                     ideaTitle: ideaTitle,
-                    features: featuresResult.proposedFeatures
+                    features: approvedFeaturesForPRD
                 )
                 lastPRDFromFeaturesResult = result
                 persistPromptIfPossible(
@@ -393,9 +411,7 @@ struct ContentView: View {
             .buttonStyle(.borderedProminent)
         }
     }
-}
 
-private extension ContentView {
     func defaultProjectsRootPath() -> String {
         let home = FileManager.default.homeDirectoryForCurrentUser.path
         return "\(home)/Projects"
@@ -654,6 +670,11 @@ private extension ContentView {
                 }
             }
 
+            if let promotion = lastFeaturesPromotionResult {
+                Text("FEATURES promotion: \(statusText(for: promotion))")
+                    .font(.footnote)
+            }
+
             if let prd = lastPRDFromFeaturesResult {
                 Text("FEATURES -> PRD: \(statusText(for: prd.result))")
                 Text("Features in PRD prompt: \(prd.featuresCount)")
@@ -749,7 +770,9 @@ private extension ContentView {
         )
         lastPersistenceResult = gatePersistenceService.persistPrompt(request)
     }
+}
 
+private extension ContentView {
     func statusText(for result: RegistryOperationResult) -> String {
         switch result {
         case .success:
