@@ -26,13 +26,31 @@ Kazda akcja ma:
   - intent: wybor profili playbooka przez operatora
   - required_capabilities: choose_action, write_state
 
-- produce_prompt_task
-  - intent: wygenerowanie PromptTask dla AI
-  - required_capabilities: prepare_prompt, hash_context, write_state
+### AI orchestration
 
-- ingest_prompt_result
-  - intent: zapis wyniku promptu i update stanu OP
-  - required_capabilities: ingest_response, write_state, append_audit
+- create_ai_job
+  - intent: utworzenie zadania dla ai-runner
+  - required_capabilities: submit_job, write_state, append_audit
+
+- poll_ai_job
+  - intent: odczyt statusu zadania ai-runner
+  - required_capabilities: poll_job, read_state
+
+- accept_ai_result
+  - intent: zaakceptowanie wyniku joba i update stanu OP
+  - required_capabilities: read_state, write_state, append_audit
+
+- retry_ai_job
+  - intent: ponowienie zadania po fail/timeout
+  - required_capabilities: retry_job, write_state, append_audit
+
+- cancel_ai_job
+  - intent: anulowanie zadania
+  - required_capabilities: cancel_job, write_state, append_audit
+
+- reset_ai_context
+  - intent: reset kontekstu agenta i otwarcie nowej sesji
+  - required_capabilities: reset_context, open_session, write_state
 
 ### Implementacja i jakosc
 

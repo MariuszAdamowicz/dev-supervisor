@@ -38,7 +38,7 @@ Kazdy binding ma:
 
 3. Project.baseline-approved -> Project.active
 - event_ref: gate.approve
-- action_plan: ingest_prompt_result
+- action_plan: accept_ai_result
 - tool_plan:
   - storage-adapter: update stanu OP
 - required: true
@@ -47,9 +47,10 @@ Kazdy binding ma:
 
 4. Idea.captured -> Idea.scoped
 - event_ref: idea.scope-requested
-- action_plan: produce_prompt_task, ingest_prompt_result
+- action_plan: create_ai_job, poll_ai_job, accept_ai_result
 - tool_plan:
-  - prompt-transport: IDEA -> FEATURES prompt
+  - ai-runner: submit_job (IDEA -> FEATURES)
+  - ai-runner: poll_job
   - operator-ui: confirm imported scope
   - storage-adapter: zapis scope
 - required: true
@@ -74,36 +75,40 @@ Kazdy binding ma:
 
 7. Feature.drafted -> Feature.specified
 - event_ref: Idea.scoped
-- action_plan: produce_prompt_task, ingest_prompt_result
+- action_plan: create_ai_job, poll_ai_job, accept_ai_result
 - tool_plan:
-  - prompt-transport: IDEA -> PRD
+  - ai-runner: submit_job (IDEA -> PRD)
+  - ai-runner: poll_job
   - operator-ui: confirm PRD import
   - storage-adapter: persist PRD
 - required: true
 
 8. Feature.specified -> Feature.ux-aligned
 - event_ref: Feature.specified
-- action_plan: produce_prompt_task, ingest_prompt_result
+- action_plan: create_ai_job, poll_ai_job, accept_ai_result
 - tool_plan:
-  - prompt-transport: ux-contract-check + term-extract
+  - ai-runner: submit_job (ux-contract-check + term-extract)
+  - ai-runner: poll_job
   - operator-ui: approve term/ui deltas
   - storage-adapter: update Term/UIComponent/UIScreen
 - required: true
 
 9. Feature.ux-aligned -> Feature.scenario-ready
 - event_ref: Feature.ux-aligned
-- action_plan: produce_prompt_task, ingest_prompt_result
+- action_plan: create_ai_job, poll_ai_job, accept_ai_result
 - tool_plan:
-  - prompt-transport: PRD -> BDD
+  - ai-runner: submit_job (PRD -> BDD)
+  - ai-runner: poll_job
   - operator-ui: approve scenario package
   - storage-adapter: persist BDD
 - required: true
 
 10. Feature.scenario-ready -> Feature.test-ready
 - event_ref: Scenario.approved
-- action_plan: produce_prompt_task, ingest_prompt_result
+- action_plan: create_ai_job, poll_ai_job, accept_ai_result
 - tool_plan:
-  - prompt-transport: BDD -> TESTY
+  - ai-runner: submit_job (BDD -> TESTY)
+  - ai-runner: poll_job
   - operator-ui: confirm test mapping
   - storage-adapter: persist tests + traceability
 - required: true
@@ -132,27 +137,30 @@ Kazdy binding ma:
 
 13. Term.proposed -> Term.approved
 - event_ref: Term.proposed
-- action_plan: produce_prompt_task, decide_gate
+- action_plan: create_ai_job, poll_ai_job, decide_gate
 - tool_plan:
-  - prompt-transport: term-impact-check
+  - ai-runner: submit_job (term-impact-check)
+  - ai-runner: poll_job
   - operator-ui: approve term scope
   - storage-adapter: persist term + impacts
 - required: true
 
 14. UIComponent.proposed -> UIComponent.mapped
 - event_ref: UIComponent.proposed
-- action_plan: produce_prompt_task, ingest_prompt_result
+- action_plan: create_ai_job, poll_ai_job, accept_ai_result
 - tool_plan:
-  - prompt-transport: ui-placement
+  - ai-runner: submit_job (ui-placement)
+  - ai-runner: poll_job
   - operator-ui: confirm placement
   - storage-adapter: update UI map
 - required: true
 
 15. UIComponent.mapped -> UIComponent.implemented
 - event_ref: UIComponent.mapped
-- action_plan: produce_prompt_task, ingest_prompt_result
+- action_plan: create_ai_job, poll_ai_job, accept_ai_result
 - tool_plan:
-  - prompt-transport: ui-implementation
+  - ai-runner: submit_job (ui-implementation)
+  - ai-runner: poll_job
   - operator-ui: confirm implementation import
   - storage-adapter: update component state
 - required: true
@@ -167,9 +175,10 @@ Kazdy binding ma:
 
 17. UIScreen.proposed -> UIScreen.mapped
 - event_ref: screen.mapping-requested
-- action_plan: produce_prompt_task, ingest_prompt_result
+- action_plan: create_ai_job, poll_ai_job, accept_ai_result
 - tool_plan:
-  - prompt-transport: screen-flow mapping
+  - ai-runner: submit_job (screen-flow mapping)
+  - ai-runner: poll_job
   - operator-ui: confirm screen map
   - storage-adapter: update UIScreen
 - required: true
@@ -186,21 +195,39 @@ Kazdy binding ma:
 
 19. PromptTask.created -> PromptTask.ready
 - event_ref: prompt.context-ready
-- action_plan: produce_prompt_task
+- action_plan: create_ai_job
 - tool_plan:
-  - prompt-transport: prepare_prompt + hash_context
+  - ai-runner: submit_job
   - storage-adapter: persist PromptTask
 - required: true
 
 20. PromptTask.ready -> PromptTask.executed
 - event_ref: prompt.sent
-- action_plan: ingest_prompt_result
+- action_plan: poll_ai_job, accept_ai_result
 - tool_plan:
-  - prompt-transport: send_prompt + ingest_response
+  - ai-runner: poll_job
   - operator-ui: confirm response acceptance
 - required: true
 
-21. QualitySignal.evaluated -> QualitySignal.fail
+21. PromptTask.ready -> PromptTask.cancelled
+- event_ref: prompt.cancel-requested
+- action_plan: cancel_ai_job
+- tool_plan:
+  - ai-runner: cancel_job
+  - storage-adapter: persist cancel reason
+- required: true
+
+22. PromptTask.ready -> PromptTask.ready (retry)
+- event_ref: timeout.fired
+- action_plan: retry_ai_job
+- tool_plan:
+  - ai-runner: retry_job
+  - storage-adapter: increment retry_count
+- failure_policy:
+  - po limicie retry: reset_ai_context albo GateDecision.defer
+- required: true
+
+23. QualitySignal.evaluated -> QualitySignal.fail
 - event_ref: quality.failed
 - action_plan: request_rework
 - tool_plan:
@@ -208,7 +235,7 @@ Kazdy binding ma:
   - operator-ui: confirm rework/defer
 - required: true
 
-22. Exception.detected -> Exception.handled
+24. Exception.detected -> Exception.handled
 - event_ref: exception.fix-applied
 - action_plan: run_validation_suite, decide_gate
 - tool_plan:
@@ -216,17 +243,9 @@ Kazdy binding ma:
   - operator-ui: close/escalate exception
 - required: true
 
-23. Timeout.fired -> Timeout.handled
-- event_ref: timeout.fired
-- action_plan: decide_gate
-- tool_plan:
-  - operator-ui: defer/reject z reason
-  - storage-adapter: zapis timeout resolution
-- required: true
-
 ### F. Release / Deployment / Rollback
 
-24. Feature.stabilized -> Release.candidate
+25. Feature.stabilized -> Release.candidate
 - event_ref: Feature.stabilized
 - action_plan: start_release
 - tool_plan:
@@ -237,7 +256,7 @@ Kazdy binding ma:
   - Dependency != blocked
 - required: true
 
-25. Release.candidate -> Release.approved
+26. Release.candidate -> Release.approved
 - event_ref: release.gate-requested
 - action_plan: decide_gate
 - tool_plan:
@@ -245,7 +264,7 @@ Kazdy binding ma:
   - storage-adapter: persist gate
 - required: true
 
-26. Release.approved -> Deployment.prepared
+27. Release.approved -> Deployment.prepared
 - event_ref: Release.approved
 - action_plan: deploy_release
 - tool_plan:
@@ -253,7 +272,7 @@ Kazdy binding ma:
   - operator-ui: confirm deploy start
 - required: true
 
-27. Deployment.prepared -> Deployment.running -> Deployment.succeeded
+28. Deployment.prepared -> Deployment.running -> Deployment.succeeded
 - event_ref: deployment.started/completed
 - action_plan: deploy_release
 - tool_plan:
@@ -261,7 +280,7 @@ Kazdy binding ma:
   - storage-adapter: persist deployment status
 - required: true
 
-28. Deployment.running -> Deployment.failed
+29. Deployment.running -> Deployment.failed
 - event_ref: deployment.failed
 - action_plan: run_rollback
 - tool_plan:
@@ -269,7 +288,7 @@ Kazdy binding ma:
   - storage-adapter: create Rollback + Compensation
 - required: true
 
-29. Deployment.failed -> Rollback.prepared -> Rollback.running -> Rollback.succeeded
+30. Deployment.failed -> Rollback.prepared -> Rollback.running -> Rollback.succeeded
 - event_ref: Deployment.failed
 - action_plan: run_rollback, decide_gate
 - tool_plan:
@@ -286,3 +305,4 @@ Kazdy binding ma:
 - Jesli action wymaga decyzji czlowieka, tool_plan musi zawierac operator-ui.
 - Zmiana stanu OP przez UI bez odpowiadajacego bindingu jest niedozwolona.
 - Kazdy binding krytyczny musi miec audit trace: ProcessEvent + GateDecision (jesli gate wystepuje).
+- MCP moze byc uzyte tylko jako adapter transportowy; kontrola job lifecycle nalezy do DS.

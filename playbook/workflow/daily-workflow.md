@@ -38,7 +38,7 @@ Playbook nie tworzy alternatywnej logiki przejsc.
 Z OP -> UI/Prompt/Checklist:
 - jaka jedna akcje pokazac (next best action)
 - jaki minimalny kontekst zaladowac
-- jaki prompt uruchomic
+- jaki prompt/job uruchomic
 - jakie warunki gate musza byc spelnione
 
 ## 4a. Wyznacz Action i Tool plan
@@ -54,6 +54,17 @@ transition OP -> action_plan -> tool_plan.
 Uwaga:
 - tool_plan moze zawierac narzedzia CLI/service oraz operator-ui.
 - klikniecie/akceptacja w UI to legalna tool invocation, a nie wyjatek od modelu.
+
+## 4b. Uruchom AI jako job (DS-controlled)
+
+Jesli tool_plan zawiera ai-runner:
+- DS tworzy job,
+- DS odpyta status (poll),
+- DS decyduje o retry/cancel/timeout,
+- DS moze zresetowac kontekst przez reset_ai_context,
+- DS dopiero po walidacji akceptuje wynik joba.
+
+MCP (jesli wystepuje) jest tylko adapterem transportowym.
 
 ## 5. Wykonaj akcje i review package
 

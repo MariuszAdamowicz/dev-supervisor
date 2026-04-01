@@ -6,15 +6,15 @@ formalnie walidowac kompletnosc i spojnosc Playbook Layer wzgledem OP Layer.
 ## 1. Contracts of Completeness
 
 1. Coverage contract
-- kazdy krytyczny legal transition z OP ma binding w `tooling/bindings.md`.
+- kazdy krytyczny legal transition z OP ma binding w tooling/bindings.md.
 - brak bindingu = playbook invalid.
 
 2. Capability contract
-- kazda capability wymagana przez action istnieje w co najmniej jednym narzedziu z `tooling/tool-registry.md`.
+- kazda capability wymagana przez action istnieje w co najmniej jednym narzedziu z tooling/tool-registry.md.
 - capability orphan = playbook invalid.
 
 3. Gate contract
-- transition oznaczony gate-required musi zawierac `decide_gate` i `operator-ui`.
+- transition oznaczony gate-required musi zawierac decide_gate i operator-ui.
 - brak jawnej decyzji gate = transition invalid.
 
 4. Audit contract
@@ -23,7 +23,7 @@ formalnie walidowac kompletnosc i spojnosc Playbook Layer wzgledem OP Layer.
 
 5. Source-of-truth contract
 - Playbook Layer nie redefiniuje state machine ani trigger semantics.
-- konflikt z `layers/op/*` = playbook invalid.
+- konflikt z layers/op/* = playbook invalid.
 
 ## 2. Contracts of Consistency
 
@@ -31,10 +31,10 @@ formalnie walidowac kompletnosc i spojnosc Playbook Layer wzgledem OP Layer.
 - identyfikatory OP, action i capability sa jednolite i case-stable.
 
 2. Profile override contract
-- profile moga nadpisac `tool_plan`, ale nie moga zmieniac `intent` action ani semantyki triggerow.
+- profile moga nadpisac tool_plan, ale nie moga zmieniac intent action ani semantyki triggerow.
 
 3. Storage neutrality contract
-- te same action/binding dzialaja dla `file-ai` i `sqlbase` przez `storage-adapter`.
+- te same action/binding dzialaja dla file-ai i sqlbase przez storage-adapter.
 
 4. UX projection contract
 - UI pokazuje tylko akcje legalne dla current_state i guardow.
@@ -46,25 +46,40 @@ formalnie walidowac kompletnosc i spojnosc Playbook Layer wzgledem OP Layer.
 - zadna zmiana stanu OP nie zachodzi bez bindingu i audytu.
 
 2. Fail-safe gate
-- `QualitySignal.fail` wymusza `request_changes` lub `defer`, nigdy auto-approve.
+- QualitySignal.fail wymusza request_changes lub defer, nigdy auto-approve.
 
 3. Recovery contract
-- dla `Deployment.failed` musi istniec binding rollback + compensation.
+- dla Deployment.failed musi istniec binding rollback + compensation.
 
 4. Permission contract
 - action moze byc wykonana tylko przy aktywnym ActorRolePermission.
 
-## 4. Validation Procedure
+## 4. AI Orchestration Contract
+
+1. Control-plane contract
+- DS jest jedynym orchestratem cyklu zycia ai-runner (submit/poll/retry/cancel/reset_context).
+
+2. Scheduler contract
+- decyzje czasowe (zapytaj za 5 min, timeout, backoff) sa wykonywane przez DS scheduler, nie przez domyslna petle agenta.
+
+3. Session contract
+- reset kontekstu oznacza nowa sesje ai-runner i nowy context_revision.
+
+4. MCP contract
+- MCP moze byc adapterem transportowym, ale nie zastapi kontraktu control-plane.
+
+## 5. Validation Procedure
 
 Minimalna procedura walidacji przy zmianie playbooka:
 1. Sprawdz coverage transition -> binding.
 2. Sprawdz action -> capability -> tool.
 3. Sprawdz gate-required transitions.
 4. Sprawdz audit requirements.
-5. Sprawdz konflikt z `layers/op/*`.
+5. Sprawdz konflikt z layers/op/*.
 6. Sprawdz UX projection na reprezentatywnych stanach.
+7. Sprawdz AI orchestration contract (control-plane + scheduler + session).
 
-## 5. Evidence Package
+## 6. Evidence Package
 
 Kazdy pass walidacji generuje pakiet dowodowy:
 - data i wersja playbooka,

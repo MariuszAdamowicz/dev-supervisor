@@ -23,16 +23,16 @@ Kazde narzedzie ma:
 - adapter: akcja operatora w UI aplikacji
 - observability: ProcessEvent z actor_role=operator
 
-### 2. prompt-transport (app/service)
-- class: app
-- capabilities: prepare_prompt, send_prompt, ingest_response, hash_context
-- adapter: MCP albo manual copy/paste
-- observability: PromptTask event + hash wejscia/wyjscia
+### 2. ai-runner (service)
+- class: service
+- capabilities: submit_job, poll_job, cancel_job, retry_job, reset_context, open_session
+- adapter: direct LLM API (preferowane)
+- observability: job_id, request_id, status, retry_count, context_revision
 
 ### 3. storage-adapter (app)
 - class: app
 - capabilities: read_state, write_state, persist_artifacts, append_audit
-- adapter: profile storage (`file-ai` lub `sqlbase`)
+- adapter: profile storage file-ai lub sqlbase
 - observability: ProcessEvent + wersja zapisu
 
 ### 4. shell (cli)
@@ -53,6 +53,19 @@ Kazde narzedzie ma:
 - adapter: stack profile (np. xcodebuild/swiftlint/swiftformat)
 - observability: QualitySignal pass/fail + metryki
 
+## Narzedzia opcjonalne
+
+### 7. mcp-bridge (service)
+- class: service
+- capabilities: transport_tool_call, transport_tool_result
+- adapter: MCP server/client
+- observability: mcp_server, tool_name, call_id
+
+Uwagi:
+- mcp-bridge jest adapterem transportowym do narzedzi, w tym ai-runner.
+- mcp-bridge sam nie gwarantuje wykonania retry/scheduler/reset_context.
+- gwarancje procesu zapewnia DS orchestration.
+
 ## Narzedzia profilowe (przyklady)
 
 - xcodebuild (stack: macos-swiftui)
@@ -71,7 +84,8 @@ Kazde narzedzie ma:
 ## Zasady
 
 - Operator jest legalnym narzedziem wykonawczym: zmiana stanu przez UI jest tool invocation.
+- Agent AI jest legalnym narzedziem wykonawczym: wywolania sa job-based i sterowane przez DS.
 - Profil moze dodac narzedzia, ale nie moze usunac baseline bez jawnego override policy.
-- Kazde uruchomienie narzedzia (takze operator-ui) musi byc audytowane przez ProcessEvent.
+- Kazde uruchomienie narzedzia (takze operator-ui i ai-runner) musi byc audytowane przez ProcessEvent.
 - Brak narzedzia wymaganej capability blokuje transition OP.
 - Playbook Layer mapuje transition na akcje i narzedzia; aplikacja nie zgaduje narzedzi dynamicznie.

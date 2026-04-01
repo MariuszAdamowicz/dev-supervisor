@@ -21,10 +21,10 @@ Warstwy nadrzedne:
 ## Product Direction Guardrails
 
 - dev-supervisor jest deterministic supervisor, nie agent AI.
-- Proces jest operator-driven: czlowiek uruchamia prompty w zewnetrznym narzedziu.
-- Operator podejmuje jawne decyzje na gate.
-- System pozostaje local-first.
-- System pozostaje tool-agnostic i provider-agnostic.
+- Proces jest operator-driven: czlowiek uruchamia prompty i podejmuje decyzje gate.
+- Agent AI jest narzedziem wykonywanym przez DS jako ai-runner (job model).
+- MCP jest opcjonalnym adapterem transportowym, nie control-plane.
+- System pozostaje local-first, tool-agnostic i provider-agnostic.
 
 ## Moduly Playbook Layer
 
@@ -57,6 +57,7 @@ Kontrakty poprawnosci Playbook Layer:
 - coverage transition -> binding
 - capability consistency
 - gate/audit safety
+- AI orchestration contract
 
 ## Moduly OP Layer
 

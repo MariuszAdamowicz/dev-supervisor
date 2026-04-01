@@ -16,7 +16,7 @@ Kanoniczne definicje OP:
 - wybierz storage profile:
   - profiles/storage/file-ai.md
   - profiles/storage/sqlbase.md
-- przygotuj runtime storage (`.ai/*` lub SQLBase)
+- przygotuj runtime storage (.ai/* lub SQLBase)
 
 ## 2. Product baseline
 
@@ -45,12 +45,12 @@ a nie przez reczne przegladanie listy plikow.
 
 ## 4. Runtime contract
 
-- `.ai/prd/*` i `.ai/features/*` to artefakty runtime (Project Instance Layer)
-- `.ai/ux/*` to projekcja UX dla operatora (nie kanoniczna semantyka)
-- `state/trigger/gate` sa kanoniczne tylko w OP Layer
+- .ai/prd/* i .ai/features/* to artefakty runtime (Project Instance Layer)
+- .ai/ux/* to projekcja UX dla operatora (nie kanoniczna semantyka)
+- state/trigger/gate sa kanoniczne tylko w OP Layer
 
 Zasada rozstrzygania konfliktu:
-- jesli `.ai/*` koliduje z OP Layer, nadrzedna jest definicja OP.
+- jesli .ai/* koliduje z OP Layer, nadrzedna jest definicja OP.
 
 ## 5. Start pracy
 
@@ -72,6 +72,13 @@ Podczas setup aktywuj wykonawcza warstwe playbooka:
 
 Wymaganie:
 - dla kazdego krytycznego transition OP musi istniec binding transition -> action -> tool.
+
+## AI bootstrap
+
+Wymaganie nadrzedne:
+- AI jest uruchamiane jako ai-runner (job model) sterowany przez DS.
+- decyzje retry/timeout/cancel/reset_context podejmuje DS.
+- MCP moze byc uzyte tylko jako adapter transportowy.
 
 ## Validation bootstrap
 

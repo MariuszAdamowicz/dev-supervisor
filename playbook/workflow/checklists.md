@@ -18,6 +18,14 @@
 - ProcessEvent zapisany
 - stan OP po transition zaktualizowany
 
+## Checklista AI job
+
+- utworzony job ai-runner (job_id)
+- zarejestrowany status polling
+- zdefiniowany timeout i retry policy
+- zdefiniowana polityka cancel/reset_context
+- wynik zaakceptowany przez operatora lub odrzucony z reason
+
 ## Checklista feature runtime
 
 - Feature OP utworzony i powiazany z Idea
@@ -55,3 +63,4 @@
 - gate contract: gate-required ma decide_gate + operator-ui
 - audit contract: krytyczne akcje maja ProcessEvent
 - source-of-truth contract: brak konfliktu z layers/op/*
+- AI orchestration contract: control-plane i scheduler sa po stronie DS
