@@ -2,7 +2,7 @@
 
 Data: 2026-04-04
 Branch: `feat/test-gate-hardening`
-HEAD: `7ce8f72`
+HEAD: 
 
 ## 1) Zakres review
 - Kontrakty i semantyka: `layers/op/*`
