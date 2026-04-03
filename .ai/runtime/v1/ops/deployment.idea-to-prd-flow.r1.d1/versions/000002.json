@@ -1,0 +1,23 @@
+{
+  "schema_version": "file-ai-runtime/v1",
+  "entity": "op_instance",
+  "op_id": "deployment.idea-to-prd-flow.r1.d1",
+  "op_type": "Deployment",
+  "op_version": 2,
+  "state": "running",
+  "owner": "operator:mariuszadamowicz",
+  "created_at": "2026-04-03T21:56:10Z",
+  "updated_at": "2026-04-03T22:02:02Z",
+  "links": [
+    {"rel": "project", "target_op_id": "project.devsupervisor"},
+    {"rel": "release", "target_op_id": "release.idea-to-prd-flow.r1"}
+  ],
+  "tags": ["deployment", "idea-to-prd-flow"],
+  "last_event_id": "evt_000003",
+  "payload": {
+    "deployment_id": "idea-to-prd-flow-r1-d1",
+    "environment": "local-dev",
+    "result": "running",
+    "rollback_ref": null
+  }
+}

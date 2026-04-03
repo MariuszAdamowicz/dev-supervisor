@@ -50,9 +50,10 @@
 
 ## Przechowywanie danych
 
-- Lokalna baza danych jest wymagana
+- W fazie developmentu runtime procesu używa profilu `file-ai` (`.ai/*`) dla jawnej obserwowalności
+- Docelowo produkt ma wspierać `sqlbase` jako tryb persystencji operacyjnej
 - Brak zależności od chmury w fazie początkowej
-- Baza przechowuje:
+- Runtime procesu przechowuje:
   - metadane projektu
   - stan funkcji
   - śledzenie postępu

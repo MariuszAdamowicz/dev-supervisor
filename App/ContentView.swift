@@ -13,6 +13,7 @@ struct ContentView: View {
     @State private var lastIdeaSelectionResult: RegistryOperationResult?; @State private var prdDocumentText = ""
     @State private var bddDocumentText = ""; @State private var testsDocumentText = ""
     @State private var implementationDocumentText = ""; @State private var lastFeaturesResult: FeatureSetPromptGenerationResult?
+    @State private var lastPRDFromIdeaResult: PRDPromptGenerationResult?
     @State private var approvedFeaturesForPRD: [FeatureCandidate] = []
     @State private var lastFeaturesPromotionResult: RegistryOperationResult?
     @State private var lastPRDFromFeaturesResult: PRDFromFeaturesPromptResult?
@@ -34,6 +35,7 @@ struct ContentView: View {
     private let fileAIIdeaRegistryService: IdeaRegistryContract = IdeaRegistryPersistentFileSystem(storageProfile: .fileAI)
     private let sqlbaseIdeaRegistryService: IdeaRegistryContract = IdeaRegistryPersistentFileSystem(storageProfile: .sqlbase)
     private let artifactSyncService: any ArtifactSyncContract = ArtifactSyncFileSystem()
+    private let ideaToPRDService: any IdeaToPRDFlowContract = IdeaToPRDFlowInMemory()
     private let ideaToFeaturesService: any IdeaToFeaturesFlowContract = IdeaToFeaturesFlowInMemory()
     private let featuresToPRDService: any FeaturesToPRDFlowContract = FeaturesToPRDFlowInMemory()
     private let prdToBDDService: any PRDToBDDFlowContract = PRDToBDDFlowInMemory()
@@ -51,6 +53,8 @@ struct ContentView: View {
                 newProjectSection
                 Divider()
                 ideaRegistrySection
+                Divider()
+                ideaToPRDSection
                 Divider()
                 ideaToFeaturesSection
                 Divider()
@@ -193,6 +197,81 @@ private extension ContentView {
         }
     }
 
+    private var ideaToPRDSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("IDEA -> PRD")
+                .font(.title2.bold())
+            Text("Alternatywny gate operatora: bezposrednia budowa promptu PRD z wybranej idei.")
+                .foregroundStyle(.secondary)
+            TextField("Project ID", text: $flowProjectID)
+                .textFieldStyle(.roundedBorder)
+            TextField("Idea ID", text: $flowIdeaID)
+                .textFieldStyle(.roundedBorder)
+            TextField("Idea title", text: $flowIdeaTitle)
+                .textFieldStyle(.roundedBorder)
+            Picker("Idea status", selection: $flowIdeaStatus) {
+                Text("new").tag(IdeaStatus.new)
+                Text("selected").tag(IdeaStatus.selected)
+                Text("deferred").tag(IdeaStatus.deferred)
+                Text("done").tag(IdeaStatus.done)
+            }
+            .pickerStyle(.segmented)
+            Button("Generate IDEA -> PRD prompt") {
+                guard let inspection = lastInspectionResult, inspection.result.isSuccess else {
+                    lastPRDFromIdeaResult = PRDPromptGenerationResult(
+                        result: .failure(.init(message: "Inspect project and pass Product Gate before IDEA -> PRD.")),
+                        promptText: "",
+                        promptFingerprint: "",
+                        includesMinimalContext: false,
+                        ideaID: nil,
+                        projectID: nil
+                    )
+                    return
+                }
+                guard inspection.productGatePassed else {
+                    let missing = inspection.missingProductArtifacts.joined(separator: ", ")
+                    lastPRDFromIdeaResult = PRDPromptGenerationResult(
+                        result: .failure(.init(message: "Product Gate failed. Missing: \(missing).")),
+                        promptText: "",
+                        promptFingerprint: "",
+                        includesMinimalContext: false,
+                        ideaID: nil,
+                        projectID: nil
+                    )
+                    return
+                }
+                let projectID = ProjectID(rawValue: flowProjectID.trimmingCharacters(in: .whitespacesAndNewlines))
+                let ideaID = IdeaID(rawValue: flowIdeaID.trimmingCharacters(in: .whitespacesAndNewlines))
+                let ideaTitle = flowIdeaTitle.trimmingCharacters(in: .whitespacesAndNewlines)
+                ideaToPRDService.selectActiveProject(id: projectID)
+                ideaToPRDService.seedIdea(
+                    id: ideaID,
+                    projectID: projectID,
+                    title: ideaTitle,
+                    status: flowIdeaStatus
+                )
+                ideaToPRDService.setContextAvailability(
+                    overview: true,
+                    constraints: true,
+                    glossary: true,
+                    stackRules: true
+                )
+                let result = ideaToPRDService.generatePRDPrompt(for: ideaID)
+                lastPRDFromIdeaResult = result
+                approvedPRDForBDD = ""
+                lastPRDPromotionResult = .failure(.init(message: "Run PRD promotion gate before PRD -> BDD."))
+                persistPromptIfPossible(
+                    operation: "IDEA -> PRD",
+                    gateResult: result.result,
+                    promptText: result.promptText,
+                    ideaID: result.ideaID,
+                    projectID: result.projectID
+                )
+            }
+            .buttonStyle(.borderedProminent)
+        }
+    }
+
     private var featuresToPRDSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("FEATURES -> PRD")
@@ -270,8 +349,9 @@ private extension ContentView {
                         .stroke(Color.secondary.opacity(0.25), lineWidth: 1)
                 )
             Button("Promote PRD to BDD gate") {
-                guard let prdResult = lastPRDFromFeaturesResult, prdResult.result.isSuccess else {
-                    lastPRDPromotionResult = .failure(.init(message: "Run FEATURES -> PRD successfully before promotion."))
+                let latestPRDResult = latestSuccessfulPRDResultForPromotion()
+                guard let prdResult = latestPRDResult else {
+                    lastPRDPromotionResult = .failure(.init(message: "Run IDEA -> PRD or FEATURES -> PRD successfully before promotion."))
                     approvedPRDForBDD = ""
                     return
                 }
@@ -284,18 +364,6 @@ private extension ContentView {
                 guard !approvedPRDForBDD.isEmpty else {
                     lastBDDFromPRDResult = BDDFromPRDPromptResult(
                         result: .failure(.init(message: "Promote PRD to BDD gate before this step.")),
-                        promptText: "",
-                        promptFingerprint: "",
-                        includesMinimalContext: false,
-                        ideaID: nil,
-                        projectID: nil,
-                        prdLength: 0
-                    )
-                    return
-                }
-                guard let prdResult = lastPRDFromFeaturesResult, prdResult.result.isSuccess else {
-                    lastBDDFromPRDResult = BDDFromPRDPromptResult(
-                        result: .failure(.init(message: "Run FEATURES -> PRD successfully before this step.")),
                         promptText: "",
                         promptFingerprint: "",
                         includesMinimalContext: false,
@@ -709,6 +777,15 @@ private extension ContentView {
                     promptText: prd.promptText
                 )
             }
+            if let prd = lastPRDFromIdeaResult {
+                gateStatusBlock(
+                    title: "IDEA -> PRD",
+                    result: prd.result,
+                    detailsLabel: "PRD length",
+                    detailsValue: prd.promptText.count,
+                    promptText: prd.promptText
+                )
+            }
             if let prdPromotion = lastPRDPromotionResult {
                 Text("PRD promotion: \(statusText(for: prdPromotion))")
                     .font(.footnote)
@@ -928,6 +1005,23 @@ private extension ContentView {
                 metadata: metadata
             )
         )
+    }
+
+    func latestSuccessfulPRDResultForPromotion() -> PRDPromptGenerationResult? {
+        if let ideaPRD = lastPRDFromIdeaResult, ideaPRD.result.isSuccess {
+            return ideaPRD
+        }
+        if let featuresPRD = lastPRDFromFeaturesResult, featuresPRD.result.isSuccess {
+            return PRDPromptGenerationResult(
+                result: featuresPRD.result,
+                promptText: featuresPRD.promptText,
+                promptFingerprint: featuresPRD.promptFingerprint,
+                includesMinimalContext: featuresPRD.includesMinimalContext,
+                ideaID: featuresPRD.ideaID,
+                projectID: featuresPRD.projectID
+            )
+        }
+        return nil
     }
 
     var activeIdeaRegistryService: IdeaRegistryContract {

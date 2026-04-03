@@ -1,0 +1,26 @@
+{
+  "schema_version": "file-ai-runtime/v1",
+  "entity": "op_instance",
+  "op_id": "project.devsupervisor",
+  "op_type": "Project",
+  "op_version": 1,
+  "state": "configured",
+  "owner": "operator:mariuszadamowicz",
+  "created_at": "2026-04-03T21:14:29Z",
+  "updated_at": "2026-04-03T21:14:29Z",
+  "links": [],
+  "tags": ["devsupervisor"],
+  "last_event_id": "evt_000001",
+  "payload": {
+    "name": "DevSupervisor",
+    "description": "Deterministic supervisor process runtime",
+    "selected_profiles": {
+      "stack": "macos-swiftui",
+      "architecture": "modular-monolith",
+      "language": "pl",
+      "execution-style": "iterative-tdd",
+      "storage": "file-ai"
+    },
+    "nfr_profile": "default-bootstrap-v1"
+  }
+}

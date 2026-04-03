@@ -51,6 +51,23 @@ Przed zatwierdzeniem profili operator zapisuje minimalne NFR:
 
 Jeśli NFR są niejawne lub sprzeczne, inicjalizacja nie przechodzi gate.
 
+### Domyslny baseline NFR (bootstrap)
+
+Gdy na etapie inicjalizacji brak danych domenowych, operator moze jawnie wybrac:
+- `nfr_profile: default-bootstrap-v1`
+
+Wtedy gate NFR uznaje za jawnie domkniety przy ponizszych wartosciach:
+- wydajnosc: p95 czas odpowiedzi interfejsu dla operacji lokalnych <= 300 ms
+- niezawodnosc: brak crasha aplikacji w 95% sesji roboczych
+- bezpieczenstwo: brak wysylki danych projektowych poza lokalne srodowisko bez jawnej akcji operatora
+- utrzymywalnosc: kazdy krytyczny transition ma test lub walidacje automatyczna (build/test/lint)
+- obserwowalnosc: kazdy krytyczny transition zapisuje ProcessEvent i status QualitySignal
+
+Reguly:
+- baseline domyslny moze byc uzyty tylko przy pierwszym setup projektu.
+- po przejsciu `Project.active` baseline domyslny musi zostac potwierdzony, zaostrzony lub zastapiony wartosciami projektowymi.
+- przejscie z baseline domyslnego na projektowy wymaga jawnego GateDecision.
+
 ## Format zapisu wybranej konfiguracji
 
 Rekomendowany plik: `.ai/playbook-profile.md`
@@ -62,6 +79,7 @@ architecture: <wybrana-architektura>
 language: <pl|en>
 execution-style: <iterative-tdd|batch-feature|hybrid>
 storage: <file-ai|sqlbase>
+nfr_profile: <default-bootstrap-v1|custom>
 ```
 
 ## Walidacja po wyborze

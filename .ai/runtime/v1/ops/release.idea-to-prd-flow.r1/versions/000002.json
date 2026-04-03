@@ -1,0 +1,22 @@
+{
+  "schema_version": "file-ai-runtime/v1",
+  "entity": "op_instance",
+  "op_id": "release.idea-to-prd-flow.r1",
+  "op_type": "Release",
+  "op_version": 2,
+  "state": "candidate",
+  "owner": "operator:mariuszadamowicz",
+  "created_at": "2026-04-03T21:48:05Z",
+  "updated_at": "2026-04-03T21:48:07Z",
+  "links": [
+    {"rel": "project", "target_op_id": "project.devsupervisor"},
+    {"rel": "feature", "target_op_id": "feature.idea-to-prd-flow"}
+  ],
+  "tags": ["release", "idea-to-prd-flow"],
+  "last_event_id": "evt_000003",
+  "payload": {
+    "release_id": "idea-to-prd-flow-r1",
+    "included_features": ["feature.idea-to-prd-flow"],
+    "release_gate_status": "candidate"
+  }
+}

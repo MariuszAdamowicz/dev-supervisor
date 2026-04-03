@@ -1,0 +1,21 @@
+{
+  "schema_version": "file-ai-runtime/v1",
+  "entity": "op_instance",
+  "op_id": "feature.idea-to-prd-flow",
+  "op_type": "Feature",
+  "op_version": 1,
+  "state": "implemented",
+  "owner": "operator:mariuszadamowicz",
+  "created_at": "2026-04-03T21:40:00Z",
+  "updated_at": "2026-04-03T21:40:00Z",
+  "links": [
+    {"rel": "project", "target_op_id": "project.devsupervisor"}
+  ],
+  "tags": ["idea-to-prd-flow", "ui", "feature"],
+  "last_event_id": "evt_000001",
+  "payload": {
+    "feature_id": "idea-to-prd-flow",
+    "scope": "integracja flow IDEA -> PRD z UI operatora",
+    "deferred_items": []
+  }
+}
