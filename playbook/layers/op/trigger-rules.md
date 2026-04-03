@@ -82,6 +82,19 @@ Kazda regula ma:
 - Event: Risk.accepted
 - Action: utworz PromptTask(risk-acceptance-audit)
 
+### 1c. ActorRolePermission baseline
+- Event: ActorRolePermission.defined
+- Action: utworz PromptTask(permission-activation-review)
+
+- Event: ActorRolePermission.active
+- Action: utworz PromptTask(permission-revision-review)
+
+- Event: ActorRolePermission.revised
+- Action: utworz PromptTask(permission-revoke-review)
+
+- Event: authz.denied
+- Action: utworz Exception(authz) + blokuj transition
+
 ### 2. Terminologia i UI
 - Event: Term.proposed
 - Action: utworz PromptTask(term-impact-check)

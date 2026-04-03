@@ -220,6 +220,35 @@ Kazdy binding ma:
   - storage-adapter: persist Risk state + clear delivery block
 - required: true
 
+### A4. ActorRolePermission
+
+4s. ActorRolePermission.defined -> ActorRolePermission.active
+- event_ref: permission.activate-requested
+- action_plan: produce_review_package, decide_gate
+- tool_plan:
+  - shell: review package generator (role scope + allowed_actions)
+  - operator-ui: permission activate approve/request_changes/defer/reject
+  - storage-adapter: persist ActorRolePermission state
+- required: true
+
+4t. ActorRolePermission.active -> ActorRolePermission.revised
+- event_ref: permission.revise-requested
+- action_plan: produce_review_package, decide_gate
+- tool_plan:
+  - shell: review package generator (permission diff + impact)
+  - operator-ui: permission revise approve/request_changes/defer/reject
+  - storage-adapter: persist ActorRolePermission state
+- required: true
+
+4u. ActorRolePermission.revised -> ActorRolePermission.revoked
+- event_ref: permission.revoke-requested
+- action_plan: produce_review_package, decide_gate
+- tool_plan:
+  - shell: review package generator (revoke impact)
+  - operator-ui: permission revoke approve/request_changes/defer/reject
+  - storage-adapter: persist ActorRolePermission state
+- required: true
+
 ### B. Idea -> Feature
 
 4. Idea.captured -> Idea.scoped
@@ -561,3 +590,6 @@ Kazdy binding ma:
 - Zmiana stanu OP przez UI bez odpowiadajacego bindingu jest niedozwolona.
 - Kazdy binding krytyczny musi miec audit trace: ProcessEvent + GateDecision (jesli gate wystepuje).
 - MCP moze byc uzyte tylko jako adapter transportowy; kontrola job lifecycle nalezy do DS.
+- Kazdy binding transition MUST wykonac authz precheck:
+  - storage-adapter: read ActorRolePermission(active, scope, allowed_actions)
+  - brak uprawnienia -> utworz Exception(authz), blokuj transition, zapisz ProcessEvent.

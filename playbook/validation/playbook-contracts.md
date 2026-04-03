@@ -58,6 +58,8 @@ formalnie walidowac kompletnosc i spojnosc Playbook Layer wzgledem OP Layer.
 
 4. Permission contract
 - action moze byc wykonana tylko przy aktywnym ActorRolePermission.
+- kazdy binding transition musi zawierac operacyjny authz precheck.
+- brak authz precheck albo brak sciezki `Exception(authz)` = transition invalid.
 
 5. Gate classifier contract
 - ten sam transition zawsze daje ten sam wynik `gate_required=true|false` dla tych samych bindingow.

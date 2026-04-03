@@ -63,6 +63,7 @@
 - kazda decyzja gate ma ProcessEvent
 - brak osieroconych OP
 - brak niespojnych stanow OP nadrzedny/podrzedny
+- kazdy transition ma wynik authz precheck (pass/fail)
 
 ## Checklista audytu tooling
 
@@ -70,6 +71,7 @@
 - kazda akcja z action_plan ma capability w tool-registry.md
 - profile nie zmieniaja intent akcji, tylko mapowanie tool_plan
 - brak uruchomien narzedzi poza zadeklarowanym bindingiem
+- kazdy binding ma jawny authz precheck (ActorRolePermission)
 
 ## Checklista audytu playbook contracts
 
