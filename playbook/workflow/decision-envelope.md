@@ -54,15 +54,19 @@ Lista bazowa:
 16. `ActorRolePermission.active -> ActorRolePermission.revised`
 17. `ActorRolePermission.revised -> ActorRolePermission.revoked`
 18. `Term.proposed -> Term.approved`
-19. `UIComponent.implemented -> UIComponent.verified`
-20. `UIScreen.mapped -> UIScreen.verified`
-21. `Exception.detected -> Exception.handled`
-22. `Release.candidate -> Release.approved`
-23. `Deployment.failed -> Rollback.succeeded` (gate zamkniecia rollback)
-24. `Project.active -> Project.archived`
-25. `PromptTask.executed -> PromptTask.validated`
-26. `Feature.released -> Feature.done`
-27. `Release.published -> Release.closed`
+19. `Term.approved -> Term.deprecated`
+20. `UIComponent.implemented -> UIComponent.verified`
+21. `UIComponent.verified -> UIComponent.deprecated`
+22. `UIScreen.mapped -> UIScreen.verified`
+23. `UIScreen.verified -> UIScreen.deprecated`
+24. `Scenario.passing -> Scenario.obsolete`
+25. `Exception.detected -> Exception.handled`
+26. `Release.candidate -> Release.approved`
+27. `Deployment.failed -> Rollback.succeeded` (gate zamkniecia rollback)
+28. `Project.active -> Project.archived`
+29. `PromptTask.executed -> PromptTask.validated`
+30. `Feature.released -> Feature.done`
+31. `Release.published -> Release.closed`
 
 ## Zasada wykonania
 

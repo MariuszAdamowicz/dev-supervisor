@@ -111,6 +111,18 @@ Kazda regula ma:
 - Event: UIComponent.implemented
 - Action: utworz PromptTask(ux-validation)
 
+- Event: Term.approved
+- Action: utworz PromptTask(term-deprecation-review)
+
+- Event: UIComponent.verified
+- Action: utworz PromptTask(ui-deprecation-review)
+
+- Event: UIScreen.verified
+- Action: utworz PromptTask(screen-deprecation-review)
+
+- Event: Scenario.passing
+- Action: utworz PromptTask(scenario-obsolete-review)
+
 ### 3. Jakosc i gate
 - Event: PromptTask.executed
 - Action: zbuduj review package (diff + mapowanie do BDD + build/test/lint)

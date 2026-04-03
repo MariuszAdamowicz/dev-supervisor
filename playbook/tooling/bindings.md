@@ -351,6 +351,15 @@ Kazdy binding ma:
   - storage-adapter: persist term + impacts
 - required: true
 
+13a. Term.approved -> Term.deprecated
+- event_ref: term.deprecate-requested
+- action_plan: produce_review_package, decide_gate
+- tool_plan:
+  - shell: review package generator (term usage impact)
+  - operator-ui: term deprecate approve/request_changes/defer/reject
+  - storage-adapter: persist Term state
+- required: true
+
 14. UIComponent.proposed -> UIComponent.mapped
 - event_ref: UIComponent.proposed
 - action_plan: create_ai_job, poll_ai_job, accept_ai_result
@@ -379,6 +388,15 @@ Kazdy binding ma:
   - operator-ui: approve UX validation
 - required: true
 
+16a. UIComponent.verified -> UIComponent.deprecated
+- event_ref: ui.deprecate-requested
+- action_plan: produce_review_package, decide_gate
+- tool_plan:
+  - shell: review package generator (component usage + replacement map)
+  - operator-ui: component deprecate approve/request_changes/defer/reject
+  - storage-adapter: persist UIComponent state
+- required: true
+
 17. UIScreen.proposed -> UIScreen.mapped
 - event_ref: screen.mapping-requested
 - action_plan: create_ai_job, poll_ai_job, accept_ai_result
@@ -395,6 +413,24 @@ Kazdy binding ma:
 - tool_plan:
   - quality-runner: navigation + visibility checks
   - operator-ui: approve UX gate
+- required: true
+
+18a. UIScreen.verified -> UIScreen.deprecated
+- event_ref: screen.deprecate-requested
+- action_plan: produce_review_package, decide_gate
+- tool_plan:
+  - shell: review package generator (navigation impact + replacement)
+  - operator-ui: screen deprecate approve/request_changes/defer/reject
+  - storage-adapter: persist UIScreen state
+- required: true
+
+18b. Scenario.passing -> Scenario.obsolete
+- event_ref: scenario.obsolete-requested
+- action_plan: produce_review_package, decide_gate
+- tool_plan:
+  - shell: review package generator (test traceability impact)
+  - operator-ui: scenario obsolete approve/request_changes/defer/reject
+  - storage-adapter: persist Scenario state
 - required: true
 
 ### E. PromptTask / Quality / Exception
