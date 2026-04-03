@@ -158,6 +158,68 @@ Kazdy binding ma:
   - storage-adapter: persist DecisionRecord state + link replacement
 - required: true
 
+### A3. Risk
+
+4l. Risk.identified -> Risk.assessed
+- event_ref: risk.assessment-requested
+- action_plan: create_ai_job, poll_ai_job, accept_ai_result
+- tool_plan:
+  - ai-runner: submit_job (risk-assessment-review)
+  - ai-runner: poll_job
+  - operator-ui: confirm risk assessment
+  - storage-adapter: persist Risk
+- required: true
+
+4m. Risk.assessed -> Risk.mitigated
+- event_ref: risk.mitigate-requested
+- action_plan: produce_review_package, decide_gate
+- tool_plan:
+  - shell: review package generator (mitigation plan + impact)
+  - operator-ui: risk mitigate approve/request_changes/defer/reject
+  - storage-adapter: persist Risk state
+- required: true
+
+4n. Risk.assessed -> Risk.accepted
+- event_ref: risk.accept-requested
+- action_plan: produce_review_package, decide_gate
+- tool_plan:
+  - shell: review package generator (acceptance rationale + residual risk)
+  - operator-ui: risk accept approve/request_changes/defer/reject
+  - storage-adapter: persist Risk state
+- required: true
+
+4o. Risk.assessed -> Risk.escalated
+- event_ref: risk.escalate-requested
+- action_plan: produce_review_package, decide_gate
+- tool_plan:
+  - shell: review package generator (escalation reasons + options)
+  - operator-ui: risk escalate approve/request_changes/defer/reject
+  - storage-adapter: persist Risk state + emit delivery block
+- required: true
+
+4p. Risk.mitigated -> Risk.closed
+- event_ref: risk.close-requested
+- action_plan: accept_ai_result
+- tool_plan:
+  - storage-adapter: persist Risk state
+- required: true
+
+4q. Risk.accepted -> Risk.closed
+- event_ref: risk.close-requested
+- action_plan: accept_ai_result
+- tool_plan:
+  - storage-adapter: persist Risk state
+- required: true
+
+4r. Risk.escalated -> Risk.closed
+- event_ref: risk.close-after-escalation-requested
+- action_plan: produce_review_package, decide_gate
+- tool_plan:
+  - shell: review package generator (escalation resolution)
+  - operator-ui: risk close approve/request_changes/defer/reject
+  - storage-adapter: persist Risk state + clear delivery block
+- required: true
+
 ### B. Idea -> Feature
 
 4. Idea.captured -> Idea.scoped
@@ -393,6 +455,7 @@ Kazdy binding ma:
 - guards:
   - brak critical Exception
   - Dependency != blocked
+  - brak otwartych Risk.escalated o criticality=high
 - required: true
 
 26. Release.candidate -> Release.approved
@@ -401,6 +464,8 @@ Kazdy binding ma:
 - tool_plan:
   - operator-ui: release approve/request_changes/defer/reject
   - storage-adapter: persist gate
+- guards:
+  - brak otwartych Risk.escalated o criticality=high
 - required: true
 
 27. Release.approved -> Deployment.prepared

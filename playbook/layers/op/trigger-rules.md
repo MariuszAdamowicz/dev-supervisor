@@ -64,6 +64,24 @@ Kazda regula ma:
 - Event: DecisionRecord.approved
 - Action: utworz PromptTask(decision-supersede-review)
 
+### 1b. Risk baseline
+- Event: Risk.identified
+- Action: utworz PromptTask(risk-assessment-review)
+
+- Event: Risk.assessed
+- Action: utworz PromptTask(risk-resolution-review)
+- Gate effect: odblokowuje `mitigated|accepted|escalated`
+
+- Event: Risk.escalated
+- Action: utworz GateDecision(defer|request_changes) candidate dla delivery
+- Gate effect: blokuje `Release.approved` do czasu decyzji
+
+- Event: Risk.mitigated
+- Action: utworz PromptTask(risk-close-review)
+
+- Event: Risk.accepted
+- Action: utworz PromptTask(risk-acceptance-audit)
+
 ### 2. Terminologia i UI
 - Event: Term.proposed
 - Action: utworz PromptTask(term-impact-check)
