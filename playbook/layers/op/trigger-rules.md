@@ -68,6 +68,13 @@ Kazda regula ma:
 - Event: Release.approved
 - Action: utworz Deployment.prepared
 
+- Event: Deployment.succeeded
+- Action: oznacz Release.published + odblokuj Feature.released
+- Gate effect: otwiera zamkniecie Release i Feature
+
+- Event: Release.published
+- Action: utworz PromptTask(release-close-review) + PromptTask(feature-close-review)
+
 - Event: Deployment.failed
 - Action: utworz Rollback.prepared + Compensation.planned
 

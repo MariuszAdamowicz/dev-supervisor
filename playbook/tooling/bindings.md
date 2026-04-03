@@ -272,15 +272,24 @@ Kazdy binding ma:
   - operator-ui: confirm deploy start
 - required: true
 
-28. Deployment.prepared -> Deployment.running -> Deployment.succeeded
-- event_ref: deployment.started/completed
+28. Deployment.prepared -> Deployment.running
+- event_ref: deployment.started
 - action_plan: deploy_release
 - tool_plan:
-  - deployment-adapter: execute deploy
+  - deployment-adapter: start deploy
   - storage-adapter: persist deployment status
 - required: true
 
-29. Deployment.running -> Deployment.failed
+29. Deployment.running -> Deployment.succeeded
+- event_ref: deployment.completed
+- action_plan: deploy_release, accept_ai_result
+- tool_plan:
+  - deployment-adapter: capture deploy result
+  - storage-adapter: persist deployment status
+  - storage-adapter: mark Release.published + Feature.released
+- required: true
+
+30. Deployment.running -> Deployment.failed
 - event_ref: deployment.failed
 - action_plan: run_rollback
 - tool_plan:
@@ -288,13 +297,51 @@ Kazdy binding ma:
   - storage-adapter: create Rollback + Compensation
 - required: true
 
-30. Deployment.failed -> Rollback.prepared -> Rollback.running -> Rollback.succeeded
+31. Deployment.failed -> Rollback.prepared -> Rollback.running -> Rollback.succeeded
 - event_ref: Deployment.failed
 - action_plan: run_rollback, decide_gate
 - tool_plan:
   - deployment-adapter: rollback
   - operator-ui: confirm rollback/close
   - storage-adapter: persist compensation outcome
+- required: true
+
+32. Feature.stabilized -> Feature.released
+- event_ref: Deployment.succeeded
+- action_plan: accept_ai_result
+- tool_plan:
+  - storage-adapter: update Feature state to released
+- guards:
+  - Deployment.state = succeeded
+  - Release.state = published
+- required: true
+
+33. Feature.released -> Feature.done
+- event_ref: feature.close-requested
+- action_plan: produce_review_package, decide_gate, commit_checkpoint
+- tool_plan:
+  - shell: review package generator (release evidence + runtime audit)
+  - operator-ui: feature close approve/request_changes/defer/reject
+  - git: add + commit
+  - storage-adapter: update Feature state to done
+- required: true
+
+34. Release.approved -> Release.published
+- event_ref: Deployment.succeeded
+- action_plan: accept_ai_result
+- tool_plan:
+  - storage-adapter: update Release state to published
+- guards:
+  - Deployment.state = succeeded
+- required: true
+
+35. Release.published -> Release.closed
+- event_ref: release.close-requested
+- action_plan: produce_review_package, decide_gate
+- tool_plan:
+  - shell: review package generator (deploy summary + rollback readiness)
+  - operator-ui: release close approve/request_changes/defer/reject
+  - storage-adapter: update Release state to closed
 - required: true
 
 ## Reguly
