@@ -30,6 +30,30 @@ Kazda regula ma:
 - Event: Scenario.approved
 - Action: utworz PromptTask(bdd-to-tests)
 
+### 1a. Requirement i Constraint baseline
+- Event: Requirement.proposed
+- Action: utworz PromptTask(requirement-clarify)
+
+- Event: Requirement.clarified
+- Action: utworz PromptTask(requirement-approval-review)
+
+- Event: Requirement.approved
+- Action: utworz PromptTask(requirement-link-review)
+- Gate effect: odblokowuje Requirement.linked
+
+- Event: Constraint.proposed
+- Action: utworz PromptTask(constraint-validate)
+
+- Event: Constraint.validated
+- Action: utworz PromptTask(constraint-enforce-review)
+- Gate effect: odblokowuje Constraint.enforced
+
+- Event: Constraint.enforced
+- Action: utworz PromptTask(constraint-revision-check)
+
+- Event: Constraint.revised
+- Action: utworz PromptTask(constraint-retire-review)
+
 ### 2. Terminologia i UI
 - Event: Term.proposed
 - Action: utworz PromptTask(term-impact-check)

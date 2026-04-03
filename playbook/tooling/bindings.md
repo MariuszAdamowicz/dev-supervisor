@@ -52,6 +52,82 @@ Kazdy binding ma:
   - storage-adapter: update stanu OP
 - required: true
 
+### A1. Requirement / Constraint
+
+4a. Requirement.proposed -> Requirement.clarified
+- event_ref: requirement.clarify-requested
+- action_plan: create_ai_job, poll_ai_job, accept_ai_result
+- tool_plan:
+  - ai-runner: submit_job (requirement-clarify)
+  - ai-runner: poll_job
+  - operator-ui: confirm requirement clarification
+  - storage-adapter: persist Requirement
+- required: true
+
+4b. Requirement.clarified -> Requirement.approved
+- event_ref: requirement.approve-requested
+- action_plan: produce_review_package, decide_gate
+- tool_plan:
+  - shell: review package generator (requirement scope + impact)
+  - operator-ui: requirement approve/request_changes/defer/reject
+  - storage-adapter: persist Requirement state
+- required: true
+
+4c. Requirement.approved -> Requirement.linked
+- event_ref: requirement.link-requested
+- action_plan: accept_ai_result
+- tool_plan:
+  - operator-ui: select target Feature links
+  - storage-adapter: persist Requirement->Feature links
+- required: true
+
+4d. Requirement.linked -> Requirement.deprecated
+- event_ref: requirement.deprecate-requested
+- action_plan: produce_review_package, decide_gate
+- tool_plan:
+  - shell: review package generator (traceability impact)
+  - operator-ui: requirement deprecate approve/request_changes/defer/reject
+  - storage-adapter: persist Requirement state
+- required: true
+
+4e. Constraint.proposed -> Constraint.validated
+- event_ref: constraint.validate-requested
+- action_plan: create_ai_job, poll_ai_job, accept_ai_result
+- tool_plan:
+  - ai-runner: submit_job (constraint-validate)
+  - ai-runner: poll_job
+  - operator-ui: confirm constraint validation
+  - storage-adapter: persist Constraint
+- required: true
+
+4f. Constraint.validated -> Constraint.enforced
+- event_ref: constraint.enforce-requested
+- action_plan: produce_review_package, decide_gate
+- tool_plan:
+  - shell: review package generator (constraint enforcement impact)
+  - operator-ui: constraint enforce approve/request_changes/defer/reject
+  - storage-adapter: persist Constraint state
+- required: true
+
+4g. Constraint.enforced -> Constraint.revised
+- event_ref: constraint.revise-requested
+- action_plan: create_ai_job, poll_ai_job, accept_ai_result
+- tool_plan:
+  - ai-runner: submit_job (constraint-revision-check)
+  - ai-runner: poll_job
+  - operator-ui: confirm constraint revision
+  - storage-adapter: persist Constraint state
+- required: true
+
+4h. Constraint.revised -> Constraint.retired
+- event_ref: constraint.retire-requested
+- action_plan: produce_review_package, decide_gate
+- tool_plan:
+  - shell: review package generator (constraint retirement impact)
+  - operator-ui: constraint retire approve/request_changes/defer/reject
+  - storage-adapter: persist Constraint state
+- required: true
+
 ### B. Idea -> Feature
 
 4. Idea.captured -> Idea.scoped
@@ -357,6 +433,9 @@ Kazdy binding ma:
   - operator-ui: feature close approve/request_changes/defer/reject
   - git: add + commit
   - storage-adapter: update Feature state to done
+- guards:
+  - wszystkie wymagania krytyczne sa Requirement.linked
+  - wszystkie ograniczenia krytyczne sa Constraint.enforced lub Constraint.revised
 - required: true
 
 34. Release.approved -> Release.published

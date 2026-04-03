@@ -40,16 +40,20 @@ Lista bazowa:
 2. `Idea.scoped -> Idea.converted`
 3. `Idea.scoped -> Idea.dropped`
 4. `Feature.implemented -> Feature.stabilized`
-5. `Term.proposed -> Term.approved`
-6. `UIComponent.implemented -> UIComponent.verified`
-7. `UIScreen.mapped -> UIScreen.verified`
-8. `Exception.detected -> Exception.handled`
-9. `Release.candidate -> Release.approved`
-10. `Deployment.failed -> Rollback.succeeded` (gate zamkniecia rollback)
-11. `Project.active -> Project.archived`
-12. `PromptTask.executed -> PromptTask.validated`
-13. `Feature.released -> Feature.done`
-14. `Release.published -> Release.closed`
+5. `Requirement.clarified -> Requirement.approved`
+6. `Requirement.linked -> Requirement.deprecated`
+7. `Constraint.validated -> Constraint.enforced`
+8. `Constraint.revised -> Constraint.retired`
+9. `Term.proposed -> Term.approved`
+10. `UIComponent.implemented -> UIComponent.verified`
+11. `UIScreen.mapped -> UIScreen.verified`
+12. `Exception.detected -> Exception.handled`
+13. `Release.candidate -> Release.approved`
+14. `Deployment.failed -> Rollback.succeeded` (gate zamkniecia rollback)
+15. `Project.active -> Project.archived`
+16. `PromptTask.executed -> PromptTask.validated`
+17. `Feature.released -> Feature.done`
+18. `Release.published -> Release.closed`
 
 ## Zasada wykonania
 
