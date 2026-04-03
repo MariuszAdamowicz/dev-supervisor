@@ -43,6 +43,15 @@ Kazdy binding ma:
   - storage-adapter: update stanu OP
 - required: true
 
+4. Project.active -> Project.archived
+- event_ref: project.archive-requested
+- action_plan: produce_review_package, decide_gate
+- tool_plan:
+  - shell: review package generator (snapshot runtime + links)
+  - operator-ui: archive approve/request_changes/defer/reject
+  - storage-adapter: update stanu OP
+- required: true
+
 ### B. Idea -> Feature
 
 4. Idea.captured -> Idea.scoped
@@ -225,6 +234,30 @@ Kazdy binding ma:
   - storage-adapter: increment retry_count
 - failure_policy:
   - po limicie retry: reset_ai_context albo GateDecision.defer
+- required: true
+
+22a. PromptTask.executed -> PromptTask.validated
+- event_ref: prompt.validation-requested
+- action_plan: produce_review_package, decide_gate
+- tool_plan:
+  - shell: review package generator (prompt output + traceability)
+  - operator-ui: validate prompt approve/request_changes/defer/reject
+  - storage-adapter: persist PromptTask state
+- required: true
+
+22b. PromptTask.validated -> PromptTask.closed
+- event_ref: prompt.close-requested
+- action_plan: accept_ai_result
+- tool_plan:
+  - storage-adapter: persist PromptTask state
+- required: true
+
+22c. QualitySignal.evaluated -> QualitySignal.pass
+- event_ref: quality.passed
+- action_plan: accept_ai_result
+- tool_plan:
+  - quality-runner: persist pass metrics
+  - storage-adapter: persist QualitySignal
 - required: true
 
 23. QualitySignal.evaluated -> QualitySignal.fail

@@ -29,6 +29,12 @@ Za gate-required uznajemy transition, ktore:
 - maja `decide_gate` w `action_plan`,
 - oraz `operator-ui` jako narzedzie decyzji.
 
+Classifier (deterministyczny):
+1. Odczytaj `transition_ref` w `tooling/bindings.md`.
+2. Jesli `action_plan` zawiera `decide_gate` ORAZ `tool_plan` zawiera `operator-ui` z akcja decyzyjna (approve/request_changes/defer/reject), ustaw `gate_required=true`.
+3. W przeciwnym razie `gate_required=false`.
+4. Dla `gate_required=true` brak Decision Envelope oznacza transition invalid.
+
 Lista bazowa:
 1. `Project.configured -> Project.baseline-approved`
 2. `Idea.scoped -> Idea.converted`
@@ -40,6 +46,10 @@ Lista bazowa:
 8. `Exception.detected -> Exception.handled`
 9. `Release.candidate -> Release.approved`
 10. `Deployment.failed -> Rollback.succeeded` (gate zamkniecia rollback)
+11. `Project.active -> Project.archived`
+12. `PromptTask.executed -> PromptTask.validated`
+13. `Feature.released -> Feature.done`
+14. `Release.published -> Release.closed`
 
 ## Zasada wykonania
 

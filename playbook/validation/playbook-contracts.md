@@ -16,6 +16,7 @@ formalnie walidowac kompletnosc i spojnosc Playbook Layer wzgledem OP Layer.
 3. Gate contract
 - transition oznaczony gate-required musi zawierac decide_gate i operator-ui.
 - brak jawnej decyzji gate = transition invalid.
+- gate-required MUST byc wyliczany deterministycznie klasyfikatorem z `workflow/decision-envelope.md` (brak recznej klasyfikacji ad-hoc).
 
 3a. Decision Envelope contract
 - kazdy gate-required transition musi miec kompletny Decision Envelope zgodny z `workflow/decision-envelope.md`.
@@ -57,6 +58,10 @@ formalnie walidowac kompletnosc i spojnosc Playbook Layer wzgledem OP Layer.
 
 4. Permission contract
 - action moze byc wykonana tylko przy aktywnym ActorRolePermission.
+
+5. Gate classifier contract
+- ten sam transition zawsze daje ten sam wynik `gate_required=true|false` dla tych samych bindingow.
+- rozbieznosc klasyfikacji miedzy UI/CLI/service = playbook invalid.
 
 ## 4. AI Orchestration Contract
 

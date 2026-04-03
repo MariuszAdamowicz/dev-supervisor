@@ -50,6 +50,16 @@ Kazda regula ma:
 - Event: PromptTask.executed
 - Action: zbuduj review package (diff + mapowanie do BDD + build/test/lint)
 
+- Event: PromptTask.executed
+- Action: utworz PromptTask(validation-review)
+- Gate effect: odblokowuje PromptTask.validated po review package
+
+- Event: PromptTask.validated
+- Action: zamknij PromptTask (state=closed)
+
+- Event: QualitySignal.pass
+- Action: odblokuj kolejne legalne transition OP
+
 - Event: QualitySignal.fail
 - Action: utworz Exception + PromptTask(debug-fix)
 - Gate effect: wymusza GateDecision=request_changes lub defer
@@ -82,6 +92,10 @@ Kazda regula ma:
 - Event: Timeout.fired
 - Action: utworz Exception(timeout) + GateDecision(defer) candidate
 - Failure policy: escalation do operatora
+
+### 6. Lifecycle housekeeping
+- Event: project.archive-requested
+- Action: utworz review package archiwizacji + GateDecision candidate
 
 ## Retry / idempotency / compensation
 
