@@ -44,16 +44,18 @@ Lista bazowa:
 6. `Requirement.linked -> Requirement.deprecated`
 7. `Constraint.validated -> Constraint.enforced`
 8. `Constraint.revised -> Constraint.retired`
-9. `Term.proposed -> Term.approved`
-10. `UIComponent.implemented -> UIComponent.verified`
-11. `UIScreen.mapped -> UIScreen.verified`
-12. `Exception.detected -> Exception.handled`
-13. `Release.candidate -> Release.approved`
-14. `Deployment.failed -> Rollback.succeeded` (gate zamkniecia rollback)
-15. `Project.active -> Project.archived`
-16. `PromptTask.executed -> PromptTask.validated`
-17. `Feature.released -> Feature.done`
-18. `Release.published -> Release.closed`
+9. `DecisionRecord.reviewed -> DecisionRecord.approved`
+10. `DecisionRecord.approved -> DecisionRecord.superseded`
+11. `Term.proposed -> Term.approved`
+12. `UIComponent.implemented -> UIComponent.verified`
+13. `UIScreen.mapped -> UIScreen.verified`
+14. `Exception.detected -> Exception.handled`
+15. `Release.candidate -> Release.approved`
+16. `Deployment.failed -> Rollback.succeeded` (gate zamkniecia rollback)
+17. `Project.active -> Project.archived`
+18. `PromptTask.executed -> PromptTask.validated`
+19. `Feature.released -> Feature.done`
+20. `Release.published -> Release.closed`
 
 ## Zasada wykonania
 

@@ -128,6 +128,36 @@ Kazdy binding ma:
   - storage-adapter: persist Constraint state
 - required: true
 
+### A2. DecisionRecord
+
+4i. DecisionRecord.drafted -> DecisionRecord.reviewed
+- event_ref: decision.review-requested
+- action_plan: create_ai_job, poll_ai_job, accept_ai_result
+- tool_plan:
+  - ai-runner: submit_job (decision-review-prep)
+  - ai-runner: poll_job
+  - operator-ui: confirm decision review package
+  - storage-adapter: persist DecisionRecord
+- required: true
+
+4j. DecisionRecord.reviewed -> DecisionRecord.approved
+- event_ref: decision.approve-requested
+- action_plan: produce_review_package, decide_gate
+- tool_plan:
+  - shell: review package generator (options + consequences)
+  - operator-ui: decision approve/request_changes/defer/reject
+  - storage-adapter: persist DecisionRecord state
+- required: true
+
+4k. DecisionRecord.approved -> DecisionRecord.superseded
+- event_ref: decision.supersede-requested
+- action_plan: produce_review_package, decide_gate
+- tool_plan:
+  - shell: review package generator (supersede rationale + impact)
+  - operator-ui: decision supersede approve/request_changes/defer/reject
+  - storage-adapter: persist DecisionRecord state + link replacement
+- required: true
+
 ### B. Idea -> Feature
 
 4. Idea.captured -> Idea.scoped
@@ -436,6 +466,7 @@ Kazdy binding ma:
 - guards:
   - wszystkie wymagania krytyczne sa Requirement.linked
   - wszystkie ograniczenia krytyczne sa Constraint.enforced lub Constraint.revised
+  - wszystkie wymagane decyzje architektoniczne sa DecisionRecord.approved
 - required: true
 
 34. Release.approved -> Release.published

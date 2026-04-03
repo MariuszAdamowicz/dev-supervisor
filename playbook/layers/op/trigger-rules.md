@@ -30,7 +30,7 @@ Kazda regula ma:
 - Event: Scenario.approved
 - Action: utworz PromptTask(bdd-to-tests)
 
-### 1a. Requirement i Constraint baseline
+### 1a. Requirement, Constraint i DecisionRecord baseline
 - Event: Requirement.proposed
 - Action: utworz PromptTask(requirement-clarify)
 
@@ -53,6 +53,16 @@ Kazda regula ma:
 
 - Event: Constraint.revised
 - Action: utworz PromptTask(constraint-retire-review)
+
+- Event: DecisionRecord.drafted
+- Action: utworz PromptTask(decision-review-prep)
+
+- Event: DecisionRecord.reviewed
+- Action: utworz PromptTask(decision-approval-review)
+- Gate effect: odblokowuje DecisionRecord.approved
+
+- Event: DecisionRecord.approved
+- Action: utworz PromptTask(decision-supersede-review)
 
 ### 2. Terminologia i UI
 - Event: Term.proposed
