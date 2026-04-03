@@ -17,6 +17,10 @@ formalnie walidowac kompletnosc i spojnosc Playbook Layer wzgledem OP Layer.
 - transition oznaczony gate-required musi zawierac decide_gate i operator-ui.
 - brak jawnej decyzji gate = transition invalid.
 
+3a. Decision Envelope contract
+- kazdy gate-required transition musi miec kompletny Decision Envelope zgodny z `workflow/decision-envelope.md`.
+- brak envelope albo brak pol krytycznych (change_set, validation, decision_effects) = transition invalid.
+
 4. Audit contract
 - kazda akcja krytyczna generuje ProcessEvent.
 - brak audytu = transition invalid.
@@ -74,10 +78,11 @@ Minimalna procedura walidacji przy zmianie playbooka:
 1. Sprawdz coverage transition -> binding.
 2. Sprawdz action -> capability -> tool.
 3. Sprawdz gate-required transitions.
-4. Sprawdz audit requirements.
-5. Sprawdz konflikt z layers/op/*.
-6. Sprawdz UX projection na reprezentatywnych stanach.
-7. Sprawdz AI orchestration contract (control-plane + scheduler + session).
+4. Sprawdz Decision Envelope dla gate-required transitions.
+5. Sprawdz audit requirements.
+6. Sprawdz konflikt z layers/op/*.
+7. Sprawdz UX projection na reprezentatywnych stanach.
+8. Sprawdz AI orchestration contract (control-plane + scheduler + session).
 
 ## 6. Evidence Package
 

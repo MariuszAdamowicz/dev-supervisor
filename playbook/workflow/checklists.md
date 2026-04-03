@@ -18,6 +18,18 @@
 - ProcessEvent zapisany
 - stan OP po transition zaktualizowany
 
+## Checklista Decision Envelope (dla gate-required)
+
+- przygotowany `transition_ref` i target_state
+- komplet guardow z wynikiem pass/fail
+- jawny `change_set` (diff/artefakty/OP updates)
+- jawny wynik walidacji (build/test/lint/QualitySignal)
+- jawne ryzyka, dependencies i exception status
+- jawny plan rollback lub rework
+- jawne skutki dla opcji: approve/request_changes/defer/reject
+- wskazany uprawniony actor (`required_actor`)
+- komplet `audit_refs` do powiazania GateDecision z ProcessEvent
+
 ## Checklista AI job
 
 - utworzony job ai-runner (job_id)
