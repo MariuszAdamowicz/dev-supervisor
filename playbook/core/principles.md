@@ -41,6 +41,11 @@ Dokumenty kanoniczne OP:
 9. Akcja operatora w UI jest narzedziem operator-ui i podlega tym samym zasadom audytu co CLI/service.
 10. Agent AI jest narzedziem ai-runner sterowanym przez DS; DS kontroluje start, timeout, retry, cancel i reset kontekstu.
 11. MCP jest opcjonalnym adapterem transportowym; nie jest zrodlem gwarancji wykonania procesu.
+12. Architektura jest oceniana przez koszt zmiany: decyzje utrwalajace szczegoly (framework/DB/deploy) odkladamy do chwili, gdy sa potrzebne.
+13. Implementacja ma byc use-case-first: kazde kluczowe zachowanie biznesowe mapuje sie na UseCase OP.
+14. Zaleznosci kodowe i modulowe maja kierunek do rdzenia biznesowego; szczegoly sa pluginami.
+15. Przejscia przez granice architektoniczne realizujemy przez PortContract i DTO (bez przeciekow frameworka).
+16. Kompozycja adapterow i implementacji szczegolow odbywa sie w jednym jawnym composition root.
 
 ## Zasady negatywne
 
@@ -51,3 +56,6 @@ Nie rob:
 - cichych zmian stanu procesu bez decyzji operatora,
 - zmian stanu wykonywanych poza zadeklarowanym bindingiem tooling,
 - opierania krytycznych krokow na domyslnej petli czarnej skrzynki agenta.
+- cykli zaleznosci miedzy komponentami.
+- umieszczania logiki biznesowej w kontrolerach, widokach i adapterach infrastruktury.
+- traktowania bazy danych jako centrum modelu domenowego.

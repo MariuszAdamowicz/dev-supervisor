@@ -50,3 +50,11 @@ When the second similar implementation appears, propose extraction.
 - Tests define behavior, not architecture.
 - Tests may define minimal contracts to express expectations.
 - Final architecture must be derived during implementation, not fixed prematurely in tests.
+
+### Dependency and Boundary Rules
+- Prefer feature/use-case decomposition over framework-first decomposition.
+- Domain and application modules must not import UI frameworks, ORM models, or transport DTOs.
+- Cross-module communication should go through explicit contracts (PortContract / DTO).
+- Component dependencies must stay acyclic.
+- Composition root must be explicit and centralized (for example `App/CompositionRoot` or equivalent).
+- Stable core modules should expose abstractions; volatile infrastructure depends on those abstractions.

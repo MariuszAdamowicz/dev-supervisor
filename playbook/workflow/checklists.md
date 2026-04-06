@@ -42,6 +42,9 @@
 
 - Feature OP utworzony i powiazany z Idea
 - Requirement/Constraint/DecisionRecord powiazane z Feature
+- UseCase OP istnieja dla kluczowych zachowan Feature
+- PortContract OP sa zatwierdzone dla granic z adapterami
+- Component OP ma wynik check bez cykli zaleznosci
 - krytyczne Requirement sa w stanie `linked` przed `Feature.done`
 - krytyczne Constraint sa w stanie `enforced` lub `revised` przed `Feature.done`
 - wymagane DecisionRecord sa w stanie `approved` przed `Feature.done`
@@ -64,6 +67,8 @@
 - brak osieroconych OP
 - brak niespojnych stanow OP nadrzedny/podrzedny
 - kazdy transition ma wynik authz precheck (pass/fail)
+- dla kazdego OP istnieje co najmniej jedna sciezka non-happy path (rework/retry/defer/reject/escalation)
+- kazdy event legalny dla OP ma jawne mapowanie `from_state -> to_state` w `layers/op/state-machines.md`
 
 ## Checklista audytu tooling
 
@@ -81,3 +86,13 @@
 - audit contract: krytyczne akcje maja ProcessEvent
 - source-of-truth contract: brak konfliktu z layers/op/*
 - AI orchestration contract: control-plane i scheduler sa po stronie DS
+
+## Checklista architektury (Martin alignment)
+
+- use-case first: implementacja mapuje sie na UseCase, nie na framework task
+- dependency direction: zaleznosci kodu ida do rdzenia (inward-only)
+- boundary DTO: przez granice przechodza DTO, bez typow frameworka
+- composition root: podpinanie adapterow jest w jednym jawnym miejscu
+- ADP: brak cykli zaleznosci miedzy Component
+- SDP/SAP: stabilniejsze Component nie zalezne od mniej stabilnych szczegolow
+- domain purity: reguly biznesowe testowalne bez UI/DB/sieci

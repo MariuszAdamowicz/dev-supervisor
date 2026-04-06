@@ -83,46 +83,60 @@ Kazdy OP ma tez:
 - Rola: zaleznosc miedzy OP lub zewnetrznym elementem.
 - Kluczowe pola: dependency_id, source_op, target_op, criticality.
 
-### 15. Risk
+### 15. UseCase
+- Rola: przypadek uzycia opisujacy zachowanie aplikacyjne niezalezne od frameworka.
+- Kluczowe pola: use_case_id, actor, goal, input_dto, output_dto, business_rules_refs.
+
+### 16. PortContract
+- Rola: kontrakt granicy (wejscie/wyjscie) miedzy rdzeniem a adapterem.
+- Kluczowe pola: port_id, direction(inbound|outbound), contract_schema_ref, dto_set, owner_use_case.
+
+### 17. Component
+- Rola: komponent/modul architektoniczny do kontroli spojnosci i zaleznosci.
+- Kluczowe pola: component_id, responsibility, stability_index, abstraction_level, dependencies.
+
+### 18. Risk
 - Rola: ryzyko produktu/procesu.
 - Kluczowe pola: risk_id, probability, impact, mitigation_plan.
 
-### 16. Release
+### 19. Release
 - Rola: pakiet zmian gotowy do wydania.
 - Kluczowe pola: release_id, included_features, release_gate_status.
 
-### 17. Deployment
+### 20. Deployment
 - Rola: wykonanie wdrozenia.
 - Kluczowe pola: deployment_id, environment, result, rollback_ref.
 
-### 18. Rollback
+### 21. Rollback
 - Rola: cofniecie wdrozenia.
 - Kluczowe pola: rollback_id, trigger_reason, recovered_state.
 
-### 19. QualitySignal
+### 22. QualitySignal
 - Rola: sygnal jakosci/reliability (SLO, error budget, quality gates).
 - Kluczowe pola: signal_id, signal_type, value, threshold, window.
 
-### 20. Exception
+### 23. Exception
 - Rola: blad procesu lub biznesowy exception case.
 - Kluczowe pola: exception_id, class, severity, compensation_required.
 
-### 21. Timeout
+### 24. Timeout
 - Rola: przekroczenie SLA/deadline.
 - Kluczowe pola: timeout_id, related_op, deadline, escalation_policy.
 
-### 22. Compensation
+### 25. Compensation
 - Rola: akcja kompensacyjna po bledzie.
 - Kluczowe pola: compensation_id, target_op, action_plan, status.
 
-### 23. ProcessEvent
+### 26. ProcessEvent
 - Rola: niezmienny event log (audit, odtwarzanie procesu).
 - Kluczowe pola: event_id, op_id, event_type, payload_hash, actor, ts.
 
 ## Minimalny graf relacji
 - Project -> Requirement -> Feature -> Scenario -> Testy
 - Project -> Constraint -> DecisionRecord -> Feature
+- Feature -> UseCase -> PortContract
 - Feature -> Term -> UIComponent -> UIScreen
+- Feature -> Component -> Dependency
 - Feature -> PromptTask -> GateDecision
 - Feature -> Dependency
 - Feature -> Risk
@@ -137,3 +151,5 @@ Kazdy OP ma tez:
 - Kazda decyzja gate ma audytowalny ProcessEvent.
 - Kazdy krytyczny blad ma policy: retry albo compensation.
 - Zamkniecie Feature wymaga braku krytycznych otwartych PromptTask.
+- UseCase i PortContract musza byc utrzymane bez zaleznosci od frameworkowych typow.
+- Component graph nie moze zawierac cykli.

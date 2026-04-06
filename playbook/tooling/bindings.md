@@ -249,6 +249,104 @@ Kazdy binding ma:
   - storage-adapter: persist ActorRolePermission state
 - required: true
 
+### A5. UseCase / PortContract / Component
+
+4v. UseCase.drafted -> UseCase.reviewed
+- event_ref: usecase.review-requested
+- action_plan: create_ai_job, poll_ai_job, accept_ai_result
+- tool_plan:
+  - ai-runner: submit_job (use-case-review)
+  - ai-runner: poll_job
+  - operator-ui: confirm use-case review package
+  - storage-adapter: persist UseCase
+- required: true
+
+4w. UseCase.reviewed -> UseCase.approved
+- event_ref: usecase.approve-requested
+- action_plan: produce_review_package, decide_gate
+- tool_plan:
+  - shell: review package generator (use-case traceability + business rules)
+  - operator-ui: use-case approve/request_changes/defer/reject
+  - storage-adapter: persist UseCase state
+- required: true
+
+4x. UseCase.approved -> UseCase.implemented
+- event_ref: usecase.implement-requested
+- action_plan: accept_ai_result
+- tool_plan:
+  - storage-adapter: persist UseCase state
+- required: true
+
+4y. UseCase.implemented -> UseCase.verified
+- event_ref: usecase.verify-requested
+- action_plan: run_validation_suite, decide_gate
+- tool_plan:
+  - shell: run core/app test suite without infrastructure
+  - operator-ui: use-case verify approve/request_changes/defer/reject
+  - storage-adapter: persist UseCase state
+- required: true
+
+4z. PortContract.proposed -> PortContract.reviewed
+- event_ref: port-contract.review-requested
+- action_plan: create_ai_job, poll_ai_job, accept_ai_result
+- tool_plan:
+  - ai-runner: submit_job (port-contract-review)
+  - ai-runner: poll_job
+  - operator-ui: confirm port contract review
+  - storage-adapter: persist PortContract
+- required: true
+
+4aa. PortContract.reviewed -> PortContract.approved
+- event_ref: port-contract.approve-requested
+- action_plan: produce_review_package, decide_gate
+- tool_plan:
+  - shell: review package generator (DTO schema + framework leakage check)
+  - operator-ui: port contract approve/request_changes/defer/reject
+  - storage-adapter: persist PortContract state
+- required: true
+
+4ab. PortContract.approved -> PortContract.adopted
+- event_ref: port-contract.adopt-requested
+- action_plan: accept_ai_result
+- tool_plan:
+  - storage-adapter: persist PortContract state
+- required: true
+
+4ac. Component.identified -> Component.mapped
+- event_ref: component.map-requested
+- action_plan: create_ai_job, poll_ai_job, accept_ai_result
+- tool_plan:
+  - ai-runner: submit_job (component-dependency-map)
+  - ai-runner: poll_job
+  - operator-ui: confirm component map
+  - storage-adapter: persist Component graph
+- required: true
+
+4ad. Component.mapped -> Component.checked
+- event_ref: component.check-requested
+- action_plan: run_validation_suite
+- tool_plan:
+  - shell: run dependency direction + cycle checks
+  - storage-adapter: persist check report
+- required: true
+
+4ae. Component.checked -> Component.compliant
+- event_ref: component.compliance-requested
+- action_plan: produce_review_package, decide_gate
+- tool_plan:
+  - shell: review package generator (ADP/SDP/SAP checks + violations)
+  - operator-ui: component compliance approve/request_changes/defer/reject
+  - storage-adapter: persist Component state
+- required: true
+
+4af. Component.checked -> Component.refactor-required
+- event_ref: component.violation-detected
+- action_plan: request_rework
+- tool_plan:
+  - storage-adapter: persist refactor-required status
+  - operator-ui: confirm remediation scope
+- required: true
+
 ### B. Idea -> Feature
 
 4. Idea.captured -> Idea.scoped
@@ -337,6 +435,32 @@ Kazdy binding ma:
   - shell: review package generator
   - operator-ui: gate approve/request_changes/defer/reject
   - git: add + commit
+- required: true
+
+12a. Feature.implemented -> Feature.test-ready
+- event_ref: feature.stabilize-requested
+- action_plan: request_rework
+- tool_plan:
+  - operator-ui: gate=request_changes
+  - storage-adapter: update Feature state to test-ready
+  - storage-adapter: create PromptTask(rework)
+- required: true
+
+12b. Feature.implemented -> Feature.implemented
+- event_ref: feature.stabilize-requested
+- action_plan: decide_gate
+- tool_plan:
+  - operator-ui: gate=defer
+  - storage-adapter: persist defer reason + Timeout.scheduled
+- required: true
+
+12c. Feature.implemented -> Feature.specified
+- event_ref: feature.stabilize-requested
+- action_plan: request_rework
+- tool_plan:
+  - operator-ui: gate=reject
+  - storage-adapter: update Feature state to specified
+  - storage-adapter: create PromptTask(respec)
 - required: true
 
 ### D. Term / UIComponent / UIScreen
@@ -478,6 +602,32 @@ Kazdy binding ma:
   - storage-adapter: persist PromptTask state
 - required: true
 
+22aa. PromptTask.executed -> PromptTask.ready
+- event_ref: prompt.validation-requested
+- action_plan: request_rework
+- tool_plan:
+  - operator-ui: gate=request_changes
+  - storage-adapter: update PromptTask state to ready
+  - storage-adapter: create PromptTask(rework)
+- required: true
+
+22ab. PromptTask.executed -> PromptTask.executed
+- event_ref: prompt.validation-requested
+- action_plan: decide_gate
+- tool_plan:
+  - operator-ui: gate=defer
+  - storage-adapter: persist defer reason + Timeout.scheduled
+- required: true
+
+22ac. PromptTask.executed -> PromptTask.cancelled
+- event_ref: prompt.validation-requested
+- action_plan: cancel_ai_job
+- tool_plan:
+  - operator-ui: gate=reject
+  - ai-runner: cancel_job
+  - storage-adapter: persist cancel reason (rejected-output)
+- required: true
+
 22b. PromptTask.validated -> PromptTask.closed
 - event_ref: prompt.close-requested
 - action_plan: accept_ai_result
@@ -533,6 +683,32 @@ Kazdy binding ma:
   - brak otwartych Risk.escalated o criticality=high
 - required: true
 
+26a. Release.candidate -> Release.planned
+- event_ref: release.gate-requested
+- action_plan: request_rework
+- tool_plan:
+  - operator-ui: gate=request_changes
+  - storage-adapter: update Release state to planned
+  - storage-adapter: create PromptTask(release-rework)
+- required: true
+
+26b. Release.candidate -> Release.candidate
+- event_ref: release.gate-requested
+- action_plan: decide_gate
+- tool_plan:
+  - operator-ui: gate=defer
+  - storage-adapter: persist defer reason + Timeout.scheduled
+- required: true
+
+26c. Release.candidate -> Release.closed
+- event_ref: release.gate-requested
+- action_plan: decide_gate
+- tool_plan:
+  - operator-ui: gate=reject
+  - storage-adapter: update Release state to closed
+  - storage-adapter: create DecisionRecord(release-rejection)
+- required: true
+
 27. Release.approved -> Deployment.prepared
 - event_ref: Release.approved
 - action_plan: deploy_release
@@ -575,6 +751,49 @@ Kazdy binding ma:
   - storage-adapter: persist compensation outcome
 - required: true
 
+31a. Deployment.failed -> Deployment.prepared
+- event_ref: deployment.retry-requested
+- action_plan: decide_gate, deploy_release
+- tool_plan:
+  - operator-ui: retry deploy approve/request_changes/defer/reject
+  - deployment-adapter: prepare deploy retry
+  - storage-adapter: update Deployment state to prepared
+- required: true
+
+31b. Deployment.failed -> Deployment.failed
+- event_ref: deployment.retry-requested
+- action_plan: decide_gate
+- tool_plan:
+  - operator-ui: gate=request_changes|defer|reject
+  - storage-adapter: persist retry denied/deferred reason + escalation
+- required: true
+
+31c. Rollback.prepared -> Rollback.running
+- event_ref: rollback.started
+- action_plan: run_rollback
+- tool_plan:
+  - deployment-adapter: start rollback
+  - storage-adapter: update Rollback state to running
+- required: true
+
+31d. Rollback.running -> Rollback.succeeded
+- event_ref: rollback.completed
+- action_plan: run_rollback, accept_ai_result
+- tool_plan:
+  - deployment-adapter: collect rollback result
+  - storage-adapter: update Rollback state to succeeded
+  - storage-adapter: update Compensation state to completed
+- required: true
+
+31e. Rollback.running -> Rollback.failed
+- event_ref: rollback.failed
+- action_plan: run_rollback
+- tool_plan:
+  - deployment-adapter: collect rollback error
+  - storage-adapter: update Rollback state to failed
+  - operator-ui: escalate rollback failure
+- required: true
+
 32. Feature.stabilized -> Feature.released
 - event_ref: Deployment.succeeded
 - action_plan: accept_ai_result
@@ -615,6 +834,56 @@ Kazdy binding ma:
   - shell: review package generator (deploy summary + rollback readiness)
   - operator-ui: release close approve/request_changes/defer/reject
   - storage-adapter: update Release state to closed
+- required: true
+
+### G. FSM coverage templates (dla wszystkich OP)
+
+Cel:
+zapewnic 100% pokrycia transition z `layers/op/state-machines.md`
+dla OP, ktore nie maja jeszcze jawnych wpisow per kazdy wariant.
+
+Zakres OP objetych tym mechanizmem:
+- Project, Requirement, Constraint, DecisionRecord, Idea, Feature, Scenario
+- Term, UIComponent, UIScreen
+- PromptTask, GateDecision, ActorRolePermission, Dependency
+- UseCase, PortContract, Component
+- Risk, Release, Deployment, Rollback
+- QualitySignal, Exception, Timeout, Compensation, ProcessEvent
+
+Zasada:
+- jesli legalny transition z FSM nie ma jawnego bindingu wyzej, stosujemy binding szablonowy G1/G2/G3.
+- pierwszenstwo maja bindingi jawne (A-F).
+
+G1. Gate-required transition template
+- transition_ref: `<OP.from_state -> OP.to_state>` z gate-required
+- event_ref: `<op>.<event>` zgodnie z FSM
+- action_plan: produce_review_package, decide_gate
+- tool_plan:
+  - shell: review package generator (scope wg OP)
+  - operator-ui: gate approve/request_changes/defer/reject
+  - storage-adapter: persist gate + update OP state
+- required: true
+- failure_policy:
+  - request_changes -> rework loop wg FSM
+  - defer -> pozostanie w current_state + Timeout.scheduled
+  - reject -> przejscie do stanu odrzucenia/terminalnego wg FSM
+
+G2. Non-gate transition template
+- transition_ref: `<OP.from_state -> OP.to_state>` bez gate
+- event_ref: `<op>.<event>` zgodnie z FSM
+- action_plan: accept_ai_result
+- tool_plan:
+  - storage-adapter: update OP state + append ProcessEvent
+- required: true
+
+G3. Retry/escalation template
+- transition_ref: `<OP.retry/recovery transition>` zgodnie z FSM
+- event_ref: `timeout.fired` albo `<op>.retry-requested` albo `<op>.recover-requested`
+- action_plan: retry_ai_job lub request_rework lub decide_gate (wg OP)
+- tool_plan:
+  - ai-runner/deployment-adapter/quality-runner (zaleznie od OP)
+  - operator-ui: confirm retry/defer/escalation
+  - storage-adapter: persist retry_count/state/escalation
 - required: true
 
 ## Reguly

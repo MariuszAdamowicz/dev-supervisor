@@ -24,6 +24,8 @@ Kanoniczne definicje OP:
 - utworz constraints.md
 - utworz glossary.md
 - utworz Requirement/Constraint/DecisionRecord OP dla baseline
+- zdefiniuj poczatkowe UseCase i granice PortContract dla kluczowych przeplywow
+- zdefiniuj poczatkowa mape Component dla krytycznych modulow
 
 Product Gate przechodzi tylko gdy:
 - baseline jest kompletny,

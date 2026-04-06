@@ -15,6 +15,8 @@ Dopuszczalne entrypointy (zalezne od kontekstu):
 - Project (nowy projekt / re-konfiguracja)
 - Idea (intake i scoping)
 - Feature (spec/test/implement)
+- UseCase/PortContract (granice i kontrakty aplikacyjne)
+- Component/Dependency (reguly zaleznosci i spojnosci)
 - Term/UIComponent (UX alignment)
 - Release (delivery)
 - Exception/Timeout (obsluga awarii)
@@ -40,6 +42,7 @@ Z OP -> UI/Prompt/Checklist:
 - jaki minimalny kontekst zaladowac
 - jaki prompt/job uruchomic
 - jakie warunki gate musza byc spelnione
+- jakie checki architektury sa wymagane (dependency direction, no-cycle, DTO boundary)
 
 ## 4a. Wyznacz Action i Tool plan
 

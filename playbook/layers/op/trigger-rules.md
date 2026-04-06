@@ -95,6 +95,41 @@ Kazda regula ma:
 - Event: authz.denied
 - Action: utworz Exception(authz) + blokuj transition
 
+### 1d. UseCase / PortContract / Component baseline
+- Event: Feature.specified
+- Action: utworz PromptTask(use-case-draft)
+- Gate effect: blokuje Feature.implemented do czasu UseCase.approved
+
+- Event: UseCase.drafted
+- Action: utworz PromptTask(use-case-review)
+
+- Event: UseCase.reviewed
+- Action: utworz PromptTask(use-case-approval-review)
+- Gate effect: odblokowuje UseCase.approved
+
+- Event: UseCase.approved
+- Action: utworz PromptTask(port-contract-draft)
+
+- Event: PortContract.proposed
+- Action: utworz PromptTask(port-contract-review)
+
+- Event: PortContract.reviewed
+- Action: utworz PromptTask(port-contract-approval-review)
+- Gate effect: odblokowuje PortContract.approved
+
+- Event: PortContract.approved
+- Action: utworz PromptTask(component-map)
+
+- Event: Component.identified
+- Action: utworz PromptTask(component-dependency-map)
+
+- Event: Component.mapped
+- Action: utworz PromptTask(component-dependency-check)
+- Gate effect: blokuje Component.compliant przy wykryciu cykli lub zlej orientacji zaleznosci
+
+- Event: Component.checked
+- Action: utworz GateDecision(approve|request_changes) candidate dla zgodnosci architektury
+
 ### 2. Terminologia i UI
 - Event: Term.proposed
 - Action: utworz PromptTask(term-impact-check)
@@ -134,6 +169,15 @@ Kazda regula ma:
 - Event: PromptTask.validated
 - Action: zamknij PromptTask (state=closed)
 
+- Event: prompt.validation-requested (GateDecision=request_changes)
+- Action: cofnij PromptTask do ready + utworz PromptTask(rework)
+
+- Event: prompt.validation-requested (GateDecision=defer)
+- Action: pozostaw PromptTask w executed + utworz Timeout.scheduled
+
+- Event: prompt.validation-requested (GateDecision=reject)
+- Action: anuluj PromptTask (state=cancelled) + utworz Exception(rejected-output)
+
 - Event: QualitySignal.pass
 - Action: odblokuj kolejne legalne transition OP
 
@@ -152,8 +196,30 @@ Kazda regula ma:
 - Guard: brak krytycznych Exception, Dependency!=blocked
 - Action: utworz Release.candidate
 
+- Event: Feature.implemented
+- Guard: co najmniej jeden UseCase.approved i brak PortContract!=approved dla tych UseCase
+- Action: utworz PromptTask(architecture-conformance-check)
+
+- Event: feature.stabilize-requested (GateDecision=request_changes)
+- Action: cofniecie Feature do test-ready + utworz PromptTask(rework)
+
+- Event: feature.stabilize-requested (GateDecision=defer)
+- Action: pozostaw Feature w implemented + utworz Timeout.scheduled
+
+- Event: feature.stabilize-requested (GateDecision=reject)
+- Action: cofniecie Feature do specified + utworz PromptTask(respec)
+
 - Event: Release.approved
 - Action: utworz Deployment.prepared
+
+- Event: release.approve-requested (GateDecision=request_changes)
+- Action: cofniecie Release do planned + utworz PromptTask(release-rework)
+
+- Event: release.approve-requested (GateDecision=defer)
+- Action: pozostaw Release w candidate + utworz Timeout.scheduled
+
+- Event: release.approve-requested (GateDecision=reject)
+- Action: zamknij Release (state=closed) + utworz DecisionRecord(release-rejection)
 
 - Event: Deployment.succeeded
 - Action: oznacz Release.published + odblokuj Feature.released
@@ -164,6 +230,21 @@ Kazda regula ma:
 
 - Event: Deployment.failed
 - Action: utworz Rollback.prepared + Compensation.planned
+
+- Event: deployment.retry-requested (GateDecision=approve)
+- Action: przejdz Deployment.failed -> Deployment.prepared
+
+- Event: deployment.retry-requested (GateDecision=request_changes|defer)
+- Action: pozostaw Deployment w failed + eskaluj do operatora
+
+- Event: rollback.start-requested
+- Action: przejdz Rollback.prepared -> Rollback.running
+
+- Event: rollback.completed
+- Action: przejdz Rollback.running -> Rollback.succeeded + oznacz Compensation.completed
+
+- Event: rollback.failed
+- Action: przejdz Rollback.running -> Rollback.failed + eskaluj
 
 ### 5. Timeout i eskalacje
 - Event: Timeout.fired
@@ -189,3 +270,35 @@ Kazda regula ma:
 
 - Kazdy trigger execution zapisuje ProcessEvent.
 - Brak ProcessEvent = przejscie uznane za niewazne.
+
+## 7. FSM expansion rules (dla wszystkich OP)
+
+Cel:
+domknac pelne pokrycie triggerow dla calego grafu z `layers/op/state-machines.md`
+bez duplikowania identycznych opisow dla kazdego OP.
+
+Reguly:
+1. Kazdy transition z FSM, ktory nie ma jawnej reguly wyzej, dziedziczy trigger bazowy:
+- Event: `<op>.<event z FSM>`
+- Action: `accept_ai_result` (dla prostych transition) albo `decide_gate` (dla gate-required)
+- Gate effect: zgodny 1:1 z `to_state` z FSM.
+
+2. Dla kazdego transition gate-required:
+- `GateDecision=approve` przeprowadza transition do `to_state` z happy path.
+- `GateDecision=request_changes` uruchamia rework loop wskazany w FSM.
+- `GateDecision=defer` utrzymuje current_state i tworzy `Timeout.scheduled`.
+- `GateDecision=reject` przechodzi do stanu odrzucenia/terminalnego wskazanego w FSM.
+
+3. Dla transition retryable:
+- `timeout.fired` i `retry_budget>0` uruchamia retry loop.
+- `retry_budget=0` uruchamia escalation albo terminal cancel zgodnie z FSM.
+
+4. Dla transition z check result:
+- `check=pass` prowadzi do stanu pozytywnego.
+- `check=fail` prowadzi do stanu remediacji (`refactor-required`/analogiczny).
+
+5. Dla zdarzen authz:
+- `authz.denied` zawsze generuje `Exception(authz)` i blokuje zmiane stanu docelowego OP.
+
+6. Rozstrzyganie konfliktow:
+- jesli istnieje regula jawna i regula rozszerzajaca, pierwszenstwo ma regula jawna.
