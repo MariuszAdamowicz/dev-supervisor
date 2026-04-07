@@ -8,6 +8,7 @@
 
 ## Scope
 - static_validation: pass|fail
+- semantic_validation: pass|fail
 - deterministic_replay: pass|fail
 - e2e_reference_run: pass|fail
 - chaos_process_tests: pass|fail
@@ -20,6 +21,8 @@
 - architecture_alignment:
 - quality_lane_contract:
 - quality_lane_binary:
+- provenance_complete:
+- real_runtime_capture_present:
 
 ## Findings
 1. finding_id:

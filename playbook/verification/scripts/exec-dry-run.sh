@@ -161,10 +161,11 @@ def simulate(tool, action, input, session, runtime)
       end
     {
       "status" => "ok",
-      "prompt_id" => input["prompt_id"],
+      "entrypoint_id" => input["entrypoint_id"] || entrypoint,
       "answered_at" => now,
       "values" => values,
-      "actor" => "operator:simulated"
+      "actor" => "operator:simulated",
+      "ui_mode" => "operator"
     }
   when "storage-adapter"
     storage_action = input["action"] || action
@@ -244,6 +245,7 @@ def simulate(tool, action, input, session, runtime)
 end
 
 puts "SIMULATION_MODE=dry-run"
+puts "EVIDENCE_CLASS=synthetic-contract-simulation"
 puts "ENTRYPOINT=#{entrypoint}"
 puts "SPEC_FILE=#{spec_file}"
 puts "NO_WRITES=true"

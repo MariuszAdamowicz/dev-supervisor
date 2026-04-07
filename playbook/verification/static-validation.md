@@ -21,6 +21,10 @@ potwierdzic, ze dokumenty playbooka sa formalnie spojne (bez uruchamiania projek
 6. Sprawdz FSM completeness oraz non-happy path contract.
 7. Sprawdz architecture alignment (UseCase/PortContract/Component).
 8. Sprawdz dependency/no-cycle/composition root contracts.
+9. Sprawdz workflow<->exec alignment i baseline completeness.
+10. Sprawdz presence `policy-engine` i authz precheck coverage.
+11. Sprawdz CRUD integrity contract.
+12. Sprawdz evidence provenance labeling.
 
 ## Wynik
 - PASS: brak naruszen krytycznych kontraktow.
@@ -31,3 +35,5 @@ potwierdzic, ze dokumenty playbooka sa formalnie spojne (bez uruchamiania projek
 - gate-required coverage: 100%
 - no-silent-transitions: 100%
 - OP z non-happy path: 100%
+- workflow_exec_alignment: 100%
+- provenance_labeling: 100%

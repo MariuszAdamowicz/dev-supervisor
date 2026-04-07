@@ -5,6 +5,7 @@ Kanoniczne zrodlo wykonania DS:
 
 Plik opisuje deterministycznie:
 - entrypointy,
+- entrypoint contracts (task-first UX + baseline/authz/CRUD/evidence),
 - kroki wykonawcze,
 - narzedzie per krok,
 - request/response contracts,
@@ -30,3 +31,7 @@ Podglad globalny (pierwsze N transition z calego FSM, mapowane na templates wyko
 ```bash
 ./playbook/verification/scripts/exec-transition-preview.sh playbook/runtime/playbook-exec.yaml playbook/layers/op/state-machines.md 40
 ```
+
+Uwaga:
+- dry-run i fixture run sa dowodami syntetycznymi.
+- globalny PASS wymaga dodatkowo runtime-capture i binary-quality-lane.

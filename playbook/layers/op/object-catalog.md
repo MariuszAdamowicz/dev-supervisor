@@ -25,6 +25,9 @@ Kazdy OP ma tez:
 - retry/idempotency policy (gdy dotyczy)
 - audit trail
 
+Kontrakt runtime dla CRUD i grafu:
+- `playbook/workflow/op-crud-contract.md`
+
 ## Typy OP (kanoniczne)
 
 ### 1. Project
@@ -153,3 +156,5 @@ Kazdy OP ma tez:
 - Zamkniecie Feature wymaga braku krytycznych otwartych PromptTask.
 - UseCase i PortContract musza byc utrzymane bez zaleznosci od frameworkowych typow.
 - Component graph nie moze zawierac cykli.
+- Hard delete OP po pojawieniu sie ProcessEvent jest zabronione.
+- Remove semantyczny wymaga tombstone metadata i zachowania link integrity.

@@ -19,7 +19,7 @@ Kazde narzedzie ma:
 
 ### 1. operator-ui (human)
 - class: human
-- capabilities: choose_action, confirm_gate, provide_input, approve_reject
+- capabilities: choose_action, confirm_gate, provide_input, approve_reject, collect_inline_form, show_status, explain_blocker, progressive_disclosure
 - adapter: akcja operatora w UI aplikacji
 - observability: ProcessEvent z actor_role=operator
 
@@ -34,6 +34,12 @@ Kazde narzedzie ma:
 - capabilities: read_state, write_state, persist_artifacts, append_audit
 - adapter: profile storage file-ai lub sqlbase
 - observability: ProcessEvent + wersja zapisu
+
+### 3a. policy-engine (app)
+- class: app
+- capabilities: authorize_transition, validate_semantics, validate_invariants, classify_evidence
+- adapter: deterministyczny silnik polityk i invariantow
+- observability: ProcessEvent + wynik authz/guard/invariant/provenance
 
 ### 4. shell (cli)
 - class: cli
@@ -87,5 +93,6 @@ Uwagi:
 - Agent AI jest legalnym narzedziem wykonawczym: wywolania sa job-based i sterowane przez DS.
 - Profil moze dodac narzedzia, ale nie moze usunac baseline bez jawnego override policy.
 - Kazde uruchomienie narzedzia (takze operator-ui i ai-runner) musi byc audytowane przez ProcessEvent.
+- Kazdy state-changing flow przechodzi przez `policy-engine` przed zapisem stanu.
 - Brak narzedzia wymaganej capability blokuje transition OP.
 - Playbook Layer mapuje transition na akcje i narzedzia; aplikacja nie zgaduje narzedzi dynamicznie.

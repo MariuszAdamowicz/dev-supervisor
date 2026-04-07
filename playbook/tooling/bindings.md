@@ -3,6 +3,21 @@
 Cel:
 deterministycznie mapowac przejscia OP na akcje i konkretne narzedzia.
 
+## Kontrakt globalny runtime
+
+Kazdy state-changing transition dziedziczy obowiazkowy precheck:
+- action_plan musi zawierac `authorize_transition` i `validate_semantics`
+- tool_plan musi zawierac:
+  - policy-engine: authz precheck
+  - policy-engine: guard/invariant/CRUD validation
+  - storage-adapter: append precheck audit
+
+Kazdy transition lub review package, ktory produkuje dowod walidacyjny, dziedziczy:
+- action_plan: `attest_evidence`
+- tool_plan:
+  - policy-engine: classify evidence
+  - storage-adapter: persist provenance metadata
+
 ## Kontrakt bindingu
 
 Kazdy binding ma:
@@ -34,6 +49,8 @@ Kazdy binding ma:
   - storage-adapter: persist profile set
 - guards:
   - overview/constraints/glossary istnieja
+  - adr/use-case/port-contract/component-map/ux istnieja
+  - ActorRolePermission istnieje
 - required: true
 
 3. Project.baseline-approved -> Project.active

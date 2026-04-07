@@ -14,6 +14,9 @@ musi dawac identyczny:
 - ProcessEvent log,
 - GateDecision log.
 
+Replay jest dowodem klasy `synthetic-contract-simulation`.
+Nie moze samodzielnie dawac globalnego PASS.
+
 ## Scenariusze referencyjne
 1. Feature happy path: `drafted -> done`.
 2. Feature rework path: `implemented -> test-ready -> implemented -> stabilized`.
@@ -21,6 +24,7 @@ musi dawac identyczny:
 4. Release approve -> deployment fail -> rollback succeed -> release re-approve.
 5. Risk escalated blokuje release do czasu resolution.
 6. Authz denied blokuje transition i tworzy Exception(authz).
+7. CRUD tombstone po deprecacji/revoke/drop bez utraty linkow parent/child.
 
 ## Procedura
 1. Zapisz snapshot startowy runtime.
@@ -30,4 +34,4 @@ musi dawac identyczny:
 5. Powtorz dla scenariuszy B-F.
 
 ## Kryterium PASS
-Kazdy scenariusz ma identyczny wynik w powtorzeniu (hash match = true).
+Kazdy scenariusz ma identyczny wynik w powtorzeniu (hash match = true) i ten sam evidence class/provenance metadata.

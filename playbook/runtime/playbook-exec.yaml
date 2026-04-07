@@ -8,8 +8,12 @@ source_of_truth:
     tool_registry: playbook/tooling/tool-registry.md
     action_catalog: playbook/tooling/action-catalog.md
     bindings: playbook/tooling/bindings.md
+    operator_ux_contract: playbook/experience/operator-ux-contract.md
+    op_crud_contract: playbook/workflow/op-crud-contract.md
   verification:
     full_op_report: playbook/verification/reports/2026-04-07-full-op-verification-report.md
+    semantic_validation: playbook/verification/semantic-validation.md
+    evidence_provenance: playbook/verification/evidence-provenance.md
 
 determinism_contract:
   no_silent_transitions: true
@@ -17,6 +21,10 @@ determinism_contract:
   idempotency_required_for_critical_writes: true
   one_tool_invocation_per_step: true
   disallow_hidden_logic_outside_exec_spec: true
+  task_first_operator_projection_required: true
+  authz_precheck_required_before_state_write: true
+  semantic_guard_precheck_required_before_state_write: true
+  evidence_classification_required_for_validation_outputs: true
 
 profile_selection:
   required_fields:
@@ -52,18 +60,49 @@ tool_contracts:
   operator-ui:
     request_schema:
       required:
-        - prompt_id
-        - prompt_text
+        - entrypoint_id
+        - user_goal
+        - primary_job
+        - screen_id
+        - primary_action
         - expected_fields
       optional:
+        - prompt_id
+        - prompt_text
+        - field_labels
         - validation_rules
         - gate_options
+        - loading_state
+        - success_state
+        - error_state
+        - blocked_state
+        - audit_mode_sections
     response_schema:
       required:
-        - prompt_id
+        - entrypoint_id
         - answered_at
         - values
         - actor
+        - ui_mode
+  policy-engine:
+    request_schema:
+      required:
+        - action
+        - actor
+        - target_ref
+      optional:
+        - transition_ref
+        - guard_refs
+        - link_changes
+        - evidence_candidate
+    response_schema:
+      required:
+        - status
+        - decision
+      optional:
+        - reason
+        - evidence_class
+        - invariant_report_ref
   storage-adapter:
     request_schema:
       required:
@@ -154,9 +193,24 @@ persistence_map:
     - ".ai/prd/overview.md"
     - ".ai/prd/constraints.md"
     - ".ai/prd/glossary.md"
+    - ".ai/adr/0001-project-baseline.md"
+    - ".ai/architecture/use-cases.md"
+    - ".ai/architecture/port-contracts.md"
+    - ".ai/architecture/component-map.md"
+    - ".ai/ux/new-project.md"
+    - ".ai/runtime/v1/op-index.json"
     - ".ai/runtime/v1/ops/project.ds/versions/000001.json"
     - ".ai/runtime/v1/ops/project.ds/events.ndjson"
     - ".ai/runtime/v1/ops/project.ds/gates.ndjson"
+  required_op_types_after_new_project:
+    - Project
+    - Requirement
+    - Constraint
+    - DecisionRecord
+    - UseCase
+    - PortContract
+    - Component
+    - ActorRolePermission
   op_instance_path: ".ai/runtime/v1/ops/<op_id>/versions/<op_version>.json"
   op_events_path: ".ai/runtime/v1/ops/<op_id>/events.ndjson"
   op_gates_path: ".ai/runtime/v1/ops/<op_id>/gates.ndjson"
@@ -164,6 +218,67 @@ persistence_map:
     - events_ndjson
     - gates_ndjson
     - versioned_snapshots
+
+baseline_contract:
+  required_artifacts:
+    - overview
+    - constraints
+    - glossary
+    - adr
+    - use_case_map
+    - port_contract_map
+    - component_map
+    - new_project_ux_projection
+  required_op_types:
+    - Project
+    - Requirement
+    - Constraint
+    - DecisionRecord
+    - UseCase
+    - PortContract
+    - Component
+    - ActorRolePermission
+
+authz_contract:
+  default_mode: deny_by_default
+  prewrite_engine: policy-engine
+  denied_transition_effect: Exception(authz)
+
+crud_contract:
+  hard_delete_after_audit_event: forbidden
+  required_runtime_index: ".ai/runtime/v1/op-index.json"
+  required_parent_linkage: true
+  remove_requires_tombstone: true
+
+evidence_contract:
+  allowed_classes:
+    - synthetic-contract-simulation
+    - fixture-simulation
+    - runtime-capture
+    - binary-quality-lane
+  synthetic_evidence_can_globally_pass: false
+  required_metadata:
+    - evidence_id
+    - evidence_class
+    - source_ref
+    - executor_ref
+    - subject_hash
+
+entrypoint_contracts:
+  new_project:
+    user_goal: uruchom nowy projekt i przygotuj baseline
+    primary_actor: operator
+    primary_screen: new-project
+    primary_job: collect project intent and baseline inputs
+    primary_action: create_project
+    required_ux_artifact: ".ai/ux/new-project.md"
+  add_idea:
+    user_goal: zamien idee w pierwszy material roboczy
+    primary_actor: operator
+    primary_screen: add-idea
+    primary_job: capture idea and create downstream work
+    primary_action: save_idea
+    required_ux_artifact: ".ai/ux/add-idea.md"
 
 entrypoints:
   new_project:
@@ -182,6 +297,11 @@ entrypoints:
         tool: operator-ui
         action: collect_project_form
         input:
+          entrypoint_id: new_project
+          user_goal: uruchom nowy projekt i przygotuj baseline
+          primary_job: uzupelnij dane projektu i profil wykonania
+          screen_id: new-project.form
+          primary_action: continue_to_setup
           prompt_id: new_project_form
           prompt_text: "Podaj: nazwe projektu, sciezke, stack, architecture, language, execution-style, storage."
           expected_fields:
@@ -192,6 +312,20 @@ entrypoints:
             - language
             - execution_style
             - storage
+          field_labels:
+            - name
+            - path
+            - stack
+            - architecture
+            - language
+            - execution_style
+            - storage
+          loading_state: sprawdzanie mozliwosci utworzenia projektu
+          success_state: formularz kompletny
+          error_state: brak danych lub nieprawidlowe pole
+          blocked_state: brak uprawnienia do utworzenia projektu
+          audit_mode_sections:
+            - selected_profiles
         success_output:
           data_ref: session.new_project.form
       - step_id: NP-02
@@ -241,6 +375,19 @@ entrypoints:
             profile_selection_ref: session.new_project.form
         success_output:
           data_ref: session.new_project.playbook_instance_id
+      - step_id: NP-03A
+        tool: policy-engine
+        action: authorize_new_project_bootstrap
+        input:
+          action: authorize_transition
+          actor: operator
+          target_ref: entrypoint.new_project
+          transition_ref: Project.created -> Project.configured
+          guard_refs:
+            - authz.project.create
+            - authz.project.configure
+        success_output:
+          data_ref: session.new_project.authz_precheck
       - step_id: NP-04
         tool: storage-adapter
         action: create_project_op_instance
@@ -283,10 +430,23 @@ entrypoints:
         tool: operator-ui
         action: collect_project_description
         input:
+          entrypoint_id: new_project
+          user_goal: przygotuj baseline projektu
+          primary_job: opisz cel i ograniczenia projektu
+          screen_id: new-project.baseline
+          primary_action: save_baseline_inputs
           prompt_id: project_description
           prompt_text: "Podaj opis projektu (overview baseline)."
           expected_fields:
             - project_description
+          field_labels:
+            - project_description
+          loading_state: przygotowanie artefaktow baseline
+          success_state: opis projektu zapisany
+          error_state: brak opisu projektu
+          blocked_state: baseline zablokowany przez authz lub guard
+          audit_mode_sections:
+            - baseline_artifacts
         success_output:
           data_ref: session.new_project.project_description
       - step_id: NP-08
@@ -301,6 +461,18 @@ entrypoints:
                 content_ref: session.new_project.project_description
               - path: ".ai/prd/constraints.md"
                 content: "# Constraints\n\n- TBD"
+              - path: ".ai/adr/0001-project-baseline.md"
+                content: "# ADR 0001\n\n- Baseline projektu\n- Status: proposed"
+              - path: ".ai/architecture/use-cases.md"
+                content: "# Use Cases\n\n- UC-001: Start projektu"
+              - path: ".ai/architecture/port-contracts.md"
+                content: "# Port Contracts\n\n- TBD"
+              - path: ".ai/architecture/component-map.md"
+                content: "# Component Map\n\n- TBD"
+              - path: ".ai/ux/new-project.md"
+                content: "# New Project UX\n\n- user_goal: uruchom nowy projekt i przygotuj baseline"
+              - path: ".ai/runtime/v1/op-index.json"
+                content: "{ \"version\": 1, \"entries\": [] }"
         success_output:
           data_ref: session.new_project.prd_baseline_written
       - step_id: NP-09
@@ -326,10 +498,33 @@ entrypoints:
                 content_ref: session.new_project.extracted_terms
         success_output:
           data_ref: session.new_project.glossary_written
+      - step_id: NP-10A
+        tool: storage-adapter
+        action: create_baseline_op_bundle
+        input:
+          action: create_multiple_ops
+          idempotency_key: NP-10A|baseline_ops
+          payload:
+            source_ref: session.new_project.project_description
+            create_types:
+              - Requirement
+              - Constraint
+              - DecisionRecord
+              - UseCase
+              - PortContract
+              - Component
+              - ActorRolePermission
+        success_output:
+          data_ref: session.new_project.baseline_ops_created
       - step_id: NP-11
         tool: operator-ui
         action: baseline_gate_prompt
         input:
+          entrypoint_id: new_project
+          user_goal: zatwierdz baseline projektu
+          primary_job: ocen komplet baseline i gotowosc do startu
+          screen_id: new-project.gate
+          primary_action: decide_baseline_gate
           prompt_id: project_baseline_gate
           prompt_text: "Gate baseline projektu: approve/request_changes/defer/reject + reason."
           gate_options:
@@ -340,6 +535,13 @@ entrypoints:
           expected_fields:
             - decision
             - reason
+          loading_state: przygotowanie review package
+          success_state: decyzja gate zapisana
+          error_state: reason wymagany dla decyzji negatywnych
+          blocked_state: baseline niekompletny
+          audit_mode_sections:
+            - review_package
+            - provenance
         success_output:
           data_ref: session.new_project.baseline_gate_decision
       - step_id: NP-12
@@ -376,10 +578,21 @@ entrypoints:
         tool: operator-ui
         action: show_project_dashboard
         input:
+          entrypoint_id: new_project
+          user_goal: rozpocznij dalsza prace nad projektem
+          primary_job: wybierz nastepny legalny flow
+          screen_id: project.dashboard
+          primary_action: choose_next_flow
           prompt_id: project_dashboard
           prompt_text: "Projekt aktywny. Dostepne akcje: add_idea."
           expected_fields:
             - next_action
+          loading_state: odswiezanie workspace
+          success_state: projekt aktywny
+          error_state: brak
+          blocked_state: brak legalnych akcji
+          audit_mode_sections:
+            - op_summary
         success_output:
           terminal_ui_state: project_dashboard_ready
 
@@ -396,13 +609,40 @@ entrypoints:
         tool: operator-ui
         action: collect_idea_form
         input:
+          entrypoint_id: add_idea
+          user_goal: zapisz idee i wygeneruj pierwszy material roboczy
+          primary_job: podaj tytul i opis idei
+          screen_id: add-idea.form
+          primary_action: save_idea_input
           prompt_id: add_idea_form
           prompt_text: "Podaj tytul i opis idei."
           expected_fields:
             - idea_title
             - idea_description
+          field_labels:
+            - idea_title
+            - idea_description
+          loading_state: przygotowanie kontekstu idei
+          success_state: idea gotowa do zapisania
+          error_state: brak tytulu lub opisu
+          blocked_state: projekt nieaktywny
+          audit_mode_sections:
+            - parent_project
         success_output:
           data_ref: session.add_idea.form
+      - step_id: AI-01A
+        tool: policy-engine
+        action: authorize_add_idea
+        input:
+          action: authorize_transition
+          actor: operator
+          target_ref: entrypoint.add_idea
+          transition_ref: Idea.captured -> Idea.scoped
+          guard_refs:
+            - authz.idea.create
+            - project.ds.active
+        success_output:
+          data_ref: session.add_idea.authz_precheck
       - step_id: AI-02
         tool: storage-adapter
         action: create_idea_op_instance
@@ -464,6 +704,11 @@ entrypoints:
         tool: operator-ui
         action: idea_convert_gate_prompt
         input:
+          entrypoint_id: add_idea
+          user_goal: zdecyduj czy idea ma przejsc dalej
+          primary_job: ocen material wynikowy i scope downstream OP
+          screen_id: add-idea.gate
+          primary_action: decide_idea_gate
           prompt_id: idea_convert_gate
           prompt_text: "Gate convert idei: approve/request_changes/defer/reject + reason."
           gate_options:
@@ -474,6 +719,13 @@ entrypoints:
           expected_fields:
             - decision
             - reason
+          loading_state: przygotowanie review package idei
+          success_state: gate zapisany
+          error_state: reason wymagany dla decyzji negatywnych
+          blocked_state: brak downstream artefaktow
+          audit_mode_sections:
+            - created_ops
+            - provenance
         success_output:
           data_ref: session.add_idea.gate_decision
       - step_id: AI-07
@@ -495,12 +747,82 @@ entrypoints:
         tool: operator-ui
         action: show_project_dashboard_after_add_idea
         input:
+          entrypoint_id: add_idea
+          user_goal: przejdz do kolejnego legalnego flow
+          primary_job: wybierz dalsza prace z idea lub feature
+          screen_id: project.dashboard
+          primary_action: choose_next_flow
           prompt_id: project_dashboard_after_add_idea
           prompt_text: "Idea zapisana. Dostepne akcje: add_idea, refine_feature, start_flow."
           expected_fields:
             - next_action
+          loading_state: odswiezanie listy flow
+          success_state: workspace gotowy
+          error_state: brak
+          blocked_state: brak legalnych akcji
+          audit_mode_sections:
+            - op_summary
         success_output:
           terminal_ui_state: project_dashboard_ready
+
+entrypoint_catalog:
+  maintain_baseline:
+    template: baseline_bundle
+    transition_refs:
+      - Requirement.proposed -> Requirement.clarified
+      - Constraint.proposed -> Constraint.validated
+      - DecisionRecord.drafted -> DecisionRecord.reviewed
+    required_artifacts:
+      - ".ai/prd/overview.md"
+      - ".ai/adr/0001-project-baseline.md"
+      - ".ai/ux/new-project.md"
+  refine_feature:
+    template: feature_refinement
+    transition_refs:
+      - Feature.drafted -> Feature.specified
+      - UseCase.drafted -> UseCase.reviewed
+      - UseCase.reviewed -> UseCase.approved
+      - PortContract.proposed -> PortContract.reviewed
+      - PortContract.reviewed -> PortContract.approved
+      - Component.identified -> Component.mapped
+      - Component.mapped -> Component.checked
+  align_feature_ux:
+    template: ux_alignment
+    transition_refs:
+      - Feature.specified -> Feature.ux-aligned
+      - Term.proposed -> Term.approved
+      - UIComponent.proposed -> UIComponent.mapped
+      - UIComponent.implemented -> UIComponent.verified
+      - UIScreen.proposed -> UIScreen.mapped
+      - UIScreen.mapped -> UIScreen.verified
+  prepare_scenarios:
+    template: scenario_preparation
+    transition_refs:
+      - Feature.ux-aligned -> Feature.scenario-ready
+      - Scenario.drafted -> Scenario.reviewed
+      - Scenario.reviewed -> Scenario.approved
+  implement_feature:
+    template: implementation_loop
+    transition_refs:
+      - Feature.scenario-ready -> Feature.test-ready
+      - Feature.test-ready -> Feature.implemented
+      - Feature.implemented -> Feature.stabilized
+  prepare_release:
+    template: release_delivery
+    transition_refs:
+      - Feature.stabilized -> Release.candidate
+      - Release.candidate -> Release.approved
+      - Release.approved -> Deployment.prepared
+      - Deployment.prepared -> Deployment.running
+      - Deployment.running -> Deployment.succeeded
+      - Release.published -> Feature.released
+  handle_exception:
+    template: exception_recovery
+    transition_refs:
+      - Exception.detected -> Exception.escalated
+      - Timeout.fired -> Timeout.escalated
+      - Deployment.failed -> Rollback.prepared
+      - Rollback.prepared -> Rollback.running
 
 transition_execution:
   compiler_mode: template_compiled
@@ -515,13 +837,17 @@ transition_execution:
       applies_when:
         - transition has gate outcome
       step_chain:
+        - policy_authorize_transition
+        - policy_validate_semantics
         - render_decision_envelope
         - produce_review_package
         - operator_gate_prompt
+        - policy_classify_evidence
         - storage_record_gate_decision
         - storage_apply_transition
         - storage_append_process_event
       required_tools:
+        - policy-engine
         - operator-ui
         - storage-adapter
         - shell
@@ -529,20 +855,134 @@ transition_execution:
       applies_when:
         - transition has no gate outcome
       step_chain:
+        - policy_authorize_transition
+        - policy_validate_semantics
         - storage_apply_transition
         - storage_append_process_event
       required_tools:
+        - policy-engine
         - storage-adapter
     retry_escalation:
       applies_when:
         - event is timeout.fired or *.retry-requested or *.recover-requested
       step_chain:
+        - policy_authorize_transition
+        - policy_validate_semantics
         - execute_retry_or_recovery_action
+        - policy_classify_evidence
         - storage_append_process_event
         - operator_escalation_prompt_if_needed
       required_tools:
+        - policy-engine
         - storage-adapter
         - operator-ui
+    baseline_bundle:
+      applies_when:
+        - entrypoint is maintain_baseline
+      step_chain:
+        - policy_authorize_transition
+        - operator_collect_inputs
+        - ai_generate_baseline_material
+        - storage_create_baseline_ops
+        - operator_gate_prompt
+        - policy_classify_evidence
+        - storage_append_process_event
+      required_tools:
+        - policy-engine
+        - operator-ui
+        - ai-runner
+        - storage-adapter
+    feature_refinement:
+      applies_when:
+        - entrypoint is refine_feature
+      step_chain:
+        - policy_authorize_transition
+        - operator_collect_inputs
+        - ai_generate_spec_and_architecture
+        - storage_update_feature_bundle
+        - policy_classify_evidence
+        - storage_append_process_event
+      required_tools:
+        - policy-engine
+        - operator-ui
+        - ai-runner
+        - storage-adapter
+    ux_alignment:
+      applies_when:
+        - entrypoint is align_feature_ux
+      step_chain:
+        - policy_authorize_transition
+        - operator_collect_inputs
+        - ai_generate_ux_bundle
+        - quality_run_ux_checks
+        - operator_gate_prompt
+        - policy_classify_evidence
+        - storage_append_process_event
+      required_tools:
+        - policy-engine
+        - operator-ui
+        - ai-runner
+        - quality-runner
+        - storage-adapter
+    scenario_preparation:
+      applies_when:
+        - entrypoint is prepare_scenarios
+      step_chain:
+        - policy_authorize_transition
+        - ai_generate_scenarios
+        - operator_gate_prompt
+        - policy_classify_evidence
+        - storage_append_process_event
+      required_tools:
+        - policy-engine
+        - operator-ui
+        - ai-runner
+        - storage-adapter
+    implementation_loop:
+      applies_when:
+        - entrypoint is implement_feature
+      step_chain:
+        - policy_authorize_transition
+        - ai_generate_changes
+        - run_quality_lane
+        - operator_gate_prompt
+        - policy_classify_evidence
+        - storage_append_process_event
+      required_tools:
+        - policy-engine
+        - ai-runner
+        - quality-runner
+        - operator-ui
+        - storage-adapter
+    release_delivery:
+      applies_when:
+        - entrypoint is prepare_release
+      step_chain:
+        - policy_authorize_transition
+        - produce_review_package
+        - operator_gate_prompt
+        - execute_release_or_deploy
+        - policy_classify_evidence
+        - storage_append_process_event
+      required_tools:
+        - policy-engine
+        - shell
+        - operator-ui
+        - quality-runner
+        - storage-adapter
+    exception_recovery:
+      applies_when:
+        - entrypoint is handle_exception
+      step_chain:
+        - policy_authorize_transition
+        - operator_collect_inputs
+        - execute_retry_or_recovery_action
+        - policy_classify_evidence
+        - storage_append_process_event
+      required_tools:
+        - policy-engine
+        - operator-ui
+        - storage-adapter
   explicit_overrides:
     - transition_ref: Project.created -> Project.configured
       uses_entrypoint: new_project
@@ -583,3 +1023,5 @@ git_ci_contract:
     - review_package
     - quality_signal_pass
     - process_event_trace_complete
+    - provenance_attested
+    - runtime_capture

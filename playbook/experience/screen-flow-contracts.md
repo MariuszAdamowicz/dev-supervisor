@@ -3,6 +3,9 @@
 Cel:
 zdefiniowac deterministyczny kontrakt UI: co operator widzi i co moze zrobic w kazdym stanie OP.
 
+Dokument nadrzedny:
+- `playbook/experience/operator-ux-contract.md`
+
 ## Zasada globalna
 
 UI nie prowadzi niezaleznej logiki procesu.
@@ -14,6 +17,11 @@ UI renderuje projection z OP:
 - gate requirements
 - tool_plan (w tym operator-ui)
 
+Projection musi byc:
+- task-first dla operatora,
+- audit-second dla inspekcji,
+- progressive-disclosure zamiast runtime-dump.
+
 ## Kontrakt ekranow
 
 ## 1. Project Setup Screen
@@ -22,13 +30,15 @@ Widoczne gdy:
 - Project.created lub Project.configured
 
 Musi pokazac:
+- user goal: `utworz nowy projekt i przygotuj baseline`
 - formularz nazwa/opis projektu
 - wizard wyboru profili
-- status baseline artifacts (overview/constraints/glossary)
+- status baseline artifacts (overview/constraints/glossary/use-case/port-contract/component-map/adr/ux)
 - CTA: `approve baseline` tylko gdy guards spelnione
 
 Ukrywa:
 - akcje feature/release
+- surowe runtime ids, payload hashes i event log jako primary UI
 
 ## 2. Idea Intake Screen
 
@@ -36,6 +46,7 @@ Widoczne gdy:
 - Idea.captured lub Idea.scoped
 
 Musi pokazac:
+- user goal: `zamien idee w pierwszy material roboczy`
 - lista idei i status scoped/converted/dropped
 - CTA: `generate IDEA->FEATURE prompt`
 - CTA: `convert to feature` albo `drop idea` (gate)
@@ -49,6 +60,7 @@ Widoczne gdy:
 - Feature.drafted .. Feature.stabilized
 
 Musi pokazac:
+- user goal: `doprowadz feature do kolejnego legalnego kroku`
 - aktywny etap: specified/ux-aligned/scenario-ready/test-ready/implemented/stabilized
 - mapowanie PRD < BDD < TESTY
 - status walidacji (build/test/lint)
@@ -65,6 +77,7 @@ Widoczne gdy:
 - UIScreen.proposed/mapped
 
 Musi pokazac:
+- user goal: `uzgodnij terminy, copy i strukture ekranu`
 - term impacts
 - mapowanie component -> screen
 - visibility rules i invalidation scope
@@ -79,6 +92,7 @@ Musi pokazac:
 - review package (diff, test mapping, quality)
 - decyzje: approve/request_changes/defer/reject
 - pole reason (obowiazkowe dla request_changes/defer/reject)
+- oddzielna sekcje audit details, domyslnie zwinieta
 
 Zakaz:
 - brak mozliwosci zmiany stanu bez decyzji gate
@@ -120,3 +134,6 @@ Musi pokazac:
 
 4. Determinism contract
 - ten sam stan OP zawsze generuje ten sam zestaw akcji UI.
+
+5. Accessibility contract
+- krytyczne formularze maja labels, inline validation, focus order i status messages.

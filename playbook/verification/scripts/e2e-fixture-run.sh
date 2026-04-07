@@ -131,6 +131,7 @@ fi
   echo "SCENARIO=$SCENARIO"
   echo "EVENTS_COUNT=$EVENTS_COUNT"
   echo "GATES_COUNT=$GATES_COUNT"
+  echo "EVIDENCE_CLASS=fixture-simulation"
   echo "APP_QUALITY_LANE=$APP_QUALITY_STATUS"
 } > "$OUT_REPORTS/summary.txt"
 

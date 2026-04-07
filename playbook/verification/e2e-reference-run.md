@@ -10,6 +10,8 @@ zweryfikowac playbook na realnym mini-projekcie (niewielki zakres, pelny proces)
 - 2-3 Scenario
 - co najmniej 1 Requirement, 1 Constraint, 1 DecisionRecord
 - co najmniej 1 UseCase, 1 PortContract, 1 Component
+- co najmniej 1 ActorRolePermission
+- co najmniej 1 artefakt `.ai/ux/*` powstaly z runtime
 
 ## Procedura
 1. Setup projektu i baseline gate.
@@ -24,6 +26,8 @@ zweryfikowac playbook na realnym mini-projekcie (niewielki zakres, pelny proces)
 - Review packages dla gate-required transitions
 - Wyniki build/test/lint (lane kontraktowy i lane binarny aplikacji)
 - Runtime snapshot przed i po runie
+- provenance metadata dla kazdego dowodu
+- evidence class rozrozniajaca fixture od real runtime capture
 
 ## Kryterium PASS
 - brak silent transitions
@@ -31,3 +35,4 @@ zweryfikowac playbook na realnym mini-projekcie (niewielki zakres, pelny proces)
 - komplet audytu i decyzji gate
 - legalny final state dla wszystkich zmienianych OP
 - lane binarny aplikacji (build/test/lint) ma status pass
+- istnieje co najmniej jeden dowod klasy `runtime-capture`

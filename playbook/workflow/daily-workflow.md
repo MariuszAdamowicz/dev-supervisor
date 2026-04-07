@@ -13,11 +13,13 @@ Kanoniczna semantyka:
 
 Dopuszczalne entrypointy (zalezne od kontekstu):
 - Project (nowy projekt / re-konfiguracja)
+- Product baseline maintenance
 - Idea (intake i scoping)
 - Feature (spec/test/implement)
 - UseCase/PortContract (granice i kontrakty aplikacyjne)
 - Component/Dependency (reguly zaleznosci i spojnosci)
 - Term/UIComponent (UX alignment)
+- ActorRolePermission (authz i ownership)
 - Release (delivery)
 - Exception/Timeout (obsluga awarii)
 
@@ -29,6 +31,8 @@ Dla wybranego OP ustal:
 - guardy blokujace
 - pending PromptTask
 - latest GateDecision
+- parent linkage i impacted children
+- evidence class ostatnich kluczowych dowodow
 
 ## 3. Wyznacz next_transition
 
@@ -43,6 +47,7 @@ Z OP -> UI/Prompt/Checklist:
 - jaki prompt/job uruchomic
 - jakie warunki gate musza byc spelnione
 - jakie checki architektury sa wymagane (dependency direction, no-cycle, DTO boundary)
+- jakie elementy sa widoczne tylko w audit/debug
 
 ## 4a. Wyznacz Action i Tool plan
 
@@ -57,6 +62,7 @@ transition OP -> action_plan -> tool_plan.
 Uwaga:
 - tool_plan moze zawierac narzedzia CLI/service oraz operator-ui.
 - klikniecie/akceptacja w UI to legalna tool invocation, a nie wyjatek od modelu.
+- kazdy state-changing flow zaczyna sie od `policy-engine`.
 
 ## 4b. Uruchom AI jako job (DS-controlled)
 
@@ -93,6 +99,8 @@ Obowiazkowo:
 - QualitySignal (pass/fail)
 - ProcessEvent
 - aktualizacja stanu OP
+- zapis evidence class i provenance metadata
+- ponowna walidacja invariantow po zmianie linkow lub parent/child scope
 
 ## 8. Petla
 

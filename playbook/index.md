@@ -36,6 +36,7 @@ Reguly uruchamiania pracy jako OP-driven entrypoints.
 
 ### experience
 Projection OP -> UI/UX dla operatora.
+Zawiera twardy kontrakt operator UX i rozdzial operator UI vs audit/debug.
 
 ### profiles
 Nakladki konfiguracyjne dla kontekstu projektu i pracy.
@@ -63,10 +64,14 @@ Kontrakty poprawnosci Playbook Layer:
 - capability consistency
 - gate/audit safety
 - AI orchestration contract
+- workflow<->exec alignment
+- CRUD integrity
+- semantic guards i provenance
 
 ### verification
 Praktyczna weryfikacja, czy playbook dziala end-to-end:
 - static validation
+- semantic validation
 - deterministic replay
 - e2e reference run
 - chaos process tests

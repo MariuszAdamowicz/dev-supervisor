@@ -13,11 +13,18 @@ required_patterns=(
   '^source_of_truth:'
   '^determinism_contract:'
   '^tool_contracts:'
+  '^  policy-engine:'
   '^  github-adapter:'
   '^persistence_map:'
+  '^baseline_contract:'
+  '^authz_contract:'
+  '^crud_contract:'
+  '^evidence_contract:'
+  '^entrypoint_contracts:'
   '^entrypoints:'
   '^  new_project:'
   '^  add_idea:'
+  '^entrypoint_catalog:'
   '^transition_execution:'
   '^  compiler_mode: template_compiled'
   '^failure_and_retry_policy:'
@@ -39,6 +46,11 @@ fi
 github_bootstrap_steps="$(rg -n 'step_id: NP-02A|step_id: NP-02B|step_id: NP-02C' "$SPEC_FILE" | wc -l | tr -d ' ')"
 if [ "$github_bootstrap_steps" -lt 3 ]; then
   echo "FAIL reason=missing_github_bootstrap_steps expected=3 got=$github_bootstrap_steps"
+  exit 1
+fi
+
+if ! rg -n 'step_id: NP-03A|step_id: AI-01A' "$SPEC_FILE" >/dev/null; then
+  echo "FAIL reason=missing_policy_precheck_steps"
   exit 1
 fi
 

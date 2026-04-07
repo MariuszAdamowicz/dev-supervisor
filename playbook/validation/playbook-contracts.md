@@ -33,9 +33,19 @@ formalnie walidowac kompletnosc i spojnosc Playbook Layer wzgledem OP Layer.
 5a. Execution spec contract
 - deterministyczna orkiestracja runtime MUST byc opisana w jednym pliku `runtime/playbook-exec.yaml`.
 - brak mapowania `entrypoint -> steps -> tool input/output -> side effects` = playbook invalid.
+- brak mapowania `workflow entrypoint -> runtime entrypoint/template` = playbook invalid.
 - krok wykonawczy moze wywolywac dokladnie jedno narzedzie (one tool invocation per step).
 - logika runtime poza exec spec (ukryte reguly w UI/kodzie) = playbook invalid.
 - bootstrap `new_project` MUST zawierac kroki git lokalny + utworzenie/podpiecie repozytorium zdalnego (GitHub adapter lub rownowazny).
+
+5b. Baseline completeness contract
+- `workflow/setup.md` i `runtime/playbook-exec.yaml` musza definiowac ten sam minimalny baseline.
+- baseline MUST obejmowac: overview, constraints, glossary, Requirement, Constraint, DecisionRecord, UseCase, PortContract, Component, ActorRolePermission i artefakt UX entrypointu.
+- brak zgodnosci workflow/exec dla baseline = playbook invalid.
+
+5c. Runtime lifecycle coverage contract
+- kazdy entrypoint wymieniony w `workflow/daily-workflow.md` musi miec runtime definition albo template coverage w `runtime/playbook-exec.yaml`.
+- brak runtime coverage dla Feature, UX alignment, Release lub Exception/Timeout = playbook invalid.
 
 6. Architecture alignment contract
 - kazda kluczowa zmiana Feature z zachowaniem biznesowym ma powiazany UseCase (co najmniej drafted, docelowo approved przed Feature.implemented).
@@ -65,6 +75,15 @@ formalnie walidowac kompletnosc i spojnosc Playbook Layer wzgledem OP Layer.
 4. UX projection contract
 - UI pokazuje tylko akcje legalne dla current_state i guardow.
 - akcja ukryta/przedwczesna = projection invalid.
+- primary copy musi opisywac task operatora, a nie transition labels.
+- audit/debug details nie moga byc primary UI.
+- kazdy krytyczny entrypoint musi miec artefakt `.ai/ux/<entrypoint>.md`.
+- brak empty/loading/success/error/blocked state contract = projection invalid.
+
+5. CRUD integrity contract
+- create/read/update/remove dla OP musi byc opisane i audytowalne zgodnie z `workflow/op-crud-contract.md`.
+- hard delete OP po pojawieniu sie ProcessEvent = invalid.
+- brak parent linkage lub dangling link = playbook invalid.
 
 ## 3. Contracts of Safety
 
@@ -81,6 +100,7 @@ formalnie walidowac kompletnosc i spojnosc Playbook Layer wzgledem OP Layer.
 - action moze byc wykonana tylko przy aktywnym ActorRolePermission.
 - kazdy binding transition musi zawierac operacyjny authz precheck.
 - brak authz precheck albo brak sciezki `Exception(authz)` = transition invalid.
+- authz jest deny-by-default; brak jawnego allow = invalid.
 
 5. Gate classifier contract
 - ten sam transition zawsze daje ten sam wynik `gate_required=true|false` dla tych samych bindingow.
@@ -108,6 +128,15 @@ formalnie walidowac kompletnosc i spojnosc Playbook Layer wzgledem OP Layer.
   - retry/rework cycle, albo
   - escalation/reject terminal path.
 - brak sciezki non-happy path = playbook invalid.
+
+11. Semantic guard contract
+- guardy i invarianty z OP musza byc walidowane operacyjnie przed `write_state`, nie tylko opisane.
+- brak `policy-engine` lub rownowaznego prechecku = playbook invalid.
+
+12. Evidence provenance contract
+- kazdy dowod walidacyjny ma jawna klase: simulation, fixture, runtime-capture albo binary-quality-lane.
+- synthetic evidence nie moze samo dawac globalnego PASS.
+- brak provenance metadata = playbook invalid dla evidence package.
 
 ## 4. AI Orchestration Contract
 
@@ -141,6 +170,11 @@ Minimalna procedura walidacji przy zmianie playbooka:
 11. Sprawdz testability contract dla UseCase/Domain.
 12. Sprawdz FSM completeness contract.
 13. Sprawdz non-happy path contract.
+14. Sprawdz baseline completeness i workflow<->exec alignment.
+15. Sprawdz runtime lifecycle coverage contract.
+16. Sprawdz CRUD integrity contract.
+17. Sprawdz semantic guard contract.
+18. Sprawdz evidence provenance contract.
 
 ## 6. Evidence Package
 
@@ -148,5 +182,6 @@ Kazdy pass walidacji generuje pakiet dowodowy:
 - data i wersja playbooka,
 - lista sprawdzonych kontraktow,
 - lista naruszen,
+- klasy evidence i provenance metadata,
 - decyzja: pass/fail,
 - podpis operatora (GateDecision dla zmiany playbooka).

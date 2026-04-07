@@ -26,6 +26,18 @@ Kazda akcja ma:
   - intent: wybor profili playbooka przez operatora
   - required_capabilities: choose_action, write_state
 
+- materialize_operator_projection
+  - intent: zbudowanie task-first widoku operatora na bazie OP i guardow
+  - required_capabilities: read_state, progressive_disclosure, explain_blocker
+
+- authorize_transition
+  - intent: sprawdzenie, czy actor moze wykonac transition
+  - required_capabilities: authorize_transition, read_state, append_audit
+
+- validate_semantics
+  - intent: sprawdzenie guardow, invariantow i CRUD impact przed zapisem
+  - required_capabilities: validate_semantics, validate_invariants, append_audit
+
 ### AI orchestration
 
 - create_ai_job
@@ -69,6 +81,10 @@ Kazda akcja ma:
 - produce_review_package
   - intent: przygotowanie materialu do GateDecision
   - required_capabilities: execute_script, read_state
+
+- attest_evidence
+  - intent: oznaczenie klasy dowodu i zapis provenance metadata
+  - required_capabilities: classify_evidence, append_audit, persist_artifacts
 
 ### Gate i decyzje
 

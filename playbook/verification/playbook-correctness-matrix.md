@@ -1,62 +1,38 @@
 # Playbook Correctness Matrix
 
 Cel:
-jednoznacznie pokazac, czy playbook jest poprawny operacyjnie dla wszystkich OP.
+jednoznacznie pokazac, czy playbook jest poprawny operacyjnie dla wszystkich OP i czy raport nie myli symulacji z realnym runtime.
 
 ## Definicja "poprawny playbook"
 
-Dla kazdego OP musza byc spelnione 4 warstwy:
+Dla kazdego OP musza byc spelnione 6 warstw:
 1. `static`: definicja OP + FSM + binding coverage.
-2. `replay`: deterministyczny wynik (run1 == run2).
-3. `e2e`: runtime evidence (ProcessEvent + GateDecision + legal final state).
-4. `chaos`: legalna reakcja na zaklocenia i komplet audytu.
+2. `semantic`: workflow<->exec alignment, authz, guardy, invarianty, CRUD, provenance labeling.
+3. `replay`: deterministyczny wynik (run1 == run2).
+4. `fixture`: syntetyczny runtime fixture z klasyfikacja evidence.
+5. `runtime`: real runtime capture (nie fixture).
+6. `chaos`: legalna reakcja na zaklocenia i komplet audytu.
 
-## Zakres runu full-op (2026-04-07)
+## Status po korekcie kontraktow
 
-- static audit: `playbook/verification/scripts/op-coverage-audit.sh`
-- replay scenarios:
-  - `playbook/verification/replay/scenario-e2e-full-op.csv`
-  - `playbook/verification/replay/scenario-chaos-full-op.csv`
-- replay evidence: `playbook/verification/replay/run-2026-04-07-full-op/`
-- e2e runtime fixture: `playbook/verification/e2e-fixture/run-2026-04-07-full-op/`
-- chaos runtime fixture: `playbook/verification/e2e-fixture/run-2026-04-07-chaos-full-op/`
+Wersja historyczna `2026-04-07-full-op` byla wystarczajaca dla starej definicji 4-warstwowej, ale nie dla aktualnej definicji 6-warstwowej.
 
-## Matryca OP x 4 warstwy
+Dlatego aktualny status globalny brzmi:
+- `static`: legacy-pass
+- `semantic`: pending-rerun
+- `replay`: legacy-pass
+- `fixture`: legacy-pass
+- `runtime`: pending-real-capture
+- `chaos`: legacy-pass
 
-| OP | static | replay | e2e | chaos | status |
-| --- | --- | --- | --- | --- | --- |
-| Project | pass | pass | pass | pass | verified |
-| Requirement | pass | pass | pass | pass | verified |
-| Constraint | pass | pass | pass | pass | verified |
-| DecisionRecord | pass | pass | pass | pass | verified |
-| Idea | pass | pass | pass | pass | verified |
-| Feature | pass | pass | pass | pass | verified |
-| Scenario | pass | pass | pass | pass | verified |
-| Term | pass | pass | pass | pass | verified |
-| UIComponent | pass | pass | pass | pass | verified |
-| UIScreen | pass | pass | pass | pass | verified |
-| PromptTask | pass | pass | pass | pass | verified |
-| GateDecision | pass | pass | pass | pass | verified |
-| ActorRolePermission | pass | pass | pass | pass | verified |
-| Dependency | pass | pass | pass | pass | verified |
-| UseCase | pass | pass | pass | pass | verified |
-| PortContract | pass | pass | pass | pass | verified |
-| Component | pass | pass | pass | pass | verified |
-| Risk | pass | pass | pass | pass | verified |
-| Release | pass | pass | pass | pass | verified |
-| Deployment | pass | pass | pass | pass | verified |
-| Rollback | pass | pass | pass | pass | verified |
-| QualitySignal | pass | pass | pass | pass | verified |
-| Exception | pass | pass | pass | pass | verified |
-| Timeout | pass | pass | pass | pass | verified |
-| Compensation | pass | pass | pass | pass | verified |
-| ProcessEvent | pass | pass | pass | pass | verified |
+## Regula decyzji
 
-## Podsumowanie
+Globalny `verified` mozna ustawic tylko gdy:
+- `semantic=pass`
+- `runtime=pass`
+- `fixture` i `replay` sa tylko wsparciem, nie substytutem runtime
+- raport zawiera provenance metadata
 
-- `verified`: 26/26
-- `partial`: 0/26
-- `missing`: 0/26
-
-Wniosek:
-playbook w aktualnej wersji ma domknieta weryfikacje 4-warstwowa dla wszystkich OP.
+W przeciwnym razie status globalny musi pozostac:
+- `partial`, albo
+- `pending-rerun`.

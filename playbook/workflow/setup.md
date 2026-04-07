@@ -23,13 +23,22 @@ Kanoniczne definicje OP:
 - utworz overview.md
 - utworz constraints.md
 - utworz glossary.md
+- utworz `.ai/adr/0001-project-baseline.md`
+- utworz `.ai/architecture/use-cases.md`
+- utworz `.ai/architecture/port-contracts.md`
+- utworz `.ai/architecture/component-map.md`
+- utworz `.ai/ux/new-project.md`
 - utworz Requirement/Constraint/DecisionRecord OP dla baseline
 - zdefiniuj poczatkowe UseCase i granice PortContract dla kluczowych przeplywow
 - zdefiniuj poczatkowa mape Component dla krytycznych modulow
+- utworz ActorRolePermission dla operatora inicjujacego projekt
+- zbuduj indeks OP i parent linkage dla baseline
 
 Product Gate przechodzi tylko gdy:
 - baseline jest kompletny,
 - baseline jest niesprzeczny,
+- baseline ma komplet UX/architecture artifacts,
+- authz i provenance sa zapisane,
 - operator zapisal jawna decyzje gate.
 
 ## 3. Konfiguracja profili
@@ -49,7 +58,9 @@ a nie przez reczne przegladanie listy plikow.
 
 - .ai/prd/* i .ai/features/* to artefakty runtime (Project Instance Layer)
 - .ai/ux/* to projekcja UX dla operatora (nie kanoniczna semantyka)
+- .ai/architecture/* i .ai/adr/* to artefakty baseline wymagane przy setup
 - state/trigger/gate sa kanoniczne tylko w OP Layer
+- create/read/update/remove OP podlega `workflow/op-crud-contract.md`
 
 Zasada rozstrzygania konfliktu:
 - jesli .ai/* koliduje z OP Layer, nadrzedna jest definicja OP.
@@ -74,6 +85,7 @@ Podczas setup aktywuj wykonawcza warstwe playbooka:
 
 Wymaganie:
 - dla kazdego krytycznego transition OP musi istniec binding transition -> action -> tool.
+- kazdy state-changing flow musi miec `policy-engine` precheck.
 
 ## AI bootstrap
 
@@ -89,14 +101,17 @@ Podczas setup aktywuj walidacje kontraktow playbooka:
 
 Wymaganie:
 - kazda zmiana warstwy playbooka (workflow/core/experience/tooling/profiles) przechodzi przez validation contracts przed zatwierdzeniem.
+- walidacja obejmuje workflow<->exec alignment, CRUD integrity, semantic guards i evidence provenance.
 
 ## Verification bootstrap
 
 Podczas setup aktywuj modul praktycznej weryfikacji:
 - verification/index.md
 - verification/static-validation.md
+- verification/semantic-validation.md
 - verification/deterministic-replay.md
 - verification/e2e-reference-run.md
+- verification/evidence-provenance.md
 - verification/chaos-tests.md
 - verification/report-template.md
 

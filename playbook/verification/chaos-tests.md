@@ -15,7 +15,8 @@ sprawdzic odpornosc procesu na bledy i niepewnosc operacyjna.
 - zawsze istnieje legalna sciezka recovery/rework/escalation,
 - brak przejsc poza FSM,
 - kazde zaklocenie ma ProcessEvent,
-- brak utraty spojnosc OP graph.
+- brak utraty spojnosc OP graph,
+- authz deny nie pozostawia czesciowo zapisanych zmian.
 
 ## Kryterium PASS
 Kazdy test chaos:
