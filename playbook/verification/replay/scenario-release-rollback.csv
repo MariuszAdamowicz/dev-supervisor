@@ -1,0 +1,12 @@
+op_type,from_state,event,to_state
+Release,planned,release.candidate-requested,candidate
+Release,candidate,release.approve-requested (gate=approve),approved
+Deployment,prepared,deployment.start-requested,running
+Deployment,running,deployment.failed,failed
+Rollback,prepared,rollback.start-requested,running
+Rollback,running,rollback.completed,succeeded
+Deployment,failed,deployment.retry-requested (gate=approve),prepared
+Deployment,prepared,deployment.start-requested,running
+Deployment,running,deployment.completed,succeeded
+Release,approved,deployment.succeeded,published
+Release,published,release.close-requested (gate=approve),closed

@@ -1,0 +1,3 @@
+op_type,from_state,event,to_state
+Release,planned,release.candidate-requested,candidate
+Release,candidate,release.approve-requested (gate=reject),closed

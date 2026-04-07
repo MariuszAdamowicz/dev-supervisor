@@ -1,0 +1,4 @@
+op_type,from_state,event,to_state
+PromptTask,created,prompt.context-ready,ready
+PromptTask,ready,timeout.fired (retry_budget>0),ready
+PromptTask,ready,timeout.fired (retry_budget=0),cancelled

@@ -1,0 +1,47 @@
+op_type,from_state,event,to_state
+Project,created,project.configure-requested,configured
+Project,configured,project.baseline-approve-requested (gate=approve),baseline-approved
+Project,baseline-approved,project.activate-requested,active
+Idea,captured,idea.scope-requested,scoped
+Idea,scoped,idea.convert-requested (gate=approve),converted
+Requirement,proposed,requirement.clarify-requested,clarified
+Requirement,clarified,requirement.approve-requested (gate=approve),approved
+Requirement,approved,requirement.link-requested,linked
+Constraint,proposed,constraint.validate-requested,validated
+Constraint,validated,constraint.enforce-requested (gate=approve),enforced
+DecisionRecord,drafted,decision.review-requested,reviewed
+DecisionRecord,reviewed,decision.approve-requested (gate=approve),approved
+UseCase,drafted,usecase.review-requested,reviewed
+UseCase,reviewed,usecase.approve-requested (gate=approve),approved
+UseCase,approved,usecase.implement-requested,implemented
+UseCase,implemented,usecase.verify-requested (gate=approve),verified
+PortContract,proposed,port-contract.review-requested,reviewed
+PortContract,reviewed,port-contract.approve-requested (gate=approve),approved
+PortContract,approved,port-contract.adopt-requested,adopted
+Component,identified,component.map-requested,mapped
+Component,mapped,component.check-requested (check=pass),checked
+Component,checked,component.compliance-requested (gate=approve),compliant
+Feature,drafted,feature.specify-requested,specified
+Feature,specified,feature.ux-align-requested,ux-aligned
+Feature,ux-aligned,feature.scenario-ready-requested,scenario-ready
+Feature,scenario-ready,feature.test-ready-requested,test-ready
+Feature,test-ready,feature.implement-requested,implemented
+Scenario,drafted,scenario.approve-requested (gate=approve),approved
+Scenario,approved,scenario.link-tests-requested,test-linked
+Scenario,test-linked,scenario.tests-pass,passing
+Feature,implemented,feature.stabilize-requested (gate=request_changes),test-ready
+Feature,test-ready,feature.implement-requested,implemented
+Feature,implemented,feature.stabilize-requested (gate=approve),stabilized
+Release,planned,release.candidate-requested,candidate
+Release,candidate,release.approve-requested (gate=approve),approved
+Deployment,prepared,deployment.start-requested,running
+Deployment,running,deployment.failed,failed
+Rollback,prepared,rollback.start-requested,running
+Rollback,running,rollback.completed,succeeded
+Deployment,failed,deployment.retry-requested (gate=approve),prepared
+Deployment,prepared,deployment.start-requested,running
+Deployment,running,deployment.completed,succeeded
+Release,approved,deployment.succeeded,published
+Feature,stabilized,feature.release-requested,released
+Feature,released,feature.done-requested (gate=approve),done
+Release,published,release.close-requested (gate=approve),closed

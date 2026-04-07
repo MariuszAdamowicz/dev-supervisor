@@ -1,0 +1,4 @@
+op_type,from_state,event,to_state
+QualitySignal,collected,quality.evaluate-requested,evaluated
+QualitySignal,evaluated,quality.failed,fail
+QualitySignal,fail,quality.recheck-requested,evaluated

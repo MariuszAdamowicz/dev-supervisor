@@ -1,0 +1,9 @@
+op_type,from_state,event,to_state
+Feature,drafted,feature.specify-requested,specified
+Feature,specified,feature.ux-align-requested,ux-aligned
+Feature,ux-aligned,feature.scenario-ready-requested,scenario-ready
+Feature,scenario-ready,feature.test-ready-requested,test-ready
+Feature,test-ready,feature.implement-requested,implemented
+Feature,implemented,feature.stabilize-requested (gate=request_changes),test-ready
+Feature,test-ready,feature.implement-requested,implemented
+Feature,implemented,feature.stabilize-requested (gate=approve),stabilized

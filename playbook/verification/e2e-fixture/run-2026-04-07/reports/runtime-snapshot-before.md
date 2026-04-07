@@ -1,0 +1,14 @@
+# Runtime Snapshot Before
+- component: identified
+- constraint: proposed
+- decisionrecord: drafted
+- deployment: prepared
+- feature: drafted
+- idea: captured
+- portcontract: proposed
+- project: created
+- release: planned
+- requirement: proposed
+- rollback: prepared
+- scenario: drafted
+- usecase: drafted

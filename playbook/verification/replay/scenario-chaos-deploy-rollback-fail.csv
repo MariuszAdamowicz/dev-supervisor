@@ -1,0 +1,5 @@
+op_type,from_state,event,to_state
+Deployment,prepared,deployment.start-requested,running
+Deployment,running,deployment.failed,failed
+Rollback,prepared,rollback.start-requested,running
+Rollback,running,rollback.failed,failed

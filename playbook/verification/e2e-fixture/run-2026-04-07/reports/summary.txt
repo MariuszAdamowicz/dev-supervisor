@@ -1,0 +1,4 @@
+E2E_FIXTURE_RUN=PASS
+SCENARIO=playbook/verification/replay/scenario-e2e-reference.csv
+EVENTS_COUNT=108
+GATES_COUNT=16

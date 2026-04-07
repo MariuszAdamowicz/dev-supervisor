@@ -1,0 +1,14 @@
+# Runtime Snapshot After
+- component: compliant
+- constraint: enforced
+- decisionrecord: approved
+- deployment: succeeded
+- feature: done
+- idea: converted
+- portcontract: adopted
+- project: active
+- release: closed
+- requirement: linked
+- rollback: succeeded
+- scenario: passing
+- usecase: verified
