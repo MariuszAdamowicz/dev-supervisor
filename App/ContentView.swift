@@ -3,9 +3,9 @@ import SwiftUI
 
 struct ContentView: View {
     @State private var projectName = ""; @State private var projectsRootPath = ""
-    @State private var selectedStorageProfile: StorageProfile = .fileAI; @State private var initializeGitRepository = true
+    @State private var selectedStorageProfile: StorageProfile = .sqlbase; @State private var initializeGitRepository = true
     @State private var inspectPath = ""; @State private var activeProjectPathForPersistence = ""
-    @State private var activeStorageProfileForPersistence: StorageProfile = .fileAI; @State private var lastBootstrapResult: ProjectBootstrapResult?
+    @State private var activeStorageProfileForPersistence: StorageProfile = .sqlbase; @State private var lastBootstrapResult: ProjectBootstrapResult?
     @State private var lastInspectionResult: ProjectInspectionResult?; @State private var flowProjectID = "P-1"
     @State private var flowIdeaID = "I-1"; @State private var flowIdeaTitle = ""
     @State private var flowIdeaStatus: IdeaStatus = .selected; @State private var newIdeaTitle = ""

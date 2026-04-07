@@ -8,7 +8,7 @@ struct PlaybookRuntimeStarterView: View {
     @State private var architecture = "modular-monolith"
     @State private var language = "pl"
     @State private var executionStyle = "iterative-tdd"
-    @State private var storageProfile: StorageProfile = .fileAI
+    @State private var storageProfile: StorageProfile = .sqlbase
     @State private var createRemoteRepository = true
     @State private var baselineDecision: PlaybookGateDecision = .approve
     @State private var baselineReason = "baseline kompletny i niesprzeczny"

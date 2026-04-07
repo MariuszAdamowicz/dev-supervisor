@@ -176,6 +176,127 @@ final class PlaybookRuntimeFileSystemTests: XCTestCase {
 
         XCTAssertEqual(reason.message, "Project must be active before adding an idea.")
     }
+
+    func testRunNewProject_sqlbasePersistsRuntimeToSQLite() throws {
+        let root = try makeTemporaryDirectory()
+        let projectURL = root.appendingPathComponent("starter-ds")
+        let sut = PlaybookRuntimeFileSystem(
+            gitClient: StubGitClient(),
+            githubClient: StubGitHubClient(remoteURL: "git@github.com:test/starter-ds.git"),
+            now: { Date(timeIntervalSince1970: 0) }
+        )
+
+        let result = sut.runNewProject(
+            PlaybookNewProjectRequest(
+                projectName: "Starter DS",
+                projectRootPath: projectURL.path,
+                profileSelection: PlaybookProfileSelection(storage: .sqlbase),
+                projectDescription: "DevSupervisor uruchamia projekt i baseline z audytem.",
+                baselineGate: PlaybookGateInput(
+                    decision: .approve,
+                    reason: "baseline kompletny"
+                ),
+                createRemoteRepository: false
+            )
+        )
+
+        XCTAssertTrue(result.result.isSuccess)
+        XCTAssertTrue(FileManager.default.fileExists(atPath: projectURL.appendingPathComponent("State/supervisor.sqlite3").path))
+
+        let stats = try SQLRuntimeStore().stats(projectRoot: projectURL)
+        XCTAssertEqual(stats.opCount, 8)
+        XCTAssertEqual(stats.gateDecisionCount, 1)
+        XCTAssertEqual(stats.evidenceCount, 1)
+        XCTAssertGreaterThanOrEqual(stats.processEventCount, 12)
+        XCTAssertGreaterThanOrEqual(stats.relationCount, 8)
+    }
+
+    func testAddIdea_sqlbaseReadsRuntimeSummaryFromDatabase() throws {
+        let root = try makeTemporaryDirectory()
+        let projectURL = root.appendingPathComponent("starter-ds")
+        let sut = PlaybookRuntimeFileSystem(
+            gitClient: StubGitClient(),
+            githubClient: StubGitHubClient(remoteURL: "git@github.com:test/starter-ds.git"),
+            now: { Date(timeIntervalSince1970: 0) }
+        )
+
+        _ = sut.runNewProject(
+            PlaybookNewProjectRequest(
+                projectName: "Starter DS",
+                projectRootPath: projectURL.path,
+                profileSelection: PlaybookProfileSelection(storage: .sqlbase),
+                projectDescription: "DevSupervisor uruchamia projekt i baseline z audytem.",
+                baselineGate: PlaybookGateInput(
+                    decision: .approve,
+                    reason: "baseline kompletny"
+                ),
+                createRemoteRepository: false
+            )
+        )
+
+        let addIdea = sut.addIdea(
+            PlaybookAddIdeaRequest(
+                projectRootPath: projectURL.path,
+                ideaTitle: "Uruchomienie projektu z UI",
+                ideaDescription: "Operator ma dostac baseline, OP i audyt w jednym flow.",
+                convertGate: PlaybookGateInput(
+                    decision: .approve,
+                    reason: "idea gotowa"
+                )
+            )
+        )
+
+        XCTAssertTrue(addIdea.result.isSuccess)
+        try FileManager.default.removeItem(at: projectURL.appendingPathComponent(".ai/runtime/v1/process-events.ndjson"))
+        try FileManager.default.removeItem(at: projectURL.appendingPathComponent(".ai/runtime/v1/gate-decisions.ndjson"))
+        try FileManager.default.removeItem(at: projectURL.appendingPathComponent(".ai/runtime/v1/evidence.ndjson"))
+        try FileManager.default.removeItem(at: projectURL.appendingPathComponent(".ai/runtime/v1/ops"))
+
+        let summary = sut.summarizeRuntime(at: projectURL.path)
+        XCTAssertEqual(summary.projectState, "active")
+        XCTAssertEqual(summary.gateDecisionCount, 2)
+        XCTAssertEqual(summary.evidenceCount, 2)
+        XCTAssertGreaterThanOrEqual(summary.processEventCount, 24)
+        XCTAssertTrue(summary.allOps.contains(where: { $0.opType == "Idea" && $0.state == "converted" }))
+
+        let stats = try SQLRuntimeStore().stats(projectRoot: projectURL)
+        XCTAssertEqual(stats.gateDecisionCount, 2)
+        XCTAssertEqual(stats.evidenceCount, 2)
+    }
+
+    func testSummarizeRuntime_sqlbaseImportsExistingFileAIRuntime() throws {
+        let root = try makeTemporaryDirectory()
+        let projectURL = root.appendingPathComponent("starter-ds")
+        let sut = PlaybookRuntimeFileSystem(
+            gitClient: StubGitClient(),
+            githubClient: StubGitHubClient(remoteURL: "git@github.com:test/starter-ds.git"),
+            now: { Date(timeIntervalSince1970: 0) }
+        )
+
+        _ = sut.runNewProject(
+            PlaybookNewProjectRequest(
+                projectName: "Starter DS",
+                projectRootPath: projectURL.path,
+                projectDescription: "DevSupervisor uruchamia projekt i baseline z audytem.",
+                baselineGate: PlaybookGateInput(
+                    decision: .approve,
+                    reason: "baseline kompletny"
+                ),
+                createRemoteRepository: false
+            )
+        )
+
+        try rewriteStorageProfile(to: .sqlbase, projectURL: projectURL)
+        let summary = sut.summarizeRuntime(at: projectURL.path)
+
+        XCTAssertEqual(summary.projectState, "active")
+        XCTAssertTrue(summary.allOps.contains(where: { $0.opType == "Project" && $0.state == "active" }))
+
+        let stats = try SQLRuntimeStore().stats(projectRoot: projectURL)
+        XCTAssertEqual(stats.opCount, 8)
+        XCTAssertEqual(stats.gateDecisionCount, 1)
+        XCTAssertEqual(stats.evidenceCount, 1)
+    }
 }
 
 private extension PlaybookRuntimeFileSystemTests {
@@ -183,6 +304,16 @@ private extension PlaybookRuntimeFileSystemTests {
         let url = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         try FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
         return url
+    }
+
+    func rewriteStorageProfile(to profile: StorageProfile, projectURL: URL) throws {
+        let profileURL = projectURL.appendingPathComponent(".ai/project-profile.json")
+        let data = try Data(contentsOf: profileURL)
+        let rawObject = try XCTUnwrap(try JSONSerialization.jsonObject(with: data) as? [String: Any])
+        var object = rawObject
+        object["storage"] = profile.rawValue
+        let updatedData = try JSONSerialization.data(withJSONObject: object, options: [.sortedKeys])
+        try updatedData.write(to: profileURL, options: .atomic)
     }
 }
 

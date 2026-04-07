@@ -72,8 +72,8 @@ struct PlaybookRuntimeFileSystem: PlaybookRuntimeContract {
             remoteURL: summaries.remoteURL,
             allOps: summaries.ops.sorted { $0.opID < $1.opID },
             baselineArtifacts: baselineArtifactStatuses(projectRoot: projectURL),
-            processEventCount: countLines(at: projectURL.appendingPathComponent(".ai/runtime/v1/process-events.ndjson")),
-            gateDecisionCount: countLines(at: projectURL.appendingPathComponent(".ai/runtime/v1/gate-decisions.ndjson")),
+            processEventCount: summaries.processEventCount,
+            gateDecisionCount: summaries.gateDecisionCount,
             evidenceCount: summaries.evidenceCount,
             lastEvidenceClass: summaries.lastEvidenceClass,
             lastEventID: summaries.lastEventID
@@ -85,6 +85,8 @@ private struct RuntimeSummarySnapshot {
     let ops: [PlaybookDerivedOPSummary]
     let projectState: String?
     let remoteURL: String?
+    let processEventCount: Int
+    let gateDecisionCount: Int
     let evidenceCount: Int
     let lastEvidenceClass: String?
     let lastEventID: String?
@@ -117,6 +119,38 @@ private extension PlaybookRuntimeFileSystem {
     }
 
     func runtimeSummaries(projectRoot: URL) -> RuntimeSummarySnapshot {
+        if isSQLBaseRuntime(projectRoot: projectRoot) {
+            do {
+                let projectSnapshot = try sqlRuntimeStore.latestSnapshot(for: "project.ds", projectRoot: projectRoot)
+                let remoteURL = projectSnapshot?
+                    .payload?["repository"]?
+                    .objectValue?["remote_url"]?
+                    .stringValue
+
+                return try RuntimeSummarySnapshot(
+                    ops: sqlRuntimeStore.allOpSummaries(projectRoot: projectRoot),
+                    projectState: projectSnapshot?.state,
+                    remoteURL: remoteURL?.isEmpty == true ? nil : remoteURL,
+                    processEventCount: sqlRuntimeStore.processEventCount(projectRoot: projectRoot),
+                    gateDecisionCount: sqlRuntimeStore.gateDecisionCount(projectRoot: projectRoot),
+                    evidenceCount: sqlRuntimeStore.evidenceCount(projectRoot: projectRoot),
+                    lastEvidenceClass: sqlRuntimeStore.lastEvidenceClass(projectRoot: projectRoot),
+                    lastEventID: projectSnapshot?.lastEventID
+                )
+            } catch {
+                return RuntimeSummarySnapshot(
+                    ops: [],
+                    projectState: nil,
+                    remoteURL: nil,
+                    processEventCount: 0,
+                    gateDecisionCount: 0,
+                    evidenceCount: 0,
+                    lastEvidenceClass: nil,
+                    lastEventID: nil
+                )
+            }
+        }
+
         let opsRoot = projectRoot.appendingPathComponent(".ai/runtime/v1/ops")
         let opDirectories = (try? fileManager.contentsOfDirectory(
             at: opsRoot,
@@ -178,6 +212,8 @@ private extension PlaybookRuntimeFileSystem {
             ops: summaries,
             projectState: projectState,
             remoteURL: remoteURL,
+            processEventCount: countLines(at: projectRoot.appendingPathComponent(".ai/runtime/v1/process-events.ndjson")),
+            gateDecisionCount: countLines(at: projectRoot.appendingPathComponent(".ai/runtime/v1/gate-decisions.ndjson")),
             evidenceCount: evidenceCount,
             lastEvidenceClass: lastEvidenceClass,
             lastEventID: lastEventID

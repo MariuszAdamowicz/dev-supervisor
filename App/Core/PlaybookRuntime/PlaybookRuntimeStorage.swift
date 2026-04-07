@@ -195,6 +195,10 @@ private extension PlaybookRuntimeFileSystem {
 
 extension PlaybookRuntimeFileSystem {
     func latestSnapshot(for opID: String, projectRoot: URL) throws -> RuntimeOpSnapshot? {
+        if isSQLBaseRuntime(projectRoot: projectRoot) {
+            return try sqlRuntimeStore.latestSnapshot(for: opID, projectRoot: projectRoot)
+        }
+
         let versionsURL = opDirectory(for: opID, projectRoot: projectRoot).appendingPathComponent("versions")
         guard fileManager.fileExists(atPath: versionsURL.path) else {
             return nil
@@ -212,7 +216,11 @@ extension PlaybookRuntimeFileSystem {
     }
 
     func latestVersion(for opID: String, projectRoot: URL) -> Int {
-        (try? latestSnapshot(for: opID, projectRoot: projectRoot)?.opVersion) ?? 0
+        if isSQLBaseRuntime(projectRoot: projectRoot) {
+            return (try? sqlRuntimeStore.latestVersion(for: opID, projectRoot: projectRoot)) ?? 0
+        }
+
+        return (try? latestSnapshot(for: opID, projectRoot: projectRoot)?.opVersion) ?? 0
     }
 
     func writeSnapshot(_ snapshot: RuntimeOpSnapshot, projectRoot: URL) throws {
@@ -225,6 +233,9 @@ extension PlaybookRuntimeFileSystem {
 
         let data = try makeEncoder().encode(snapshot)
         try data.write(to: fileURL, options: .atomic)
+        if isSQLBaseRuntime(projectRoot: projectRoot) {
+            try sqlRuntimeStore.upsertSnapshot(snapshot, projectRoot: projectRoot)
+        }
         try writeOpIndex(projectRoot: projectRoot)
     }
 
@@ -232,16 +243,25 @@ extension PlaybookRuntimeFileSystem {
         let opURL = opDirectory(for: event.opID, projectRoot: projectRoot)
         try appendRecord(event, to: opURL.appendingPathComponent("events.ndjson"))
         try appendRecord(event, to: projectRoot.appendingPathComponent(".ai/runtime/v1/process-events.ndjson"))
+        if isSQLBaseRuntime(projectRoot: projectRoot) {
+            try sqlRuntimeStore.appendProcessEvent(event, projectRoot: projectRoot)
+        }
     }
 
     func appendGateDecision(_ gate: RuntimeGateDecision, projectRoot: URL) throws {
         let opURL = opDirectory(for: gate.opID, projectRoot: projectRoot)
         try appendRecord(gate, to: opURL.appendingPathComponent("gates.ndjson"))
         try appendRecord(gate, to: projectRoot.appendingPathComponent(".ai/runtime/v1/gate-decisions.ndjson"))
+        if isSQLBaseRuntime(projectRoot: projectRoot) {
+            try sqlRuntimeStore.appendGateDecision(gate, projectRoot: projectRoot)
+        }
     }
 
     func appendEvidence(_ evidence: RuntimeEvidenceRecord, projectRoot: URL) throws {
         try appendRecord(evidence, to: projectRoot.appendingPathComponent(".ai/runtime/v1/evidence.ndjson"))
+        if isSQLBaseRuntime(projectRoot: projectRoot) {
+            try sqlRuntimeStore.appendEvidence(evidence, projectRoot: projectRoot)
+        }
     }
 
     func appendRecord<Record: Codable & IdempotentRuntimeRecord>(_ record: Record, to url: URL) throws {
@@ -274,6 +294,11 @@ extension PlaybookRuntimeFileSystem {
     }
 
     func nextSequentialOpID(prefix: String, projectRoot: URL) -> String {
+        if isSQLBaseRuntime(projectRoot: projectRoot) {
+            return (try? sqlRuntimeStore.nextSequentialOpID(prefix: prefix, projectRoot: projectRoot))
+                ?? "\(prefix).0001"
+        }
+
         let opsRoot = projectRoot.appendingPathComponent(".ai/runtime/v1/ops")
         let existing = (try? fileManager.contentsOfDirectory(atPath: opsRoot.path)) ?? []
         let numbers = existing.compactMap { entry -> Int? in
@@ -287,16 +312,28 @@ extension PlaybookRuntimeFileSystem {
     }
 
     func nextProcessEventID(projectRoot: URL) -> String {
+        if isSQLBaseRuntime(projectRoot: projectRoot) {
+            return (try? sqlRuntimeStore.nextProcessEventID(projectRoot: projectRoot)) ?? "evt_0001"
+        }
+
         let count = countLines(at: projectRoot.appendingPathComponent(".ai/runtime/v1/process-events.ndjson"))
         return String(format: "evt_%04d", count + 1)
     }
 
     func nextGateDecisionID(projectRoot: URL) -> String {
+        if isSQLBaseRuntime(projectRoot: projectRoot) {
+            return (try? sqlRuntimeStore.nextGateDecisionID(projectRoot: projectRoot)) ?? "gate_0001"
+        }
+
         let count = countLines(at: projectRoot.appendingPathComponent(".ai/runtime/v1/gate-decisions.ndjson"))
         return String(format: "gate_%04d", count + 1)
     }
 
     func nextEvidenceID(projectRoot: URL) -> String {
+        if isSQLBaseRuntime(projectRoot: projectRoot) {
+            return (try? sqlRuntimeStore.nextEvidenceID(projectRoot: projectRoot)) ?? "evidence_0001"
+        }
+
         let count = countLines(at: projectRoot.appendingPathComponent(".ai/runtime/v1/evidence.ndjson"))
         return String(format: "evidence_%04d", count + 1)
     }
@@ -367,29 +404,34 @@ extension PlaybookRuntimeFileSystem {
     }
 
     func writeOpIndex(projectRoot: URL) throws {
-        let opsRoot = projectRoot.appendingPathComponent(".ai/runtime/v1/ops")
-        let opDirectories = (try? fileManager.contentsOfDirectory(
-            at: opsRoot,
-            includingPropertiesForKeys: nil,
-            options: [.skipsHiddenFiles]
-        )) ?? []
+        let entries: [RuntimeOpIndexEntry]
+        if isSQLBaseRuntime(projectRoot: projectRoot) {
+            entries = try sqlRuntimeStore.opIndexEntries(projectRoot: projectRoot)
+        } else {
+            let opsRoot = projectRoot.appendingPathComponent(".ai/runtime/v1/ops")
+            let opDirectories = (try? fileManager.contentsOfDirectory(
+                at: opsRoot,
+                includingPropertiesForKeys: nil,
+                options: [.skipsHiddenFiles]
+            )) ?? []
 
-        let entries = try opDirectories.compactMap { opDirectory -> RuntimeOpIndexEntry? in
-            guard let snapshot = try latestSnapshot(for: opDirectory.lastPathComponent, projectRoot: projectRoot) else {
-                return nil
+            entries = try opDirectories.compactMap { opDirectory -> RuntimeOpIndexEntry? in
+                guard let snapshot = try latestSnapshot(for: opDirectory.lastPathComponent, projectRoot: projectRoot) else {
+                    return nil
+                }
+
+                let parentID = snapshot.links.first(where: { $0.rel == "parent" })?.target
+                return RuntimeOpIndexEntry(
+                    opID: snapshot.opID,
+                    opType: snapshot.opType,
+                    state: snapshot.state,
+                    parentID: parentID,
+                    terminal: isTerminalState(snapshot.state),
+                    lastEventID: snapshot.lastEventID
+                )
             }
-
-            let parentID = snapshot.links.first(where: { $0.rel == "parent" })?.target
-            return RuntimeOpIndexEntry(
-                opID: snapshot.opID,
-                opType: snapshot.opType,
-                state: snapshot.state,
-                parentID: parentID,
-                terminal: isTerminalState(snapshot.state),
-                lastEventID: snapshot.lastEventID
-            )
+            .sorted { $0.opID < $1.opID }
         }
-        .sorted { $0.opID < $1.opID }
 
         let index = RuntimeOpIndex(updatedAt: timestamp(), entries: entries)
         let url = projectRoot.appendingPathComponent(".ai/runtime/v1/op-index.json")
@@ -410,5 +452,30 @@ extension PlaybookRuntimeFileSystem {
             "published",
             "revoked",
         ].contains(state)
+    }
+
+    var sqlRuntimeStore: SQLRuntimeStore {
+        SQLRuntimeStore(fileManager: fileManager)
+    }
+
+    func sqlRuntimeDatabaseURL(projectRoot: URL) -> URL {
+        sqlRuntimeStore.databaseURL(projectRoot: projectRoot)
+    }
+
+    func runtimeStorageProfile(projectRoot: URL) -> StorageProfile {
+        let profileURL = projectRoot.appendingPathComponent(".ai/project-profile.json")
+        if let data = try? Data(contentsOf: profileURL),
+           let rawObject = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+           let rawStorage = rawObject["storage"] as? String,
+           let profile = StorageProfile(rawValue: rawStorage)
+        {
+            return profile
+        }
+
+        return fileManager.fileExists(atPath: sqlRuntimeDatabaseURL(projectRoot: projectRoot).path) ? .sqlbase : .fileAI
+    }
+
+    func isSQLBaseRuntime(projectRoot: URL) -> Bool {
+        runtimeStorageProfile(projectRoot: projectRoot) == .sqlbase
     }
 }
