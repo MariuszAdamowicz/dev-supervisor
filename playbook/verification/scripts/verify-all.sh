@@ -12,6 +12,7 @@ SUMMARY_MD="$REPORTS_DIR/${DATE_TAG}-verify-all-summary.md"
 
 SCENARIO_E2E="$REPLAY_DIR/scenario-e2e-full-op.csv"
 SCENARIO_CHAOS="$REPLAY_DIR/scenario-chaos-full-op.csv"
+TOTAL_OPS="$(awk '/^### [0-9]+\./{count++} END{print count+0}' playbook/layers/op/object-catalog.md)"
 
 mkdir -p "$REPLAY_OUT" "$REPORTS_DIR"
 
@@ -80,8 +81,8 @@ cat > "$SUMMARY_MD" <<EOF
 - real_runtime_capture: ${RUNTIME_CAPTURE_PRESENT}
 
 ## Runtime Coverage
-- e2e_op_types: ${E2E_OPS}/26
-- chaos_op_types: ${CHAOS_OPS}/26
+- e2e_op_types: ${E2E_OPS}/${TOTAL_OPS}
+- chaos_op_types: ${CHAOS_OPS}/${TOTAL_OPS}
 - e2e_events: ${E2E_EVENTS}
 - e2e_gates: ${E2E_GATES}
 - chaos_events: ${CHAOS_EVENTS}

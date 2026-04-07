@@ -16,7 +16,7 @@ update spec -> update BDD -> update tests -> migrate code -> cleanup -> stabiliz
 6. Przygotuj plan migracji.
 7. Zastosuj migracje i usun obsolete code/tests.
 8. Uruchom build/test/lint.
-9. Zapisz GateDecision.
+9. Zapisz GateDecisionRecord.
 
 ## OP requirements
 
@@ -24,8 +24,8 @@ Podczas rewrite musza byc zaktualizowane:
 - Feature OP state,
 - Scenario OP i linki testow,
 - Requirement/Constraint/DecisionRecord (jesli dotkniete),
-- QualitySignal,
-- ProcessEvent.
+- QualityEvidenceRecord,
+- ProcessEventRecord.
 
 Jesli rewrite powoduje regression risk:
 - utworz Risk OP,

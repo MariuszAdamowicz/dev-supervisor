@@ -19,7 +19,7 @@ Zasady:
 2. git checkout -b feat/<feature>
 3. praca + commity logiczne
 4. build/test/lint
-5. review package + GateDecision
+5. review package + GateDecisionRecord
 6. merge do main
 7. usuniecie brancha
 
@@ -33,16 +33,16 @@ Zasady:
 Przed merge musza byc domkniete:
 - feature artifacts (prd, bdd, tasks, notes, traceability),
 - build/test/lint,
-- GateDecision,
-- QualitySignal,
+- GateDecisionRecord,
+- QualityEvidenceRecord,
 - brak krytycznych otwartych PromptTask.
 
 ## OP alignment
 
 Merge do main jest dozwolony tylko jesli przejscie OP jest legalne wg guardow.
 Wymagane artefakty audytu:
-- ProcessEvent,
-- GateDecision,
+- ProcessEventRecord,
+- GateDecisionRecord,
 - quality outcome.
 
 ## Tooling alignment

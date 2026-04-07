@@ -36,7 +36,7 @@ HEAD: 86c18e4
 - Rozszerzone guardy delivery (`Dependency`, `Exception`, `Risk`).
 
 ## 5) Tematy otwarte (poza P2)
-1. `GateDecision` jako standalone OP ma semantyke, ale brak pelnego, osobnego lifecycle binding poza osadzeniem w transitionach.
+1. `GateDecisionRecord` jako standalone record systemowy ma semantyke, ale brakowalo wtedy pelnego, osobnego kontraktu poza osadzeniem w transitionach.
 2. `Dependency` ma stany `validated/satisfied/waived`, ale brak pelnego zestawu bindingow dla wszystkich przejsc.
 3. `Timeout` i `Compensation` maja semantyke bogatsza niz obecne pokrycie bindingami (zwlaszcza sciezki `failed`).
 4. Wymagane jest wykonanie ponownego globalnego audytu coverage wszystkich OP po zmianach P0-P2 (nie tylko scoped P2).
@@ -48,4 +48,4 @@ HEAD: 86c18e4
 ## 7) Rekomendowana kolejna iteracja (v2)
 1. Globalny audit coverage wszystkich OP po patchach.
 2. Domkniecie `Dependency`, `Timeout`, `Compensation`.
-3. Ujednolicenie `GateDecision` jako OP standalone (jesli utrzymujemy ten model).
+3. Ujednolicenie `GateDecisionRecord` jako recordu systemowego.

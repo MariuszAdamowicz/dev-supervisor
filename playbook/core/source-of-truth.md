@@ -24,8 +24,8 @@ Delivery:
 - release/deployment/rollback status (w stanie OP, nie w notatkach)
 
 Quality and Audit:
-- quality signals (pass/fail) i decyzje gate
-- ProcessEvent jako audit trail
+- quality evidence records (pass/fail) i decyzje gate
+- ProcessEventRecord jako audit trail
 
 ## Zasada priorytetu
 

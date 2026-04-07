@@ -364,6 +364,97 @@ Kazdy binding ma:
   - operator-ui: confirm remediation scope
 - required: true
 
+### A6. Repository / ChangeSet / VerificationPlan / Data / Environment
+
+4ag. Repository.detected -> Repository.initialized
+- event_ref: repo.initialize-requested
+- action_plan: synchronize_repository
+- tool_plan:
+  - git: init + status
+  - operator-ui: confirm repository root and ignore baseline
+  - storage-adapter: persist Repository state
+- required: true
+
+4ah. Repository.remote-attached -> Repository.policy-aligned
+- event_ref: repo.align-policy-requested
+- action_plan: produce_review_package, decide_gate
+- tool_plan:
+  - git: remote + fetch + status
+  - operator-ui: approve branch/commit policy
+  - storage-adapter: persist Repository policy and gate
+- required: true
+
+4ai. ChangeSet.drafted -> ChangeSet.staged
+- event_ref: changeset.stage-requested
+- action_plan: stage_changeset
+- tool_plan:
+  - git: add + diff + status
+  - operator-ui: confirm file scope and linked OPs
+  - storage-adapter: persist ChangeSet scope
+- required: true
+
+4aj. ChangeSet.staged -> ChangeSet.validated
+- event_ref: changeset.validate-requested
+- action_plan: plan_verification_scope, run_validation_suite, decide_gate
+- tool_plan:
+  - quality-runner: unit/integration/acceptance/e2e wg VerificationPlan
+  - operator-ui: approve request_changes/defer/reject dla ChangeSet
+  - storage-adapter: persist validation refs + gate
+- required: true
+
+4ak. ChangeSet.validated -> ChangeSet.committed
+- event_ref: changeset.commit-requested
+- action_plan: commit_checkpoint
+- tool_plan:
+  - git: commit
+  - storage-adapter: persist commit_refs
+- required: true
+
+4al. VerificationPlan.drafted -> VerificationPlan.reviewed
+- event_ref: verification.review-requested
+- action_plan: plan_verification_scope
+- tool_plan:
+  - quality-runner: compute required lanes
+  - operator-ui: confirm lane selection and `not_applicable`
+  - storage-adapter: persist VerificationPlan
+- required: true
+
+4am. VerificationPlan.reviewed -> VerificationPlan.approved
+- event_ref: verification.approve-requested
+- action_plan: produce_review_package, decide_gate
+- tool_plan:
+  - shell: review package generator (lane matrix + provenance rules)
+  - operator-ui: approve/request_changes/defer/reject verification policy
+  - storage-adapter: persist VerificationPlan state
+- required: true
+
+4an. DataSchema.drafted -> DataSchema.reviewed
+- event_ref: schema.review-requested
+- action_plan: evolve_data_schema
+- tool_plan:
+  - shell: schema diff / compatibility report
+  - operator-ui: confirm owned structures and compatibility policy
+  - storage-adapter: persist DataSchema draft
+- required: true
+
+4ao. Migration.ready -> Migration.applied
+- event_ref: migration.apply-requested
+- action_plan: evolve_data_schema
+- tool_plan:
+  - shell: execute migration lane
+  - operator-ui: confirm apply window and rollback readiness
+  - storage-adapter: persist Migration result
+- required: true
+
+4ap. RuntimeEnvironment.defined -> RuntimeEnvironment.validated
+- event_ref: environment.validate-requested
+- action_plan: validate_runtime_environment
+- tool_plan:
+  - deployment-adapter: verify_environment
+  - operator-ui: confirm capabilities, secrets policy and constraints
+  - storage-adapter: persist RuntimeEnvironment check
+- required: true
+
 ### B. Idea -> Feature
 
 4. Idea.captured -> Idea.scoped
@@ -381,7 +472,7 @@ Kazdy binding ma:
 - action_plan: decide_gate
 - tool_plan:
   - operator-ui: approve conversion do Feature
-  - storage-adapter: zapis GateDecision + Feature create
+  - storage-adapter: zapis GateDecisionRecord + Feature create
 - required: true
 
 6. Idea.scoped -> Idea.dropped
@@ -607,7 +698,7 @@ Kazdy binding ma:
   - ai-runner: retry_job
   - storage-adapter: increment retry_count
 - failure_policy:
-  - po limicie retry: reset_ai_context albo GateDecision.defer
+  - po limicie retry: reset_ai_context albo GateDecisionRecord.defer
 - required: true
 
 22a. PromptTask.executed -> PromptTask.validated
@@ -650,22 +741,6 @@ Kazdy binding ma:
 - action_plan: accept_ai_result
 - tool_plan:
   - storage-adapter: persist PromptTask state
-- required: true
-
-22c. QualitySignal.evaluated -> QualitySignal.pass
-- event_ref: quality.passed
-- action_plan: accept_ai_result
-- tool_plan:
-  - quality-runner: persist pass metrics
-  - storage-adapter: persist QualitySignal
-- required: true
-
-23. QualitySignal.evaluated -> QualitySignal.fail
-- event_ref: quality.failed
-- action_plan: request_rework
-- tool_plan:
-  - storage-adapter: utworz Exception + debug task
-  - operator-ui: confirm rework/defer
 - required: true
 
 24. Exception.detected -> Exception.handled
@@ -862,10 +937,11 @@ dla OP, ktore nie maja jeszcze jawnych wpisow per kazdy wariant.
 Zakres OP objetych tym mechanizmem:
 - Project, Requirement, Constraint, DecisionRecord, Idea, Feature, Scenario
 - Term, UIComponent, UIScreen
-- PromptTask, GateDecision, ActorRolePermission, Dependency
+- PromptTask, ActorRolePermission, Dependency
 - UseCase, PortContract, Component
 - Risk, Release, Deployment, Rollback
-- QualitySignal, Exception, Timeout, Compensation, ProcessEvent
+- Exception, Timeout, Compensation
+- Repository, ChangeSet, VerificationPlan, DataSchema, Migration, RuntimeEnvironment
 
 Zasada:
 - jesli legalny transition z FSM nie ma jawnego bindingu wyzej, stosujemy binding szablonowy G1/G2/G3.
@@ -890,7 +966,7 @@ G2. Non-gate transition template
 - event_ref: `<op>.<event>` zgodnie z FSM
 - action_plan: accept_ai_result
 - tool_plan:
-  - storage-adapter: update OP state + append ProcessEvent
+  - storage-adapter: update OP state + append ProcessEventRecord
 - required: true
 
 G3. Retry/escalation template
@@ -910,8 +986,8 @@ G3. Retry/escalation template
 - Brak bindingu dla legal transition oznacza konfiguracje niekompletna.
 - Jesli action wymaga decyzji czlowieka, tool_plan musi zawierac operator-ui.
 - Zmiana stanu OP przez UI bez odpowiadajacego bindingu jest niedozwolona.
-- Kazdy binding krytyczny musi miec audit trace: ProcessEvent + GateDecision (jesli gate wystepuje).
+- Kazdy binding krytyczny musi miec audit trace: ProcessEventRecord + GateDecisionRecord (jesli gate wystepuje).
 - MCP moze byc uzyte tylko jako adapter transportowy; kontrola job lifecycle nalezy do DS.
 - Kazdy binding transition MUST wykonac authz precheck:
   - storage-adapter: read ActorRolePermission(active, scope, allowed_actions)
-  - brak uprawnienia -> utworz Exception(authz), blokuj transition, zapisz ProcessEvent.
+  - brak uprawnienia -> utworz Exception(authz), blokuj transition, zapisz ProcessEventRecord.

@@ -21,7 +21,7 @@ Kazde narzedzie ma:
 - class: human
 - capabilities: choose_action, confirm_gate, provide_input, approve_reject, collect_inline_form, show_status, explain_blocker, progressive_disclosure
 - adapter: akcja operatora w UI aplikacji
-- observability: ProcessEvent z actor_role=operator
+- observability: ProcessEventRecord z actor_role=operator
 
 ### 2. ai-runner (service)
 - class: service
@@ -33,13 +33,13 @@ Kazde narzedzie ma:
 - class: app
 - capabilities: read_state, write_state, persist_artifacts, append_audit
 - adapter: profile storage file-ai lub sqlbase
-- observability: ProcessEvent + wersja zapisu
+- observability: ProcessEventRecord + wersja zapisu
 
 ### 3a. policy-engine (app)
 - class: app
 - capabilities: authorize_transition, validate_semantics, validate_invariants, classify_evidence
 - adapter: deterministyczny silnik polityk i invariantow
-- observability: ProcessEvent + wynik authz/guard/invariant/provenance
+- observability: ProcessEventRecord + wynik authz/guard/invariant/provenance
 
 ### 4. shell (cli)
 - class: cli
@@ -49,15 +49,15 @@ Kazde narzedzie ma:
 
 ### 5. git (cli)
 - class: cli
-- capabilities: branch, add, commit, merge, rebase, push
+- capabilities: init, branch, checkout, status, diff, add, commit, merge, rebase, remote, fetch, pull, push, tag
 - adapter: lokalny git
 - observability: hash commit, branch, diff summary
 
 ### 6. quality-runner (cli/profile)
 - class: cli
-- capabilities: build, test, lint, format, coverage
+- capabilities: build, test, lint, format, coverage, unit_test, integration_test, acceptance_test, e2e_test, smoke_test
 - adapter: stack profile (np. xcodebuild/swiftlint/swiftformat)
-- observability: QualitySignal pass/fail + metryki
+- observability: QualityEvidenceRecord pass/fail + metryki
 
 ## Narzedzia opcjonalne
 
@@ -85,14 +85,14 @@ Uwagi:
 - pytest/ruff (stack: python-fastapi-react)
   - capabilities: test, lint
 - deployment-adapter (runtime)
-  - capabilities: deploy, rollback
+  - capabilities: deploy, rollback, verify_environment
 
 ## Zasady
 
 - Operator jest legalnym narzedziem wykonawczym: zmiana stanu przez UI jest tool invocation.
 - Agent AI jest legalnym narzedziem wykonawczym: wywolania sa job-based i sterowane przez DS.
 - Profil moze dodac narzedzia, ale nie moze usunac baseline bez jawnego override policy.
-- Kazde uruchomienie narzedzia (takze operator-ui i ai-runner) musi byc audytowane przez ProcessEvent.
+- Kazde uruchomienie narzedzia (takze operator-ui i ai-runner) musi byc audytowane przez ProcessEventRecord.
 - Kazdy state-changing flow przechodzi przez `policy-engine` przed zapisem stanu.
 - Brak narzedzia wymaganej capability blokuje transition OP.
 - Playbook Layer mapuje transition na akcje i narzedzia; aplikacja nie zgaduje narzedzi dynamicznie.

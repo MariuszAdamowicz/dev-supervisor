@@ -197,13 +197,17 @@ persistence_map:
     - ".ai/architecture/use-cases.md"
     - ".ai/architecture/port-contracts.md"
     - ".ai/architecture/component-map.md"
+    - ".ai/verification/plan.md"
     - ".ai/ux/new-project.md"
     - ".ai/runtime/v1/op-index.json"
+    - ".ai/runtime/v1/relation-index.json"
+    - ".ai/runtime/v1/reverse-relation-index.json"
     - ".ai/runtime/v1/ops/project.ds/versions/000001.json"
     - ".ai/runtime/v1/ops/project.ds/events.ndjson"
     - ".ai/runtime/v1/ops/project.ds/gates.ndjson"
   required_op_types_after_new_project:
     - Project
+    - Repository
     - Requirement
     - Constraint
     - DecisionRecord
@@ -211,6 +215,7 @@ persistence_map:
     - PortContract
     - Component
     - ActorRolePermission
+    - VerificationPlan
   op_instance_path: ".ai/runtime/v1/ops/<op_id>/versions/<op_version>.json"
   op_events_path: ".ai/runtime/v1/ops/<op_id>/events.ndjson"
   op_gates_path: ".ai/runtime/v1/ops/<op_id>/gates.ndjson"
@@ -228,9 +233,11 @@ baseline_contract:
     - use_case_map
     - port_contract_map
     - component_map
+    - verification_plan
     - new_project_ux_projection
   required_op_types:
     - Project
+    - Repository
     - Requirement
     - Constraint
     - DecisionRecord
@@ -238,6 +245,17 @@ baseline_contract:
     - PortContract
     - Component
     - ActorRolePermission
+    - VerificationPlan
+  conditional_required_artifacts:
+    deployable-runtime:
+      - runtime_environment_map
+    persistent-data:
+      - data_schema_map
+  conditional_required_op_types:
+    deployable-runtime:
+      - RuntimeEnvironment
+    persistent-data:
+      - DataSchema
 
 authz_contract:
   default_mode: deny_by_default
@@ -247,6 +265,9 @@ authz_contract:
 crud_contract:
   hard_delete_after_audit_event: forbidden
   required_runtime_index: ".ai/runtime/v1/op-index.json"
+  required_relation_indexes:
+    - ".ai/runtime/v1/relation-index.json"
+    - ".ai/runtime/v1/reverse-relation-index.json"
   required_parent_linkage: true
   remove_requires_tombstone: true
 
@@ -769,13 +790,35 @@ entrypoint_catalog:
   maintain_baseline:
     template: baseline_bundle
     transition_refs:
+      - Repository.detected -> Repository.initialized
       - Requirement.proposed -> Requirement.clarified
       - Constraint.proposed -> Constraint.validated
       - DecisionRecord.drafted -> DecisionRecord.reviewed
+      - VerificationPlan.drafted -> VerificationPlan.reviewed
     required_artifacts:
       - ".ai/prd/overview.md"
       - ".ai/adr/0001-project-baseline.md"
+      - ".ai/verification/plan.md"
       - ".ai/ux/new-project.md"
+  manage_repository:
+    template: repository_control
+    transition_refs:
+      - Repository.detected -> Repository.initialized
+      - Repository.initialized -> Repository.remote-attached
+      - Repository.remote-attached -> Repository.policy-aligned
+      - Repository.policy-aligned -> Repository.active
+  manage_changeset:
+    template: changeset_control
+    transition_refs:
+      - ChangeSet.drafted -> ChangeSet.staged
+      - ChangeSet.staged -> ChangeSet.validated
+      - ChangeSet.validated -> ChangeSet.committed
+  plan_verification:
+    template: verification_control
+    transition_refs:
+      - VerificationPlan.drafted -> VerificationPlan.reviewed
+      - VerificationPlan.reviewed -> VerificationPlan.approved
+      - VerificationPlan.approved -> VerificationPlan.active
   refine_feature:
     template: feature_refinement
     transition_refs:
@@ -815,11 +858,25 @@ entrypoint_catalog:
       - Release.approved -> Deployment.prepared
       - Deployment.prepared -> Deployment.running
       - Deployment.running -> Deployment.succeeded
-      - Release.published -> Feature.released
+      - Feature.stabilized -> Feature.released
+  evolve_data_schema:
+    template: data_evolution
+    transition_refs:
+      - DataSchema.drafted -> DataSchema.reviewed
+      - DataSchema.reviewed -> DataSchema.approved
+      - Migration.drafted -> Migration.reviewed
+      - Migration.ready -> Migration.applied
+  manage_environment:
+    template: environment_readiness
+    transition_refs:
+      - RuntimeEnvironment.defined -> RuntimeEnvironment.validated
+      - RuntimeEnvironment.validated -> RuntimeEnvironment.ready
+      - RuntimeEnvironment.ready -> RuntimeEnvironment.active
   handle_exception:
     template: exception_recovery
     transition_refs:
-      - Exception.detected -> Exception.escalated
+      - Exception.detected -> Exception.classified
+      - Exception.classified -> Exception.escalated
       - Timeout.fired -> Timeout.escalated
       - Deployment.failed -> Rollback.prepared
       - Rollback.prepared -> Rollback.running
@@ -891,6 +948,53 @@ transition_execution:
         - policy-engine
         - operator-ui
         - ai-runner
+        - storage-adapter
+    repository_control:
+      applies_when:
+        - entrypoint is manage_repository
+      step_chain:
+        - policy_authorize_transition
+        - operator_collect_inputs
+        - synchronize_repository_state
+        - operator_gate_prompt_if_needed
+        - policy_classify_evidence
+        - storage_append_process_event
+      required_tools:
+        - policy-engine
+        - git
+        - operator-ui
+        - storage-adapter
+    changeset_control:
+      applies_when:
+        - entrypoint is manage_changeset
+      step_chain:
+        - policy_authorize_transition
+        - operator_collect_inputs
+        - stage_or_commit_changeset
+        - run_quality_lane_if_required
+        - operator_gate_prompt_if_needed
+        - policy_classify_evidence
+        - storage_append_process_event
+      required_tools:
+        - policy-engine
+        - git
+        - quality-runner
+        - operator-ui
+        - storage-adapter
+    verification_control:
+      applies_when:
+        - entrypoint is plan_verification
+      step_chain:
+        - policy_authorize_transition
+        - operator_collect_inputs
+        - derive_verification_lanes
+        - operator_gate_prompt_if_needed
+        - policy_classify_evidence
+        - storage_append_process_event
+      required_tools:
+        - policy-engine
+        - quality-runner
+        - operator-ui
         - storage-adapter
     feature_refinement:
       applies_when:
@@ -967,6 +1071,36 @@ transition_execution:
       required_tools:
         - policy-engine
         - shell
+        - operator-ui
+        - quality-runner
+        - storage-adapter
+    data_evolution:
+      applies_when:
+        - entrypoint is evolve_data_schema
+      step_chain:
+        - policy_authorize_transition
+        - operator_collect_inputs
+        - execute_schema_or_migration_step
+        - operator_gate_prompt_if_needed
+        - policy_classify_evidence
+        - storage_append_process_event
+      required_tools:
+        - policy-engine
+        - shell
+        - operator-ui
+        - storage-adapter
+    environment_readiness:
+      applies_when:
+        - entrypoint is manage_environment
+      step_chain:
+        - policy_authorize_transition
+        - operator_collect_inputs
+        - validate_environment_capabilities
+        - operator_gate_prompt_if_needed
+        - policy_classify_evidence
+        - storage_append_process_event
+      required_tools:
+        - policy-engine
         - operator-ui
         - quality-runner
         - storage-adapter

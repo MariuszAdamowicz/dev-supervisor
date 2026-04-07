@@ -17,7 +17,7 @@ Cel:
 
 ## Reguly
 - kazda zmiana procesu aktualizuje odpowiednie pliki .ai
-- decyzje gate i audit sa zapisywane w modelu OP (GateDecision + ProcessEvent)
+- decyzje gate i audit sa zapisywane w recordach systemowych (GateDecisionRecord + ProcessEventRecord)
 - notes/tasks moga zawierac kontekst pomocniczy, ale nie zastepuja audit trail
 - transport promptow moze byc zautomatyzowany (np. MCP), ale kontrola job lifecycle AI nalezy do DS
 - zapis artefaktow pozostaje audytowalny w repo
@@ -41,12 +41,17 @@ Cel:
 
 `.ai/runtime/v1/`:
 - `ops/<op_id>/versions/<op_version>.json` (immutable snapshot OP)
-- `ops/<op_id>/events.ndjson` (append-only log ProcessEvent)
-- `ops/<op_id>/gates.ndjson` (append-only log GateDecision)
+- `ops/<op_id>/events.ndjson` (append-only log ProcessEventRecord)
+- `ops/<op_id>/gates.ndjson` (append-only log GateDecisionRecord)
+- `ops/<op_id>/quality.ndjson` (append-only log QualityEvidenceRecord)
+- `relation-index.json` (forward graph OP -> OP)
+- `reverse-relation-index.json` (downstream lookup)
+- `propagation-effects.ndjson` (append-only invalidation/block/supersede log)
 
 Reguly:
 - `op_version` to dodatnia liczba calkowita i rosnacy numer rewizji OP.
 - `events.ndjson` i `gates.ndjson` dopuszczaja tylko dopisywanie nowych rekordow.
+- `propagation-effects.ndjson` dopuszcza tylko dopisywanie nowych rekordow.
 - istniejacy snapshot `versions/<op_version>.json` nie moze byc nadpisany.
 
 ### Kontrakt rekordu: OP snapshot
@@ -67,8 +72,9 @@ Wymagane pola:
 
 Opcjonalne pola:
 - `payload` (dane specyficzne typu OP)
+- `relation_summary`
 
-### Kontrakt rekordu: GateDecision (NDJSON)
+### Kontrakt rekordu: GateDecisionRecord (NDJSON)
 
 Wymagane pola:
 - `schema_version` = `file-ai-runtime/v1`
@@ -86,7 +92,7 @@ Opcjonalne pola:
 - `based_on_event_id`
 - `context_hash` (sha256)
 
-### Kontrakt rekordu: ProcessEvent (NDJSON)
+### Kontrakt rekordu: ProcessEventRecord (NDJSON)
 
 Wymagane pola:
 - `schema_version` = `file-ai-runtime/v1`
@@ -107,30 +113,52 @@ Opcjonalne pola:
 - `trigger_rule_id`
 - `causation_event_id`
 
+### Kontrakt rekordu: QualityEvidenceRecord (NDJSON)
+
+Wymagane pola:
+- `schema_version` = `file-ai-runtime/v1`
+- `entity` = `quality_evidence`
+- `quality_id`
+- `op_id`
+- `lane`
+- `result` (`pass | fail`)
+- `metrics`
+- `actor`
+- `ts` (RFC3339 UTC)
+- `idempotency_key`
+
+Opcjonalne pola:
+- `evidence_class`
+- `artifact_refs`
+- `trigger_rule_id`
+
 ### Idempotency i konflikt zapisu
 
-- kazdy zapis `ProcessEvent` i `GateDecision` MUSI miec `idempotency_key`.
+- kazdy zapis `ProcessEventRecord`, `GateDecisionRecord` i `QualityEvidenceRecord` MUSI miec `idempotency_key`.
 - jesli istnieje rekord z tym samym `idempotency_key` i tym samym payloadem, zapis jest uznany za idempotentny (bez duplikatu).
 - ten sam `idempotency_key` z innym payloadem to blad konfliktu i transition jest invalid.
 
 ### Obowiazkowe zapisy per transition
 
 1. Proba transition:
-- MUSI powstac `ProcessEvent` z `event_type=transition.attempted`.
+- MUSI powstac `ProcessEventRecord` z `event_type=transition.attempted`.
 
 2. Guard fail:
-- MUSI powstac `ProcessEvent` z `event_type=transition.blocked`.
+- MUSI powstac `ProcessEventRecord` z `event_type=transition.blocked`.
 - NIE wolno tworzyc nowej wersji OP.
 
 3. Transition gate-required:
-- MUSI powstac rekord `GateDecision`.
-- MUSI powstac `ProcessEvent` z `event_type=gate.recorded`.
+- MUSI powstac rekord `GateDecisionRecord`.
+- MUSI powstac `ProcessEventRecord` z `event_type=gate.recorded`.
 - brak ktoregokolwiek z tych rekordow uniewaznia transition.
 
 4. Transition committed:
-- MUSI powstac `ProcessEvent` z `event_type=transition.committed`.
+- MUSI powstac `ProcessEventRecord` z `event_type=transition.committed`.
 - MUSI powstac nowy snapshot `versions/<op_version+1>.json`.
 - nowy snapshot MUSI ustawic `last_event_id` na event commit.
+5. Link change albo upstream policy change:
+- MUSI powstac rekord w `propagation-effects.ndjson`.
+- MUSI zostac odswiezony `relation-index.json` i `reverse-relation-index.json`.
 
 Definicja gate-required:
 - transition jest gate-required, gdy binding (`tooling/bindings.md`) wymaga `decide_gate` i `operator-ui`.
@@ -139,7 +167,7 @@ Definicja gate-required:
 
 Minimalna sekwencja:
 1. `events.ndjson`: `transition.attempted` (`from_state=implemented`, `to_state=stabilized`).
-2. `gates.ndjson`: `GateDecision` z `decision=approve`.
+2. `gates.ndjson`: `GateDecisionRecord` z `decision=approve`.
 3. `events.ndjson`: `gate.recorded` z `gate_decision_id`.
 4. `versions/<n+1>.json`: snapshot Feature ze `state=stabilized`.
 5. `events.ndjson`: `transition.committed` z referencja do gate.

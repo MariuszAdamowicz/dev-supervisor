@@ -9,7 +9,7 @@ Data konsolidacji: 2026-04-07
 3. `03-decision-envelope-contract.md` — kontrakt obszaru decyzji gate
 4. `04-transition-coverage-audit.md` — audit coverage transition vs bindings
 5. `05-p0-patches.md` — patche P0 (release/deployment/feature closeout)
-6. `06-p1-patches.md` — patche P1 (PromptTask, QualitySignal.pass, Project.archive, gate classifier)
+6. `06-p1-patches.md` — patche P1 (PromptTask, quality pass evidence, Project.archive, gate classifier)
 7. `07-p2-backlog-decomposition.md` — dekompozycja P2 na pakiety
 8. `08-p2a-requirement-constraint.md` — P2-A Requirement/Constraint
 9. `09-p2b-decisionrecord.md` — P2-B DecisionRecord

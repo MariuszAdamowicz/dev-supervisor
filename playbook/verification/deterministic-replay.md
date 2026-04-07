@@ -11,8 +11,8 @@ Ten sam zestaw:
 - retry/timeouts,
 musi dawac identyczny:
 - final OP graph,
-- ProcessEvent log,
-- GateDecision log.
+- ProcessEventRecord log,
+- GateDecisionRecord log.
 
 Replay jest dowodem klasy `synthetic-contract-simulation`.
 Nie moze samodzielnie dawac globalnego PASS.

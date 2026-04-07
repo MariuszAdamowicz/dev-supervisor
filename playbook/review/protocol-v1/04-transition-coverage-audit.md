@@ -25,18 +25,18 @@ Sprawdzic pokrycie legalnych transition z `state-machines.md` przez `tooling/bin
 | UIComponent | partial | brak `verified -> deprecated` |
 | UIScreen | partial | brak `verified -> deprecated` |
 | PromptTask | partial | brak `executed -> validated -> closed` |
-| GateDecision | partial | brak formalnego bindingu `recorded` jako standalone OP |
+| GateDecisionRecord | partial | brakowalo wtedy formalnego kontraktu `recorded` jako standalone record systemowy |
 | ActorRolePermission | missing | brak lifecycle egzekucji uprawnien |
 | Dependency | partial | brak `satisfied/waived` transitions |
 | Risk | missing | brak lifecycle `assessed/mitigated/accepted/escalated/closed` |
 | Release | partial | brak `approved -> published -> closed` |
 | Deployment | partial | binding sklejony (`prepared->running->succeeded`) |
 | Rollback | partial | brak jawnego `prepared->running` i `running->failed` |
-| QualitySignal | partial | brak jawnego `evaluated -> pass` |
+| QualityEvidenceRecord | partial | brakowal wtedy jawny kontrakt zapisu wyniku `pass` |
 | Exception | partial | brak `classified` i `escalated` |
 | Timeout | partial | brak `scheduled -> fired -> handled/escalated` end-to-end |
 | Compensation | partial | brak `running -> failed` |
-| ProcessEvent | partial | brak globalnego kontraktu wersjonowania poza file-ai v1 |
+| ProcessEventRecord | partial | brakowal wtedy globalny kontrakt wersjonowania poza file-ai v1 |
 
 ## Priorytety naprawy (deterministyczne)
 
@@ -47,7 +47,7 @@ P0 (blokuje domkniecie flow release):
 
 P1 (blokuje pelna audytowalnosc runtime):
 4. `PromptTask.executed -> validated -> closed`
-5. `QualitySignal.evaluated -> pass` (obecnie tylko fail)
+5. jawny kontrakt zapisu `QualityEvidenceRecord` dla wyniku `pass`
 6. `Project.active -> archived`
 
 P2 (kompletnosc katalogu OP):

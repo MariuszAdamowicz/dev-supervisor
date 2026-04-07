@@ -5,7 +5,7 @@ Widocznosc i dostepnosc sa wyliczane z OP:
 - current_state
 - guards
 - pending PromptTask
-- latest GateDecision
+- latest GateDecisionRecord
 
 ## Reguly widocznosci
 1. Pokazuj tylko aktywny krok wynikajacy z current_op/current_state.

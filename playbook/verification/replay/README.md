@@ -6,7 +6,7 @@ Do pelnej weryfikacji playbooka uzywamy:
 - `scenario-e2e-full-op.csv`
 - `scenario-chaos-full-op.csv`
 
-Te dwa pliki sa zrodlem prawdy dla coverage `26/26 OP` w warstwach replay/e2e/chaos.
+Te dwa pliki sa zrodlem prawdy dla coverage `N/N OP`, gdzie `N` jest liczone z kanonicznego FSM w `layers/op/state-machines.md`.
 
 ## Legacy / scoped scenarios
 

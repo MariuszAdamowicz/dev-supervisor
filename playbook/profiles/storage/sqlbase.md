@@ -10,14 +10,18 @@ Cel:
 
 ## Zakres danych w DB
 - projekty, feature, scenariusze, statusy
-- decyzje gate operatora i historia walidacji
+- Repository, ChangeSet, VerificationPlan, DataSchema, Migration, RuntimeEnvironment
+- GateDecisionRecord, ProcessEventRecord i QualityEvidenceRecord
 - mapowania traceability
+- graph relacji OP i reverse lookup
+- propagation effects po zmianach upstream
 - log promptow i hash kontekstu
 
 ## Reguly
 - kazdy stan workflow ma odpowiadajacy rekord/transakcje w DB
 - eksport artefaktow do .ai/* musi byc deterministyczny
 - import zmian z plikow do DB musi byc jawny i walidowany
+- DB musi utrzymywac relation index i reverse relation index dla invalidation downstream
 - brak automatycznego wykonywania promptow przez aplikacje (operator-driven model)
 - kontrola job lifecycle AI (submit/poll/retry/cancel/reset_context) nalezy do DS
 - MCP moze byc adapterem transportowym, ale nie control-plane

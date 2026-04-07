@@ -61,12 +61,12 @@ Wtedy gate NFR uznaje za jawnie domkniety przy ponizszych wartosciach:
 - niezawodnosc: brak crasha aplikacji w 95% sesji roboczych
 - bezpieczenstwo: brak wysylki danych projektowych poza lokalne srodowisko bez jawnej akcji operatora
 - utrzymywalnosc: kazdy krytyczny transition ma test lub walidacje automatyczna (build/test/lint)
-- obserwowalnosc: kazdy krytyczny transition zapisuje ProcessEvent i status QualitySignal
+- obserwowalnosc: kazdy krytyczny transition zapisuje ProcessEventRecord i status QualityEvidenceRecord
 
 Reguly:
 - baseline domyslny moze byc uzyty tylko przy pierwszym setup projektu.
 - po przejsciu `Project.active` baseline domyslny musi zostac potwierdzony, zaostrzony lub zastapiony wartosciami projektowymi.
-- przejscie z baseline domyslnego na projektowy wymaga jawnego GateDecision.
+- przejscie z baseline domyslnego na projektowy wymaga jawnego GateDecisionRecord.
 
 ## Format zapisu wybranej konfiguracji
 

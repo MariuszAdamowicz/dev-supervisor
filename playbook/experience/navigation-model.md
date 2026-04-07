@@ -3,7 +3,7 @@
 ## Model nawigacji
 - Lewy panel: timeline OP transitions dla aktywnego scope.
 - Srodek: aktywny krok (current_op + current_state + next_transition).
-- Prawy panel: kontekst, artefakty i audit (ProcessEvent, GateDecision, QualitySignal).
+- Prawy panel: kontekst, artefakty i audit (ProcessEventRecord, GateDecisionRecord, QualityEvidenceRecord).
 
 ## Reguly nawigacji
 - Domyslnie otwarty jest tylko aktywny krok.
@@ -12,8 +12,9 @@
 - Edycja kroku upstream pokazuje liste downstream invalidations z trigger rules.
 
 ## Widoki minimalne
-- Project Setup View (Project/Requirement/Constraint/DecisionRecord)
-- Idea & Feature View (Idea/Feature/Scenario)
+- Project Setup View (Project/Repository/Requirement/Constraint/DecisionRecord/VerificationPlan)
+- Idea & Feature View (Idea/Feature/Scenario/ChangeSet)
 - UX View (Term/UIComponent/UIScreen)
+- Data & Environment View (DataSchema/Migration/RuntimeEnvironment)
 - Delivery View (Release/Deployment/Rollback)
-- Audit View (ProcessEvent/GateDecision/QualitySignal/Exception)
+- Audit View (ProcessEventRecord/GateDecisionRecord/QualityEvidenceRecord/Exception)

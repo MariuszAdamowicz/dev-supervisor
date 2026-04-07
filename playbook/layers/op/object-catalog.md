@@ -28,133 +28,252 @@ Kazdy OP ma tez:
 Kontrakt runtime dla CRUD i grafu:
 - `playbook/workflow/op-crud-contract.md`
 
+Semantyka operacyjna i stosowalnosc OP:
+- `playbook/layers/op/operational-semantics.md`
+
+## Klasy OP i recordow systemowych
+
+- `work-object`: obiekt pracy projektowej lub produktowej.
+- `control-object`: obiekt sterujacy polityka, jakoscia, uprawnieniami albo decyzja.
+- `execution-object`: obiekt wykonania pracy, wdrozenia, retry lub kompensacji.
+- `environment-object`: obiekt opisujacy repo, schemat danych lub srodowisko uruchomieniowe.
+- `system-record`: append-only record audytowy lub dowodowy; nie jest OP.
+
+## Reguly stosowalnosci
+
+- `always`: wymagany dla kazdego projektu.
+- `interactive-ui`: tylko gdy produkt ma interaktywny interfejs.
+- `version-controlled`: tylko gdy projekt jest rozwijany w VCS.
+- `formal-validation`: tylko gdy projekt utrzymuje jawne quality lanes i gate.
+- `persistent-data`: tylko gdy projekt utrzymuje trwale dane ze schematem.
+- `deployable-runtime`: tylko gdy projekt ma srodowiska uruchomieniowe lub wdrozenia.
+
 ## Typy OP (kanoniczne)
 
 ### 1. Project
 - Rola: instancja projektu zarzadzana przez DS.
+- Klasa: `work-object`
+- Stosowalnosc: `always`
 - Kluczowe pola: name, description, selected_profiles, storage_mode.
 
 ### 2. Requirement
 - Rola: wymaganie produktowe/funkcjonalne.
+- Klasa: `work-object`
+- Stosowalnosc: `always`
 - Kluczowe pola: requirement_id, source, priority, acceptance_criteria.
 
 ### 3. Constraint
 - Rola: ograniczenie techniczne, prawne, operacyjne lub architektoniczne.
+- Klasa: `control-object`
+- Stosowalnosc: `always`
 - Kluczowe pola: constraint_id, class, rationale, enforce_level.
 
 ### 4. DecisionRecord
 - Rola: decyzja architektoniczna/produktowa (ADR).
+- Klasa: `control-object`
+- Stosowalnosc: `always`
 - Kluczowe pola: decision_id, options_considered, selected_option, consequence.
 
 ### 5. Idea
 - Rola: luzna koncepcja biznesowa.
+- Klasa: `work-object`
+- Stosowalnosc: `always`
 - Kluczowe pola: idea_id, title, description.
 
 ### 6. Feature
 - Rola: jednostka implementacyjna wynikajaca z idei.
+- Klasa: `work-object`
+- Stosowalnosc: `always`
 - Kluczowe pola: feature_id, scope, deferred_items.
 
 ### 7. Scenario
 - Rola: scenariusz BDD i slad testowy.
+- Klasa: `work-object`
+- Stosowalnosc: `formal-validation`
 - Kluczowe pola: scenario_id, feature_id, test_links.
 
 ### 8. Term
 - Rola: pojecie domenowe i UX.
+- Klasa: `work-object`
+- Stosowalnosc: `always`
 - Kluczowe pola: term, definition, status, source, aliases.
 
 ### 9. UIComponent
 - Rola: komponent interfejsu.
+- Klasa: `work-object`
+- Stosowalnosc: `interactive-ui`
 - Kluczowe pola: component_id, purpose, visibility_rules, gate_rules.
 
 ### 10. UIScreen
 - Rola: ekran/widok agregujacy komponenty.
+- Klasa: `work-object`
+- Stosowalnosc: `interactive-ui`
 - Kluczowe pola: screen_id, state_binding, components.
 
 ### 11. PromptTask
 - Rola: zadanie promptowe uruchamiane przez operatora/AI.
+- Klasa: `execution-object`
+- Stosowalnosc: `always`
 - Kluczowe pola: task_id, task_type, context_set, target_op.
 
-### 12. GateDecision
-- Rola: jawna decyzja operatora po review package.
-- Kluczowe pola: gate_type, decision, reason, timestamp.
-
-### 13. ActorRolePermission
+### 12. ActorRolePermission
 - Rola: ownership, role i uprawnienia do operacji.
+- Klasa: `control-object`
+- Stosowalnosc: `always`
 - Kluczowe pola: actor_id, role, allowed_actions, scope.
 
-### 14. Dependency
+### 13. Dependency
 - Rola: zaleznosc miedzy OP lub zewnetrznym elementem.
+- Klasa: `control-object`
+- Stosowalnosc: `always`
 - Kluczowe pola: dependency_id, source_op, target_op, criticality.
 
-### 15. UseCase
+### 14. UseCase
 - Rola: przypadek uzycia opisujacy zachowanie aplikacyjne niezalezne od frameworka.
+- Klasa: `work-object`
+- Stosowalnosc: `always` dla zachowania biznesowego
 - Kluczowe pola: use_case_id, actor, goal, input_dto, output_dto, business_rules_refs.
 
-### 16. PortContract
+### 15. PortContract
 - Rola: kontrakt granicy (wejscie/wyjscie) miedzy rdzeniem a adapterem.
+- Klasa: `work-object`
+- Stosowalnosc: `always` przy granicy rdzen <-> zewnetrze
 - Kluczowe pola: port_id, direction(inbound|outbound), contract_schema_ref, dto_set, owner_use_case.
 
-### 17. Component
+### 16. Component
 - Rola: komponent/modul architektoniczny do kontroli spojnosci i zaleznosci.
+- Klasa: `work-object`
+- Stosowalnosc: `always`
 - Kluczowe pola: component_id, responsibility, stability_index, abstraction_level, dependencies.
 
-### 18. Risk
+### 17. Risk
 - Rola: ryzyko produktu/procesu.
+- Klasa: `control-object`
+- Stosowalnosc: `formal-validation`
 - Kluczowe pola: risk_id, probability, impact, mitigation_plan.
 
-### 19. Release
+### 18. Release
 - Rola: pakiet zmian gotowy do wydania.
+- Klasa: `execution-object`
+- Stosowalnosc: `formal-validation`
 - Kluczowe pola: release_id, included_features, release_gate_status.
 
-### 20. Deployment
+### 19. Deployment
 - Rola: wykonanie wdrozenia.
+- Klasa: `execution-object`
+- Stosowalnosc: `deployable-runtime`
 - Kluczowe pola: deployment_id, environment, result, rollback_ref.
 
-### 21. Rollback
+### 20. Rollback
 - Rola: cofniecie wdrozenia.
+- Klasa: `execution-object`
+- Stosowalnosc: `deployable-runtime`
 - Kluczowe pola: rollback_id, trigger_reason, recovered_state.
 
-### 22. QualitySignal
-- Rola: sygnal jakosci/reliability (SLO, error budget, quality gates).
-- Kluczowe pola: signal_id, signal_type, value, threshold, window.
-
-### 23. Exception
+### 21. Exception
 - Rola: blad procesu lub biznesowy exception case.
+- Klasa: `execution-object`
+- Stosowalnosc: `always`
 - Kluczowe pola: exception_id, class, severity, compensation_required.
 
-### 24. Timeout
+### 22. Timeout
 - Rola: przekroczenie SLA/deadline.
+- Klasa: `execution-object`
+- Stosowalnosc: `always`
 - Kluczowe pola: timeout_id, related_op, deadline, escalation_policy.
 
-### 25. Compensation
+### 23. Compensation
 - Rola: akcja kompensacyjna po bledzie.
+- Klasa: `execution-object`
+- Stosowalnosc: `always` gdy failure_policy wymaga undo
 - Kluczowe pola: compensation_id, target_op, action_plan, status.
 
-### 26. ProcessEvent
+### 24. Repository
+- Rola: stan repozytorium projektu i polityk VCS.
+- Klasa: `environment-object`
+- Stosowalnosc: `version-controlled`
+- Kluczowe pola: repo_id, vcs, local_root, remote_origin, default_branch, branch_policy, cleanliness.
+
+### 25. ChangeSet
+- Rola: ograniczony pakiet zmian powiazany z OP, plikami i commitami.
+- Klasa: `execution-object`
+- Stosowalnosc: `version-controlled`
+- Kluczowe pola: changeset_id, repository_ref, branch_ref, file_scope, op_refs, commit_refs, validation_refs.
+
+### 26. VerificationPlan
+- Rola: plan warstw testow i evidence dla Feature, ChangeSet lub Release.
+- Klasa: `control-object`
+- Stosowalnosc: `formal-validation`
+- Kluczowe pola: verification_id, target_scope, required_lanes, pass_criteria, evidence_rules.
+
+### 27. DataSchema
+- Rola: kanoniczny kontrakt modelu danych i kompatybilnosci.
+- Klasa: `environment-object`
+- Stosowalnosc: `persistent-data`
+- Kluczowe pola: schema_id, storage_engine, compatibility_policy, owned_structures, migration_refs.
+
+### 28. Migration
+- Rola: wykonanie zmiany schematu lub danych z jawna gotowoscia rollback.
+- Klasa: `execution-object`
+- Stosowalnosc: `persistent-data`
+- Kluczowe pola: migration_id, schema_ref, direction, compatibility_window, execution_lane, rollback_ref.
+
+### 29. RuntimeEnvironment
+- Rola: srodowisko lokalne, CI, staging lub prod wraz z capability i config policy.
+- Klasa: `environment-object`
+- Stosowalnosc: `deployable-runtime`
+- Kluczowe pola: environment_id, class, capabilities, secret_policy, deploy_constraints, release_refs.
+
+## System Records (nie sa OP, ale sa kanoniczne i wymagane)
+
+### GateDecisionRecord
+- Rola: jawna decyzja operatora po review package.
+- Klasa: `system-record`
+- Stosowalnosc: `always`
+- Kluczowe pola: gate_type, decision, reason, timestamp, decision_effects.
+
+### ProcessEventRecord
 - Rola: niezmienny event log (audit, odtwarzanie procesu).
-- Kluczowe pola: event_id, op_id, event_type, payload_hash, actor, ts.
+- Klasa: `system-record`
+- Stosowalnosc: `always`
+- Kluczowe pola: event_id, subject_ref, event_type, payload_hash, actor, ts.
+
+### QualityEvidenceRecord
+- Rola: wynik konkretnej lane walidacyjnej lub quality check.
+- Klasa: `system-record`
+- Stosowalnosc: `formal-validation`
+- Kluczowe pola: signal_type, value, threshold, subject_ref, lane_ref, provenance_class.
 
 ## Minimalny graf relacji
+- Project -> Repository -> ChangeSet
+- Project -> VerificationPlan
 - Project -> Requirement -> Feature -> Scenario -> Testy
 - Project -> Constraint -> DecisionRecord -> Feature
 - Feature -> UseCase -> PortContract
 - Feature -> Term -> UIComponent -> UIScreen
 - Feature -> Component -> Dependency
-- Feature -> PromptTask -> GateDecision
+- Feature -> PromptTask
+- Feature -> ChangeSet
+- Feature -> VerificationPlan
 - Feature -> Dependency
 - Feature -> Risk
+- Feature -> DataSchema -> Migration
 - Feature -> Release -> Deployment -> Rollback
-- QualitySignal -> GateDecision
+- Release -> RuntimeEnvironment
 - Exception/Timeout -> Compensation
-- Wszystko emituje ProcessEvent
+- Wszystko emituje ProcessEventRecord i moze miec GateDecisionRecord / QualityEvidenceRecord
 
 ## Invariants warstwy OP
 - Brak osieroconych OP (kazdy OP poza Project ma parent linkage).
 - Kazdy state transition ma event + guard + actor.
-- Kazda decyzja gate ma audytowalny ProcessEvent.
+- Kazda decyzja gate ma GateDecisionRecord i audytowalny ProcessEventRecord.
 - Kazdy krytyczny blad ma policy: retry albo compensation.
 - Zamkniecie Feature wymaga braku krytycznych otwartych PromptTask.
+- Repository i ChangeSet musza zachowac traceability do powiazanych Feature/Requirement/Scenario.
+- VerificationPlan musi byc przypisany do Feature, ChangeSet albo Release wymagajacego formalnej walidacji.
+- DataSchema i Migration sa wymagane, gdy zmiana obejmuje trwale dane lub niekompatybilna ewolucje schematu.
+- Deployment i Release nie moga byc wykonane bez RuntimeEnvironment w stanie co najmniej `ready`.
 - UseCase i PortContract musza byc utrzymane bez zaleznosci od frameworkowych typow.
 - Component graph nie moze zawierac cykli.
-- Hard delete OP po pojawieniu sie ProcessEvent jest zabronione.
+- Hard delete OP po pojawieniu sie ProcessEventRecord jest zabronione.
 - Remove semantyczny wymaga tombstone metadata i zachowania link integrity.

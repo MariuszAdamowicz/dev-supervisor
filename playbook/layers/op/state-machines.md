@@ -16,7 +16,7 @@ Kazde przejscie opisujemy kontraktem:
 ## Konwencje globalne
 
 1. Transition jest legalny tylko gdy istnieje jawny wpis w tej specyfikacji.
-2. Kazdy transition wymaga ProcessEvent (audit contract).
+2. Kazdy transition wymaga ProcessEventRecord (audit contract).
 3. Gdy transition ma gate-required, wynik `approve|request_changes|defer|reject` musi byc jawny.
 4. `request_changes` tworzy petle rework (cykl), `defer` zatrzymuje progres, `reject` zamyka sciezke.
 5. `authz.denied` blokuje transition i kieruje do `Exception.detected` (bez zmiany stanu OP).
@@ -115,17 +115,19 @@ Transitions:
 
 ### Scenario
 States:
-drafted, approved, test-linked, passing, obsolete
+drafted, reviewed, approved, test-linked, passing, obsolete
 
 Transitions:
-1. drafted --scenario.approve-requested (gate=approve)--> approved
-2. drafted --scenario.approve-requested (gate=request_changes|defer)--> drafted
-3. drafted --scenario.approve-requested (gate=reject)--> obsolete
-4. approved --scenario.link-tests-requested--> test-linked
-5. test-linked --scenario.tests-pass--> passing
-6. test-linked --scenario.tests-fail--> approved
-7. passing --scenario.obsolete-requested (gate=approve)--> obsolete
-8. passing --scenario.obsolete-requested (gate=request_changes|defer)--> passing
+1. drafted --scenario.review-requested--> reviewed
+2. reviewed --scenario.approve-requested (gate=approve)--> approved
+3. reviewed --scenario.approve-requested (gate=request_changes)--> drafted
+4. reviewed --scenario.approve-requested (gate=defer)--> reviewed
+5. reviewed --scenario.approve-requested (gate=reject)--> obsolete
+6. approved --scenario.link-tests-requested--> test-linked
+7. test-linked --scenario.tests-pass--> passing
+8. test-linked --scenario.tests-fail--> approved
+9. passing --scenario.obsolete-requested (gate=approve)--> obsolete
+10. passing --scenario.obsolete-requested (gate=request_changes|defer)--> passing
 
 ### Term
 States:
@@ -180,13 +182,6 @@ Transitions:
 8. executed --prompt.validation-requested (gate=defer)--> executed
 9. executed --prompt.validation-requested (gate=reject)--> cancelled
 10. validated --prompt.close-requested--> closed
-
-### GateDecision
-States:
-recorded
-
-Transitions:
-1. * --gate.recorded(approve|request_changes|defer|reject)--> recorded
 
 ### ActorRolePermission
 States:
@@ -317,16 +312,6 @@ Transitions:
 4. failed --rollback.retry-requested (gate=approve)--> prepared
 5. failed --rollback.retry-requested (gate=request_changes|defer)--> failed
 
-### QualitySignal
-States:
-collected, evaluated, pass, fail
-
-Transitions:
-1. collected --quality.evaluate-requested--> evaluated
-2. evaluated --quality.passed--> pass
-3. evaluated --quality.failed--> fail
-4. fail --quality.recheck-requested--> evaluated
-
 ### Exception
 States:
 detected, classified, handled, escalated
@@ -361,12 +346,101 @@ Transitions:
 4. failed --compensation.retry-requested (gate=approve)--> planned
 5. failed --compensation.retry-requested (gate=request_changes|defer|reject)--> failed
 
-### ProcessEvent
+### Repository
 States:
-recorded
+detected, initialized, remote-attached, policy-aligned, active, archived
 
 Transitions:
-1. * --event.appended--> recorded
+1. detected --repo.initialize-requested--> initialized
+2. initialized --repo.attach-remote-requested--> remote-attached
+3. remote-attached --repo.align-policy-requested (gate=approve)--> policy-aligned
+4. remote-attached --repo.align-policy-requested (gate=request_changes|defer)--> remote-attached
+5. remote-attached --repo.align-policy-requested (gate=reject)--> archived
+6. policy-aligned --repo.activate-requested--> active
+7. active --repo.archive-requested (gate=approve)--> archived
+8. active --repo.archive-requested (gate=request_changes|defer)--> active
+
+### ChangeSet
+States:
+drafted, staged, validated, committed, superseded
+
+Transitions:
+1. drafted --changeset.stage-requested--> staged
+2. staged --changeset.validate-requested (gate=approve)--> validated
+3. staged --changeset.validate-requested (gate=request_changes|defer)--> staged
+4. staged --changeset.validate-requested (gate=reject)--> superseded
+5. validated --changeset.commit-requested--> committed
+6. committed --changeset.supersede-requested (gate=approve)--> superseded
+7. committed --changeset.supersede-requested (gate=request_changes|defer)--> committed
+
+### VerificationPlan
+States:
+drafted, reviewed, approved, active, revised, retired
+
+Transitions:
+1. drafted --verification.review-requested--> reviewed
+2. reviewed --verification.approve-requested (gate=approve)--> approved
+3. reviewed --verification.approve-requested (gate=request_changes)--> drafted
+4. reviewed --verification.approve-requested (gate=defer)--> reviewed
+5. reviewed --verification.approve-requested (gate=reject)--> retired
+6. approved --verification.activate-requested--> active
+7. active --verification.revise-requested--> revised
+8. revised --verification.approve-requested (gate=approve)--> approved
+9. revised --verification.approve-requested (gate=request_changes|defer)--> revised
+10. revised --verification.retire-requested (gate=approve)--> retired
+11. revised --verification.retire-requested (gate=request_changes|defer)--> revised
+
+### DataSchema
+States:
+drafted, reviewed, approved, applied, superseded, deprecated
+
+Transitions:
+1. drafted --schema.review-requested--> reviewed
+2. reviewed --schema.approve-requested (gate=approve)--> approved
+3. reviewed --schema.approve-requested (gate=request_changes)--> drafted
+4. reviewed --schema.approve-requested (gate=defer)--> reviewed
+5. reviewed --schema.approve-requested (gate=reject)--> deprecated
+6. approved --schema.apply-requested--> applied
+7. applied --schema.supersede-requested (gate=approve)--> superseded
+8. applied --schema.supersede-requested (gate=request_changes|defer)--> applied
+9. superseded --schema.deprecate-requested (gate=approve)--> deprecated
+10. superseded --schema.deprecate-requested (gate=request_changes|defer)--> superseded
+
+### Migration
+States:
+drafted, reviewed, approved, ready, applied, rolled-back, superseded
+
+Transitions:
+1. drafted --migration.review-requested--> reviewed
+2. reviewed --migration.approve-requested (gate=approve)--> approved
+3. reviewed --migration.approve-requested (gate=request_changes)--> drafted
+4. reviewed --migration.approve-requested (gate=defer)--> reviewed
+5. reviewed --migration.approve-requested (gate=reject)--> superseded
+6. approved --migration.ready-requested--> ready
+7. ready --migration.apply-requested--> applied
+8. applied --migration.rollback-requested (gate=approve)--> rolled-back
+9. applied --migration.rollback-requested (gate=request_changes|defer)--> applied
+10. applied --migration.supersede-requested (gate=approve)--> superseded
+11. applied --migration.supersede-requested (gate=request_changes|defer)--> applied
+12. rolled-back --migration.supersede-requested (gate=approve)--> superseded
+13. rolled-back --migration.supersede-requested (gate=request_changes|defer)--> rolled-back
+
+### RuntimeEnvironment
+States:
+defined, validated, ready, active, degraded, retired
+
+Transitions:
+1. defined --environment.validate-requested--> validated
+2. validated --environment.readiness-requested (gate=approve)--> ready
+3. validated --environment.readiness-requested (gate=request_changes|defer)--> validated
+4. validated --environment.readiness-requested (gate=reject)--> retired
+5. ready --environment.activate-requested--> active
+6. active --environment.degraded-detected--> degraded
+7. degraded --environment.recover-requested--> ready
+8. ready --environment.retire-requested (gate=approve)--> retired
+9. ready --environment.retire-requested (gate=request_changes|defer)--> ready
+10. active --environment.retire-requested (gate=approve)--> retired
+11. active --environment.retire-requested (gate=request_changes|defer)--> active
 
 ## Guard conditions (przyklady przekrojowe)
 
@@ -375,8 +449,8 @@ Transitions:
 - brak PortContract niezatwierdzonych dla tych UseCase.
 
 2. Feature.stabilized wymaga:
-- GateDecision=approve,
-- QualitySignal=pass,
+- GateDecisionRecord=approve,
+- QualityEvidenceRecord=pass,
 - powiazany Component nie jest w stanie refactor-required.
 
 3. Release.approved wymaga:
@@ -394,9 +468,55 @@ Transitions:
 - check dependency-direction=pass,
 - check no-cycle(ADP)=pass.
 
+7. Repository.policy-aligned wymaga:
+- lokalne repo istnieje,
+- remote origin jest jawnie przypiety,
+- polityka branch/commit jest zapisana dla projektu.
+
+8. ChangeSet.validated wymaga:
+- jawne traceability do co najmniej jednego OP pracy,
+- wynik lanes wymaganych przez VerificationPlan,
+- diff scope i file ownership bez nieautoryzowanego wycieku poza zakres.
+
+9. VerificationPlan.approved wymaga:
+- okreslenie wymaganych warstw unit/integration/acceptance/e2e lub jawne `not_applicable`,
+- mapowanie lane -> stack/profile capability,
+- jawna regula evidence provenance.
+
+10. DataSchema.applied wymaga:
+- brak konfliktu z aktywna kompatybilnoscia RuntimeEnvironment,
+- Migration.approved lub jawny no-op migration note,
+- jawny rollback/compatibility plan dla zmian niekompatybilnych.
+
+11. RuntimeEnvironment.ready wymaga:
+- sprawdzone capabilities uruchomieniowe i sekrety/config,
+- zgodnosc z Release albo VerificationPlan dla danego lane.
+
 ## Hierarchia i zakazy
 
 1. OP nizszego poziomu nie moze wyprzedzac OP nadrzednego.
-2. GateDecision bez review package jest niewazna.
+2. GateDecisionRecord bez review package jest niewazna.
 3. Feature nie przejdzie do done przy krytycznym Exception bez Compensation.completed.
-4. Zmiana stanu bez ProcessEvent jest niewazna.
+4. Zmiana stanu bez ProcessEventRecord jest niewazna.
+5. ChangeSet nie przejdzie do committed bez powiazania z Repository i co najmniej jednym OP pracy.
+6. Migration nie przejdzie do applied bez DataSchema w stanie co najmniej approved.
+7. Deployment i Release nie moga polegac na RuntimeEnvironment ponizej stanu ready.
+
+## System record contracts
+
+Te byty nie sa OP i nie maja niezaleznego FSM, ale sa kanonicznie wymagane:
+
+### GateDecisionRecord
+- append-only
+- powstaje przy kazdym gate-required transition
+- brak rekordu przy gate-required transition uniewaznia transition
+
+### ProcessEventRecord
+- append-only
+- powstaje dla attempt, block, commit, propagation i recovery
+- brak rekordu uniewaznia transition lub propagation effect
+
+### QualityEvidenceRecord
+- append-only
+- zapisuje wynik konkretnej lane/check
+- `pass/fail` jest ocena dowodowa dla subject_ref, a nie osobny OP lifecycle

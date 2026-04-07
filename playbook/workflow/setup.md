@@ -12,6 +12,7 @@ Kanoniczne definicje OP:
 ## 1. Bootstrap projektu
 
 - utworz repo i .gitignore
+- zarejestruj Repository OP dla lokalnego repo
 - skonfiguruj scripts: build/test/lint
 - wybierz storage profile:
   - profiles/storage/file-ai.md
@@ -28,16 +29,20 @@ Kanoniczne definicje OP:
 - utworz `.ai/architecture/port-contracts.md`
 - utworz `.ai/architecture/component-map.md`
 - utworz `.ai/ux/new-project.md`
-- utworz Requirement/Constraint/DecisionRecord OP dla baseline
+- utworz `.ai/verification/plan.md`
+- utworz Requirement/Constraint/DecisionRecord/Repository/VerificationPlan OP dla baseline
 - zdefiniuj poczatkowe UseCase i granice PortContract dla kluczowych przeplywow
 - zdefiniuj poczatkowa mape Component dla krytycznych modulow
 - utworz ActorRolePermission dla operatora inicjujacego projekt
+- jesli profil jest `deployable-runtime`, utworz RuntimeEnvironment dla local i docelowych lane
+- jesli profil jest `persistent-data`, utworz DataSchema dla baseline danych
 - zbuduj indeks OP i parent linkage dla baseline
 
 Product Gate przechodzi tylko gdy:
 - baseline jest kompletny,
 - baseline jest niesprzeczny,
 - baseline ma komplet UX/architecture artifacts,
+- baseline ma Repository i VerificationPlan zgodne z profilem projektu,
 - authz i provenance sa zapisane,
 - operator zapisal jawna decyzje gate.
 

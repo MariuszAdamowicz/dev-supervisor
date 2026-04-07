@@ -11,7 +11,7 @@ Wdrozyc lifecycle OP `Risk` oraz podpiac ryzyka do guardow delivery/release.
 Dodano sekcje `Risk baseline`:
 - `Risk.identified` -> assessment review
 - `Risk.assessed` -> resolution review
-- `Risk.escalated` -> GateDecision candidate blokujacy delivery
+- `Risk.escalated` -> GateDecisionRecord candidate blokujacy delivery
 - `Risk.mitigated` / `Risk.accepted` -> close/acceptance audit
 
 ### 2) Bindings (`playbook/tooling/bindings.md`)

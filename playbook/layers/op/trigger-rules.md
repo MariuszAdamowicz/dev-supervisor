@@ -27,6 +27,10 @@ Kazda regula ma:
 - Event: Feature.ux-aligned
 - Action: utworz PromptTask(prd-to-bdd)
 
+- Event: Scenario.reviewed
+- Action: utworz PromptTask(scenario-approval-review)
+- Gate effect: odblokowuje Scenario.approved
+
 - Event: Scenario.approved
 - Action: utworz PromptTask(bdd-to-tests)
 
@@ -73,7 +77,7 @@ Kazda regula ma:
 - Gate effect: odblokowuje `mitigated|accepted|escalated`
 
 - Event: Risk.escalated
-- Action: utworz GateDecision(defer|request_changes) candidate dla delivery
+- Action: utworz GateDecisionRecord(defer|request_changes) candidate dla delivery
 - Gate effect: blokuje `Release.approved` do czasu decyzji
 
 - Event: Risk.mitigated
@@ -128,7 +132,58 @@ Kazda regula ma:
 - Gate effect: blokuje Component.compliant przy wykryciu cykli lub zlej orientacji zaleznosci
 
 - Event: Component.checked
-- Action: utworz GateDecision(approve|request_changes) candidate dla zgodnosci architektury
+- Action: utworz GateDecisionRecord(approve|request_changes) candidate dla zgodnosci architektury
+
+### 1e. Repository / ChangeSet / Verification / Data / Environment
+- Event: Project.configured
+- Action: utworz Repository.detected + VerificationPlan.drafted
+
+- Event: Repository.detected
+- Action: utworz PromptTask(repo-bootstrap-review)
+
+- Event: Repository.initialized
+- Action: utworz PromptTask(repo-remote-attach)
+
+- Event: Repository.remote-attached
+- Action: utworz PromptTask(repo-policy-review)
+- Gate effect: odblokowuje Repository.policy-aligned
+
+- Event: ChangeSet.drafted
+- Action: utworz PromptTask(changeset-scope-review)
+
+- Event: ChangeSet.staged
+- Action: utworz PromptTask(changeset-validation-review)
+- Gate effect: odblokowuje ChangeSet.validated
+
+- Event: VerificationPlan.drafted
+- Action: utworz PromptTask(verification-review)
+
+- Event: VerificationPlan.reviewed
+- Action: utworz PromptTask(verification-approval-review)
+- Gate effect: odblokowuje VerificationPlan.approved
+
+- Event: Feature.scenario-ready
+- Action: utworz PromptTask(verification-plan-sync)
+
+- Event: DataSchema.drafted
+- Action: utworz PromptTask(schema-review)
+
+- Event: DataSchema.reviewed
+- Action: utworz PromptTask(schema-approval-review)
+- Gate effect: odblokowuje DataSchema.approved
+
+- Event: Migration.drafted
+- Action: utworz PromptTask(migration-review)
+
+- Event: Migration.approved
+- Action: utworz PromptTask(migration-readiness-check)
+
+- Event: RuntimeEnvironment.defined
+- Action: utworz PromptTask(environment-validation)
+
+- Event: RuntimeEnvironment.validated
+- Action: utworz PromptTask(environment-readiness-review)
+- Gate effect: odblokowuje RuntimeEnvironment.ready
 
 ### 2. Terminologia i UI
 - Event: Term.proposed
@@ -169,26 +224,26 @@ Kazda regula ma:
 - Event: PromptTask.validated
 - Action: zamknij PromptTask (state=closed)
 
-- Event: prompt.validation-requested (GateDecision=request_changes)
+- Event: prompt.validation-requested (gate=request_changes)
 - Action: cofnij PromptTask do ready + utworz PromptTask(rework)
 
-- Event: prompt.validation-requested (GateDecision=defer)
+- Event: prompt.validation-requested (gate=defer)
 - Action: pozostaw PromptTask w executed + utworz Timeout.scheduled
 
-- Event: prompt.validation-requested (GateDecision=reject)
+- Event: prompt.validation-requested (gate=reject)
 - Action: anuluj PromptTask (state=cancelled) + utworz Exception(rejected-output)
 
-- Event: QualitySignal.pass
+- Event: quality.evidence.pass
 - Action: odblokuj kolejne legalne transition OP
 
-- Event: QualitySignal.fail
+- Event: quality.evidence.fail
 - Action: utworz Exception + PromptTask(debug-fix)
-- Gate effect: wymusza GateDecision=request_changes lub defer
+- Gate effect: wymusza GateDecisionRecord=request_changes lub defer
 
-- Event: GateDecision.approve
+- Event: gate.recorded(approve)
 - Action: odblokuj kolejny stan OP
 
-- Event: GateDecision.request_changes
+- Event: gate.recorded(request_changes)
 - Action: utworz PromptTask(rework)
 
 ### 4. Delivery
@@ -200,25 +255,25 @@ Kazda regula ma:
 - Guard: co najmniej jeden UseCase.approved i brak PortContract!=approved dla tych UseCase
 - Action: utworz PromptTask(architecture-conformance-check)
 
-- Event: feature.stabilize-requested (GateDecision=request_changes)
+- Event: feature.stabilize-requested (gate=request_changes)
 - Action: cofniecie Feature do test-ready + utworz PromptTask(rework)
 
-- Event: feature.stabilize-requested (GateDecision=defer)
+- Event: feature.stabilize-requested (gate=defer)
 - Action: pozostaw Feature w implemented + utworz Timeout.scheduled
 
-- Event: feature.stabilize-requested (GateDecision=reject)
+- Event: feature.stabilize-requested (gate=reject)
 - Action: cofniecie Feature do specified + utworz PromptTask(respec)
 
 - Event: Release.approved
 - Action: utworz Deployment.prepared
 
-- Event: release.approve-requested (GateDecision=request_changes)
+- Event: release.approve-requested (gate=request_changes)
 - Action: cofniecie Release do planned + utworz PromptTask(release-rework)
 
-- Event: release.approve-requested (GateDecision=defer)
+- Event: release.approve-requested (gate=defer)
 - Action: pozostaw Release w candidate + utworz Timeout.scheduled
 
-- Event: release.approve-requested (GateDecision=reject)
+- Event: release.approve-requested (gate=reject)
 - Action: zamknij Release (state=closed) + utworz DecisionRecord(release-rejection)
 
 - Event: Deployment.succeeded
@@ -231,10 +286,10 @@ Kazda regula ma:
 - Event: Deployment.failed
 - Action: utworz Rollback.prepared + Compensation.planned
 
-- Event: deployment.retry-requested (GateDecision=approve)
+- Event: deployment.retry-requested (gate=approve)
 - Action: przejdz Deployment.failed -> Deployment.prepared
 
-- Event: deployment.retry-requested (GateDecision=request_changes|defer)
+- Event: deployment.retry-requested (gate=request_changes|defer)
 - Action: pozostaw Deployment w failed + eskaluj do operatora
 
 - Event: rollback.start-requested
@@ -248,12 +303,12 @@ Kazda regula ma:
 
 ### 5. Timeout i eskalacje
 - Event: Timeout.fired
-- Action: utworz Exception(timeout) + GateDecision(defer) candidate
+- Action: utworz Exception(timeout) + GateDecisionRecord(defer) candidate
 - Failure policy: escalation do operatora
 
 ### 6. Lifecycle housekeeping
 - Event: project.archive-requested
-- Action: utworz review package archiwizacji + GateDecision candidate
+- Action: utworz review package archiwizacji + GateDecisionRecord candidate
 
 ## Retry / idempotency / compensation
 
@@ -268,8 +323,8 @@ Kazda regula ma:
 
 ## Audit
 
-- Kazdy trigger execution zapisuje ProcessEvent.
-- Brak ProcessEvent = przejscie uznane za niewazne.
+- Kazdy trigger execution zapisuje ProcessEventRecord.
+- Brak ProcessEventRecord = przejscie uznane za niewazne.
 
 ## 7. FSM expansion rules (dla wszystkich OP)
 
@@ -284,10 +339,10 @@ Reguly:
 - Gate effect: zgodny 1:1 z `to_state` z FSM.
 
 2. Dla kazdego transition gate-required:
-- `GateDecision=approve` przeprowadza transition do `to_state` z happy path.
-- `GateDecision=request_changes` uruchamia rework loop wskazany w FSM.
-- `GateDecision=defer` utrzymuje current_state i tworzy `Timeout.scheduled`.
-- `GateDecision=reject` przechodzi do stanu odrzucenia/terminalnego wskazanego w FSM.
+- `GateDecisionRecord=approve` przeprowadza transition do `to_state` z happy path.
+- `GateDecisionRecord=request_changes` uruchamia rework loop wskazany w FSM.
+- `GateDecisionRecord=defer` utrzymuje current_state i tworzy `Timeout.scheduled`.
+- `GateDecisionRecord=reject` przechodzi do stanu odrzucenia/terminalnego wskazanego w FSM.
 
 3. Dla transition retryable:
 - `timeout.fired` i `retry_budget>0` uruchamia retry loop.

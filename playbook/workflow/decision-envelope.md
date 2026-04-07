@@ -14,14 +14,14 @@ Kazdy gate-required transition MUSI miec pakiet:
 - `preconditions` (guardy + ich status pass/fail)
 - `scope` (co zmienia transition)
 - `change_set` (diff/artifacts/files/op updates)
-- `validation` (build/test/lint + QualitySignal)
+- `validation` (build/test/lint + QualityEvidenceRecord)
 - `traceability` (mapowanie Requirement/Scenario/Test gdy dotyczy)
 - `risks` (otwarte ryzyka, dependencies, exceptions)
 - `rollback_or_rework_plan`
 - `decision_options` (`approve | request_changes | defer | reject`)
 - `decision_effects` (co stanie sie po kazdej opcji)
 - `required_actor` (kto moze podjac decyzje)
-- `audit_refs` (ProcessEvent/GateDecision IDs)
+- `audit_refs` (ProcessEventRecord/GateDecisionRecord IDs)
 
 ## Gate-required transitions (baseline)
 
@@ -37,36 +37,44 @@ Classifier (deterministyczny):
 
 Lista bazowa:
 1. `Project.configured -> Project.baseline-approved`
-2. `Idea.scoped -> Idea.converted`
-3. `Idea.scoped -> Idea.dropped`
-4. `Feature.implemented -> Feature.stabilized`
+2. `Project.active -> Project.archived`
+3. `Idea.scoped -> Idea.converted`
+4. `Idea.scoped -> Idea.dropped`
 5. `Requirement.clarified -> Requirement.approved`
 6. `Requirement.linked -> Requirement.deprecated`
 7. `Constraint.validated -> Constraint.enforced`
 8. `Constraint.revised -> Constraint.retired`
 9. `DecisionRecord.reviewed -> DecisionRecord.approved`
 10. `DecisionRecord.approved -> DecisionRecord.superseded`
-11. `Risk.assessed -> Risk.mitigated`
-12. `Risk.assessed -> Risk.accepted`
-13. `Risk.assessed -> Risk.escalated`
-14. `Risk.escalated -> Risk.closed`
-15. `ActorRolePermission.defined -> ActorRolePermission.active`
-16. `ActorRolePermission.active -> ActorRolePermission.revised`
-17. `ActorRolePermission.revised -> ActorRolePermission.revoked`
-18. `Term.proposed -> Term.approved`
-19. `Term.approved -> Term.deprecated`
-20. `UIComponent.implemented -> UIComponent.verified`
-21. `UIComponent.verified -> UIComponent.deprecated`
-22. `UIScreen.mapped -> UIScreen.verified`
-23. `UIScreen.verified -> UIScreen.deprecated`
-24. `Scenario.passing -> Scenario.obsolete`
-25. `Exception.detected -> Exception.handled`
-26. `Release.candidate -> Release.approved`
-27. `Deployment.failed -> Rollback.succeeded` (gate zamkniecia rollback)
-28. `Project.active -> Project.archived`
-29. `PromptTask.executed -> PromptTask.validated`
-30. `Feature.released -> Feature.done`
-31. `Release.published -> Release.closed`
+11. `Scenario.reviewed -> Scenario.approved`
+12. `Feature.implemented -> Feature.stabilized`
+13. `Term.proposed -> Term.approved`
+14. `Term.approved -> Term.deprecated`
+15. `UIComponent.implemented -> UIComponent.verified`
+16. `UIComponent.verified -> UIComponent.deprecated`
+17. `UIScreen.mapped -> UIScreen.verified`
+18. `UIScreen.verified -> UIScreen.deprecated`
+19. `PromptTask.executed -> PromptTask.validated`
+20. `ActorRolePermission.defined -> ActorRolePermission.active`
+21. `ActorRolePermission.active -> ActorRolePermission.revised`
+22. `ActorRolePermission.revised -> ActorRolePermission.revoked`
+23. `Risk.assessed -> Risk.mitigated`
+24. `Risk.assessed -> Risk.accepted`
+25. `Risk.assessed -> Risk.escalated`
+26. `Risk.escalated -> Risk.closed`
+27. `Repository.remote-attached -> Repository.policy-aligned`
+28. `ChangeSet.staged -> ChangeSet.validated`
+29. `VerificationPlan.reviewed -> VerificationPlan.approved`
+30. `DataSchema.reviewed -> DataSchema.approved`
+31. `Migration.reviewed -> Migration.approved`
+32. `Migration.applied -> Migration.rolled-back`
+33. `RuntimeEnvironment.validated -> RuntimeEnvironment.ready`
+34. `Scenario.passing -> Scenario.obsolete`
+35. `Exception.classified -> Exception.handled`
+36. `Release.candidate -> Release.approved`
+37. `Deployment.failed -> Rollback.succeeded` (gate zamkniecia rollback)
+38. `Feature.released -> Feature.done`
+39. `Release.published -> Release.closed`
 
 ## Zasada wykonania
 

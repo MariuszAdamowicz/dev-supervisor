@@ -17,7 +17,7 @@ potwierdzic, ze dokumenty playbooka sa formalnie spojne (bez uruchamiania projek
 2. Sprawdz coverage `transition -> binding`.
 3. Sprawdz `action -> capability -> tool`.
 4. Sprawdz gate-required + decision envelope.
-5. Sprawdz no-silent-transitions (ProcessEvent).
+5. Sprawdz no-silent-transitions (ProcessEventRecord).
 6. Sprawdz FSM completeness oraz non-happy path contract.
 7. Sprawdz architecture alignment (UseCase/PortContract/Component).
 8. Sprawdz dependency/no-cycle/composition root contracts.

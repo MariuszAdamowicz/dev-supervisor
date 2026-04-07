@@ -40,4 +40,4 @@ Mozna bylo od razu dopisac tez P1/P2, ale to zwiekszyloby ryzyko niespojnych zmi
 Nadal brak formalnego standardu "kiedy gate jest wymagany" dla nowych transition closure (`Feature.done`, `Release.closed`) poza kontraktem Decision Envelope. W kroku P1 trzeba to doprecyzowac jako regule walidacji.
 
 ## Nastepny krok
-Krok 6: patch P1 (PromptTask lifecycle, QualitySignal.pass, Project.archived, doprecyzowanie gate-required classifier).
+Krok 6: patch P1 (PromptTask lifecycle, quality pass evidence, Project.archived, doprecyzowanie gate-required classifier).

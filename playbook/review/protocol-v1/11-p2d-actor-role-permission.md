@@ -20,7 +20,7 @@ Dodano transitions:
 
 Dodano globalna regule bindingow:
 - kazdy transition MUSI wykonac `authz precheck` na `ActorRolePermission`.
-- fail precheck -> `Exception(authz)` + blocked transition + ProcessEvent.
+- fail precheck -> `Exception(authz)` + blocked transition + ProcessEventRecord.
 
 ### 3) Decision Envelope (`playbook/workflow/decision-envelope.md`)
 Rozszerzono gate-required o transition `ActorRolePermission`.

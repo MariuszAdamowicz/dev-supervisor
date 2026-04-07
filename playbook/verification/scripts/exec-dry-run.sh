@@ -52,7 +52,7 @@ session = {
       "decision" => "approve",
       "reason" => "baseline kompletny"
     },
-    "extracted_terms" => external_input.dig("new_project", "extracted_terms") || "# Glossary\n\n- OP: Obiekt Procesu\n- GateDecision: jawna decyzja operatora\n- ProcessEvent: audit event"
+    "extracted_terms" => external_input.dig("new_project", "extracted_terms") || "# Glossary\n\n- OP: Obiekt Procesu\n- GateDecisionRecord: record jawnej decyzji operatora\n- ProcessEventRecord: record audytu"
   },
   "add_idea" => {
     "form" => {

@@ -23,6 +23,15 @@ zweryfikowac nie tylko obecnosc nazw i artefaktow, ale tez prawdziwa semantyke p
 6. Evidence class semantics
 - symulacja, fixture, runtime capture i lane binarny maja jawna klase dowodu.
 
+7. Version-control semantics
+- `Repository` i `ChangeSet` sa sprawdzane pod katem traceability, policy alignment i integrity commit scope.
+
+8. Verification planning semantics
+- `VerificationPlan` musi mapowac lane do Feature/ChangeSet/Release zgodnie z profilem projektu.
+
+9. Data and environment semantics
+- `DataSchema`, `Migration` i `RuntimeEnvironment` musza byc sprawdzane tam, gdzie aktywne sa `persistent-data` lub `deployable-runtime`.
+
 ## 2. Minimalne metody walidacji
 
 - structural checks,
@@ -30,6 +39,8 @@ zweryfikowac nie tylko obecnosc nazw i artefaktow, ale tez prawdziwa semantyke p
 - contract tests dla request/response/tool contracts,
 - semantic assertions na runtime evidence,
 - negative tests dla authz, invalidation, reject/defer, retry, compensation,
+- traceability assertions dla Repository/ChangeSet i VerificationPlan,
+- compatibility assertions dla DataSchema/Migration/RuntimeEnvironment,
 - provenance verification.
 
 ## 3. Kryterium PASS

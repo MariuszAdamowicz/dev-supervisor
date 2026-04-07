@@ -5,7 +5,7 @@
 - wyznaczony next_transition
 - sprawdzone guardy transition
 - okreslone pending PromptTask
-- okreslony wymagany GateDecision
+- okreslony wymagany gate decision
 - znaleziony binding transition -> action -> tool
 
 ## Checklista wykonania transition
@@ -13,9 +13,9 @@
 - wykonany prompt/akcja dla transition
 - uruchomiony tool_plan zgodny z bindingiem
 - przygotowany review package (diff + mapowanie + build/test/lint)
-- decyzja GateDecision zapisana
-- QualitySignal zaktualizowany
-- ProcessEvent zapisany
+- decyzja GateDecisionRecord zapisana
+- QualityEvidenceRecord zaktualizowany
+- ProcessEventRecord zapisany
 - stan OP po transition zaktualizowany
 
 ## Checklista Decision Envelope (dla gate-required)
@@ -23,12 +23,12 @@
 - przygotowany `transition_ref` i target_state
 - komplet guardow z wynikiem pass/fail
 - jawny `change_set` (diff/artefakty/OP updates)
-- jawny wynik walidacji (build/test/lint/QualitySignal)
+- jawny wynik walidacji (build/test/lint/QualityEvidenceRecord)
 - jawne ryzyka, dependencies i exception status
 - jawny plan rollback lub rework
 - jawne skutki dla opcji: approve/request_changes/defer/reject
 - wskazany uprawniony actor (`required_actor`)
-- komplet `audit_refs` do powiazania GateDecision z ProcessEvent
+- komplet `audit_refs` do powiazania GateDecisionRecord z ProcessEventRecord
 
 ## Checklista AI job
 
@@ -41,10 +41,12 @@
 ## Checklista feature runtime
 
 - Feature OP utworzony i powiazany z Idea
+- ChangeSet powiazany z Feature i repozytorium, gdy scope dotyka kodu
 - Requirement/Constraint/DecisionRecord powiazane z Feature
 - UseCase OP istnieja dla kluczowych zachowan Feature
 - PortContract OP sa zatwierdzone dla granic z adapterami
 - Component OP ma wynik check bez cykli zaleznosci
+- VerificationPlan wskazuje wymagane lane dla Feature
 - krytyczne Requirement sa w stanie `linked` przed `Feature.done`
 - krytyczne Constraint sa w stanie `enforced` lub `revised` przed `Feature.done`
 - wymagane DecisionRecord sa w stanie `approved` przed `Feature.done`
@@ -55,15 +57,30 @@
 ## Checklista release runtime
 
 - Release OP candidate utworzony
-- GateDecision approve dla release
-- QualitySignal pass
+- GateDecisionRecord approve dla release
+- QualityEvidenceRecord pass
+- RuntimeEnvironment jest w stanie co najmniej `ready`
 - Deployment OP przygotowany
 - rollback/compensation plan gotowy
+
+## Checklista repository i changeset
+
+- Repository istnieje i ma przypiety remote/policy
+- ChangeSet ma jawny file scope i traceability do OP pracy
+- commit refs sa zapisane po `ChangeSet.committed`
+- brak nieautoryzowanych zmian poza zakresem owned paths
+
+## Checklista danych i srodowisk
+
+- DataSchema istnieje dla zmian dotykajacych trwale dane
+- Migration istnieje dla zmian niekompatybilnych lub operacyjnie istotnych
+- RuntimeEnvironment ma capability, config i constraints jawne dla lane
+- rollback lub compatibility plan jest jawny dla danych i deploymentu
 
 ## Checklista audytu OP
 
 - kazde krytyczne przejscie ma event + guard + actor
-- kazda decyzja gate ma ProcessEvent
+- kazda decyzja gate ma ProcessEventRecord
 - brak osieroconych OP
 - brak niespojnych stanow OP nadrzedny/podrzedny
 - kazdy transition ma wynik authz precheck (pass/fail)
@@ -83,7 +100,7 @@
 - coverage contract: transition OP -> binding
 - capability contract: action -> capability -> tool
 - gate contract: gate-required ma decide_gate + operator-ui
-- audit contract: krytyczne akcje maja ProcessEvent
+- audit contract: krytyczne akcje maja ProcessEventRecord
 - source-of-truth contract: brak konfliktu z layers/op/*
 - AI orchestration contract: control-plane i scheduler sa po stronie DS
 

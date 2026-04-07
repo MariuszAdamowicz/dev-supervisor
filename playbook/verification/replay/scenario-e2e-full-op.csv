@@ -2,6 +2,13 @@ op_type,from_state,event,to_state
 Project,created,project.configure-requested,configured
 Project,configured,project.baseline-approve-requested (gate=approve),baseline-approved
 Project,baseline-approved,project.activate-requested,active
+Repository,detected,repo.initialize-requested,initialized
+Repository,initialized,repo.attach-remote-requested,remote-attached
+Repository,remote-attached,repo.align-policy-requested (gate=approve),policy-aligned
+Repository,policy-aligned,repo.activate-requested,active
+VerificationPlan,drafted,verification.review-requested,reviewed
+VerificationPlan,reviewed,verification.approve-requested (gate=approve),approved
+VerificationPlan,approved,verification.activate-requested,active
 Idea,captured,idea.scope-requested,scoped
 Idea,scoped,idea.convert-requested (gate=approve),converted
 Requirement,proposed,requirement.clarify-requested,clarified
@@ -30,7 +37,8 @@ UIComponent,mapped,ui.implement-requested,implemented
 UIComponent,implemented,ui.verify-requested (gate=approve),verified
 UIScreen,proposed,screen.map-requested,mapped
 UIScreen,mapped,screen.verify-requested (gate=approve),verified
-Scenario,drafted,scenario.approve-requested (gate=approve),approved
+Scenario,drafted,scenario.review-requested,reviewed
+Scenario,reviewed,scenario.approve-requested (gate=approve),approved
 Scenario,approved,scenario.link-tests-requested,test-linked
 Scenario,test-linked,scenario.tests-pass,passing
 Feature,drafted,feature.specify-requested,specified
@@ -39,8 +47,6 @@ Feature,ux-aligned,feature.scenario-ready-requested,scenario-ready
 Feature,scenario-ready,feature.test-ready-requested,test-ready
 Feature,test-ready,feature.implement-requested,implemented
 Feature,implemented,feature.stabilize-requested (gate=approve),stabilized
-QualitySignal,collected,quality.evaluate-requested,evaluated
-QualitySignal,evaluated,quality.passed,pass
 Risk,identified,risk.assess-requested,assessed
 Risk,assessed,risk.mitigate-requested (gate=approve),mitigated
 Risk,mitigated,risk.close-requested,closed
@@ -48,9 +54,20 @@ PromptTask,created,prompt.context-ready,ready
 PromptTask,ready,prompt.sent,executed
 PromptTask,executed,prompt.validation-requested (gate=approve),validated
 PromptTask,validated,prompt.close-requested,closed
+ChangeSet,drafted,changeset.stage-requested,staged
+ChangeSet,staged,changeset.validate-requested (gate=approve),validated
+ChangeSet,validated,changeset.commit-requested,committed
 ActorRolePermission,defined,permission.activate-requested (gate=approve),active
-GateDecision,*,gate.recorded(approve|request_changes|defer|reject),recorded
-ProcessEvent,*,event.appended,recorded
+DataSchema,drafted,schema.review-requested,reviewed
+DataSchema,reviewed,schema.approve-requested (gate=approve),approved
+DataSchema,approved,schema.apply-requested,applied
+Migration,drafted,migration.review-requested,reviewed
+Migration,reviewed,migration.approve-requested (gate=approve),approved
+Migration,approved,migration.ready-requested,ready
+Migration,ready,migration.apply-requested,applied
+RuntimeEnvironment,defined,environment.validate-requested,validated
+RuntimeEnvironment,validated,environment.readiness-requested (gate=approve),ready
+RuntimeEnvironment,ready,environment.activate-requested,active
 Release,planned,release.candidate-requested,candidate
 Release,candidate,release.approve-requested (gate=approve),approved
 Deployment,prepared,deployment.start-requested,running

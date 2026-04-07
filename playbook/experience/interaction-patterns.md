@@ -14,8 +14,8 @@ Kazdy krok ma karte przejscia:
 - status guardow
 - akcje operatora
 
-## Pattern 3: Review Before GateDecision
-Operator podejmuje GateDecision po review package:
+## Pattern 3: Review Before GateDecisionRecord
+Operator podejmuje GateDecisionRecord po review package:
 - diff
 - mapowanie do scenariuszy
 - quality signals
@@ -28,7 +28,7 @@ Szczegoly runtime i audit sa widoczne dopiero po wejsciu w inspection/details mo
 Przy zmianie upstream UI pokazuje dokladne downstream OP, ktore beda invalidated.
 
 ## Pattern 5: Deterministic Audit Trail
-Kazda akcja operatora zapisuje ProcessEvent:
+Kazda akcja operatora zapisuje ProcessEventRecord:
 - actor
 - timestamp
 - event_type

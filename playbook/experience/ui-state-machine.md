@@ -19,7 +19,7 @@ UI odzwierciedla stany OP z layers/op/state-machines.md.
 - next_transition: oczekiwane przejscie
 - blocking_guards: lista guardow blokujacych przejscie
 - pending_tasks: otwarte PromptTask dla current_op
-- latest_gate: ostatnia GateDecision dla current_op
+- latest_gate: ostatnia GateDecisionRecord dla current_op
 
 ## Regula invalidation
 Zmiana upstream OP powoduje invalidation downstream zgodnie z trigger rules OP.

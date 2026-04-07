@@ -1,5 +1,8 @@
 # Verification Report
 
+> Status: superseded by `playbook/verification/reports/2026-04-07-verify-all-summary.md`
+> Scope note: ten raport jest historycznym snapshotem sprzed iteracji `32 -> 29 OP` i sprzed rozdzielenia recordow systemowych od OP.
+
 ## Metadata
 - date: 2026-04-07
 - operator: codex

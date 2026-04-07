@@ -6,8 +6,8 @@ Przed zakonczeniem pracy:
 - brak martwego kodu
 - status brancha gotowy do dalszej iteracji lub merge
 - notes/tasks zaktualizowane
-- GateDecision i QualitySignal zapisane
-- ProcessEvent zapisany dla kluczowych przejsc sesji
+- GateDecisionRecord i QualityEvidenceRecord zapisane
+- ProcessEventRecord zapisany dla kluczowych przejsc sesji
 
 Zasada:
 Kolejna iteracja ma startowac z czytelnym stanem OP i czytelnym stanem kodu.

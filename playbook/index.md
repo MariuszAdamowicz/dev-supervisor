@@ -129,7 +129,7 @@ Sposob kompozycji:
 7. Wyznacz Action i Tool plan z tooling/*.
 8. Zwaliduj kontrakty z validation/*.
 9. Wykonaj verification flow z verification/*.
-10. Wykonaj akcje, walidacje i GateDecision.
+10. Wykonaj akcje, walidacje i decyzje gate.
 11. Powtorz az do domkniecia celu runtime.
 
 ## Zasada wykonania

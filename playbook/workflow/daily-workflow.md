@@ -14,12 +14,16 @@ Kanoniczna semantyka:
 Dopuszczalne entrypointy (zalezne od kontekstu):
 - Project (nowy projekt / re-konfiguracja)
 - Product baseline maintenance
+- Repository/ChangeSet (VCS i scope zmiany)
 - Idea (intake i scoping)
 - Feature (spec/test/implement)
+- VerificationPlan (polityka unit/integration/acceptance/e2e)
 - UseCase/PortContract (granice i kontrakty aplikacyjne)
 - Component/Dependency (reguly zaleznosci i spojnosci)
+- DataSchema/Migration (ewolucja danych)
 - Term/UIComponent (UX alignment)
 - ActorRolePermission (authz i ownership)
+- RuntimeEnvironment (gotowosc lane i deploymentu)
 - Release (delivery)
 - Exception/Timeout (obsluga awarii)
 
@@ -30,7 +34,7 @@ Dla wybranego OP ustal:
 - legalne przejscia
 - guardy blokujace
 - pending PromptTask
-- latest GateDecision
+- latest GateDecisionRecord
 - parent linkage i impacted children
 - evidence class ostatnich kluczowych dowodow
 
@@ -83,7 +87,7 @@ Po akcji przygotuj review package:
 - build/test/lint
 - status OP po wykonaniu akcji
 
-## 6. GateDecision
+## 6. Gate decision record
 
 Operator podejmuje decyzje gate:
 - approve
@@ -96,8 +100,8 @@ Efekty decyzji sa zdefiniowane przez OP trigger rules.
 ## 7. Walidacja i audit
 
 Obowiazkowo:
-- QualitySignal (pass/fail)
-- ProcessEvent
+- QualityEvidenceRecord (pass/fail)
+- ProcessEventRecord
 - aktualizacja stanu OP
 - zapis evidence class i provenance metadata
 - ponowna walidacja invariantow po zmianie linkow lub parent/child scope

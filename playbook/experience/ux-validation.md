@@ -4,7 +4,7 @@
 - Operator bez znajomosci kodu przechodzi flow przez current_op -> next_transition.
 - UI nie pokazuje akcji bez spelnionych guardow.
 - Kazda blokada ma reason pochodzacy z OP.
-- Kazda decyzja operatora jest audytowalna (ProcessEvent).
+- Kazda decyzja operatora jest audytowalna (ProcessEventRecord).
 - Primary copy opisuje zadanie operatora, nie transition labels.
 - Audit/debug details nie sa primary UI.
 - Formularze krytyczne maja labels, inline validation i status feedback.
@@ -17,7 +17,7 @@
 4. Invalidation propagation tests (upstream -> downstream)
 5. Permission tests (ActorRolePermission)
 6. Exception/timeout handling tests
-7. Audit continuity tests (ProcessEvent completeness)
+7. Audit continuity tests (ProcessEventRecord completeness)
 8. Task-first copy tests (operator nie musi rozumiec OP labels)
 9. Empty/loading/error/blocked state tests
 10. Accessibility smoke tests (labels, keyboard, focus order, status messages)

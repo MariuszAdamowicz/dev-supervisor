@@ -1,4 +1,4 @@
 op_type,from_state,event,to_state
-QualitySignal,collected,quality.evaluate-requested,evaluated
-QualitySignal,evaluated,quality.failed,fail
-QualitySignal,fail,quality.recheck-requested,evaluated
+Feature,implemented,feature.stabilize-requested (gate=request_changes),test-ready
+Exception,detected,exception.classify-requested,classified
+Exception,classified,exception.handle-requested (gate=approve),handled

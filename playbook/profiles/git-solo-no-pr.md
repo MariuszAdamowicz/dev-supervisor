@@ -12,6 +12,7 @@ Cel:
 ## Reguły
 - dalej pracuj w branchach `feat/<feature>`
 - nie pushuj zmian roboczych bez walidacji
+- repozytorium projektu musi byc odwzorowane jako `Repository`, a pakiet pracy jako `ChangeSet`
 - przed merge do `main` wykonaj self-review na checklistach z `core/git-workflow.md`
 - merge do `main` wyłącznie po zielonym:
   - `./Scripts/build.sh`
@@ -37,6 +38,7 @@ git push origin --delete feat/<feature>
 
 ## Artifacts gate
 Przed merge do `main` upewnij się, że:
+- `ChangeSet` ma traceability do Feature/Requirement/Scenario i zapisane commit refs
 - `prd.md`, `bdd.md`, `notes.md`, `tasks.md`, `traceability.md` są zsynchronizowane i domknięte
 - testy pokrywają aktualne scenariusze BDD
 - nie ma martwego kodu po zmianie feature

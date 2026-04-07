@@ -12,7 +12,7 @@ Dla kazdej istotnej reguly:
 W runtime mozna to zapisywac lekko (traceability.md), ale musi byc zgodne z OP:
 - Scenario OP
 - Feature OP
-- ProcessEvent (audit zmian)
+- ProcessEventRecord (audit zmian)
 
 ## Co jest wystarczajace
 
@@ -25,8 +25,8 @@ W feature/traceability.md trzymaj mapowanie:
 
 Przy zmianie scenariuszy lub testow:
 - zaktualizuj traceability.md,
-- zapisz ProcessEvent,
-- upewnij sie, ze GateDecision opiera sie na aktualnym mapowaniu.
+- zapisz ProcessEventRecord,
+- upewnij sie, ze GateDecisionRecord opiera sie na aktualnym mapowaniu.
 
 ## Przyklad
 

@@ -56,5 +56,6 @@ When the second similar implementation appears, propose extraction.
 - Domain and application modules must not import UI frameworks, ORM models, or transport DTOs.
 - Cross-module communication should go through explicit contracts (PortContract / DTO).
 - Component dependencies must stay acyclic.
+- Folder and file ownership should be traceable to `Component.owned_paths`; structure policy is enforced through Component, not ad-hoc folder habits.
 - Composition root must be explicit and centralized (for example `App/CompositionRoot` or equivalent).
 - Stable core modules should expose abstractions; volatile infrastructure depends on those abstractions.

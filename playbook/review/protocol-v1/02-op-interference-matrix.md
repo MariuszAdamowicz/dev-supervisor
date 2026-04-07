@@ -15,29 +15,29 @@ Jawnie zmapować interferencje między OP oraz wskazać, gdzie semantyka OP nie 
 
 | OP | Wejścia (kto wpływa) | Wyjścia (na co wpływa) | Pokrycie bindingami |
 |---|---|---|---|
-| Project | operator-ui, GateDecision | baseline/runtime, Feature entrypoint | częściowe |
+| Project | operator-ui, GateDecisionRecord | baseline/runtime, Feature entrypoint | częściowe |
 | Requirement | Project | Feature | brak |
 | Constraint | Project | DecisionRecord, Feature | brak |
 | DecisionRecord | Constraint, operator | Feature | brak |
 | Idea | operator, Project | Feature, PromptTask | częściowe |
-| Feature | Idea, Scenario, GateDecision, QualitySignal | Release, Term, PromptTask | częściowe |
+| Feature | Idea, Scenario, GateDecisionRecord, QualityEvidenceRecord | Release, Term, PromptTask | częściowe |
 | Scenario | Feature | testy, Feature.test-ready | częściowe |
 | Term | Feature, operator | UIComponent, Scenario | częściowe |
 | UIComponent | Term, operator | UIScreen, UX validation | częściowe |
 | UIScreen | UIComponent, operator | UX gate | częściowe |
-| PromptTask | Feature/Term/UI, AI runner | GateDecision, review package | częściowe |
-| GateDecision | operator, review package | odblokowanie transition OP | częściowe |
+| PromptTask | Feature/Term/UI, AI runner | GateDecisionRecord, review package | częściowe |
+| GateDecisionRecord | operator, review package | odblokowanie transition OP | częściowe |
 | ActorRolePermission | operator/admin | autoryzacja akcji | brak egzekucji |
 | Dependency | Feature | guardy release | częściowe |
 | Risk | Feature/Quality | gate/rework/escalation | brak |
 | Release | Feature.stabilized | Deployment | częściowe |
 | Deployment | Release.approved | Rollback/Compensation | częściowe |
 | Rollback | Deployment.failed | Compensation, zamknięcie incydentu | częściowe |
-| QualitySignal | validation suite | GateDecision, Exception | częściowe |
-| Exception | Quality/Timeout/Authz | Compensation, GateDecision | częściowe |
-| Timeout | scheduler | Exception, GateDecision.defer | częściowe |
+| QualityEvidenceRecord | validation suite | GateDecisionRecord, Exception | częściowe |
+| Exception | Quality/Timeout/Authz | Compensation, GateDecisionRecord | częściowe |
+| Timeout | scheduler | Exception, GateDecisionRecord.defer | częściowe |
 | Compensation | Exception/Timeout/Deployment.failed | zamknięcie błędu krytycznego | częściowe |
-| ProcessEvent | wszystkie OP | audit trail | częściowe (format doprecyzowany tylko dla file-ai v1) |
+| ProcessEventRecord | wszystkie OP | audit trail | częściowe (format doprecyzowany tylko dla file-ai v1) |
 
 ## Luki krytyczne wykryte deterministycznie
 

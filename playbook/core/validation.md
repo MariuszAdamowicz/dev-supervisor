@@ -28,9 +28,9 @@ Green status bez wykonanych testow nie przechodzi gate.
 ## OP quality contract
 
 Walidacja musi zasilic OP:
-- QualitySignal (pass/fail)
-- GateDecision (approve/request_changes/defer/reject)
-- ProcessEvent (audit)
+- QualityEvidenceRecord (pass/fail)
+- GateDecisionRecord (approve/request_changes/defer/reject)
+- ProcessEventRecord (audit)
 
 ## Failure paths
 

@@ -18,11 +18,11 @@ zweryfikowac playbook na realnym mini-projekcie (niewielki zakres, pelny proces)
 2. Przejscie Feature przez spec/test/implement/stabilize/release.
 3. Co najmniej jedna sciezka non-happy (request_changes albo defer).
 4. Co najmniej jeden incydent operacyjny (deployment.failed lub timeout.fired).
-5. Domkniecie do Feature.done lub jawne zatrzymanie z decyzja GateDecision.
+5. Domkniecie do Feature.done lub jawne zatrzymanie z decyzja GateDecisionRecord.
 
 ## Evidence wymagane
-- ProcessEvent log
-- GateDecision log
+- ProcessEventRecord log
+- GateDecisionRecord log
 - Review packages dla gate-required transitions
 - Wyniki build/test/lint (lane kontraktowy i lane binarny aplikacji)
 - Runtime snapshot przed i po runie

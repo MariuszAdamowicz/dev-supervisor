@@ -5,7 +5,7 @@ Data UTC: 2026-04-03T22:40:00Z
 ## Cel kroku
 Domknac luki P1:
 1. `PromptTask.executed -> validated -> closed`
-2. `QualitySignal.evaluated -> pass`
+2. jawny zapis quality pass evidence
 3. `Project.active -> archived`
 4. twarda, deterministyczna klasyfikacja `gate_required`.
 
@@ -15,15 +15,15 @@ Domknac luki P1:
 Dodano reguly:
 - `PromptTask.executed` -> `validation-review` (warunek do stanu validated),
 - `PromptTask.validated` -> zamkniecie tasku,
-- `QualitySignal.pass` -> odblokowanie kolejnych legalnych transition,
-- `project.archive-requested` -> review package archiwizacji + GateDecision candidate.
+- `quality.evidence.pass` -> odblokowanie kolejnych legalnych transition,
+- `project.archive-requested` -> review package archiwizacji + GateDecisionRecord candidate.
 
 ### 2) Bindings (`playbook/tooling/bindings.md`)
 Dodano transitions:
 - `Project.active -> Project.archived`
 - `PromptTask.executed -> PromptTask.validated`
 - `PromptTask.validated -> PromptTask.closed`
-- `QualitySignal.evaluated -> QualitySignal.pass`
+- zapis `QualityEvidenceRecord(result=pass)`
 
 ### 3) Gate classifier (`playbook/workflow/decision-envelope.md`)
 Dodano deterministyczny classifier `gate_required` oparty o:

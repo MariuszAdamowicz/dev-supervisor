@@ -30,6 +30,10 @@ Kazda akcja ma:
   - intent: zbudowanie task-first widoku operatora na bazie OP i guardow
   - required_capabilities: read_state, progressive_disclosure, explain_blocker
 
+- synchronize_repository
+  - intent: utrzymanie repo, remote i polityki branch/commit jako stanu projektu
+  - required_capabilities: checkout, status, diff, remote, push, append_audit
+
 - authorize_transition
   - intent: sprawdzenie, czy actor moze wykonac transition
   - required_capabilities: authorize_transition, read_state, append_audit
@@ -70,16 +74,32 @@ Kazda akcja ma:
   - intent: przygotowanie izolowanej pracy
   - required_capabilities: branch
 
+- stage_changeset
+  - intent: przygotowanie ograniczonego pakietu zmian do walidacji i commitu
+  - required_capabilities: add, diff, status, write_state
+
 - run_validation_suite
   - intent: walidacja build/test/lint
   - required_capabilities: build, test, lint
+
+- plan_verification_scope
+  - intent: ustalenie wymaganych warstw testow i evidence dla danego scope
+  - required_capabilities: read_state, write_state, coverage, append_audit
+
+- evolve_data_schema
+  - intent: przygotowanie i wykonanie zmiany schematu lub migracji danych
+  - required_capabilities: execute_script, persist_artifacts, write_state, append_audit
+
+- validate_runtime_environment
+  - intent: sprawdzenie gotowosci srodowiska wykonawczego przed walidacja lub deployment
+  - required_capabilities: execute_script, provide_input, append_audit
 
 - commit_checkpoint
   - intent: zapis punktu kontrolnego zmian
   - required_capabilities: add, commit
 
 - produce_review_package
-  - intent: przygotowanie materialu do GateDecision
+  - intent: przygotowanie materialu do GateDecisionRecord
   - required_capabilities: execute_script, read_state
 
 - attest_evidence

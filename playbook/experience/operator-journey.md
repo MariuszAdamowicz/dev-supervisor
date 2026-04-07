@@ -7,7 +7,7 @@ Operator wykonuje jeden nastepny krok wskazany przez OP, nie przez reczny wybor 
 Interfejs pokazuje:
 - current_op i current_state,
 - wymagane wejscia do next_transition,
-- artefakty potrzebne do GateDecision.
+- artefakty potrzebne do GateDecisionRecord.
 
 Primary copy opisuje zadanie operatora:
 - `utworz baseline`,
@@ -19,20 +19,21 @@ Primary copy nie opisuje:
 - `Feature.specified -> Feature.ux-aligned`.
 
 ## Glowny przebieg (nowy projekt)
-1. Project setup (Project + ActorRolePermission)
-2. Product baseline (Requirement + Constraint + DecisionRecord + UseCase + PortContract + Component + UX contract)
+1. Project setup (Project + Repository + ActorRolePermission)
+2. Product baseline (Requirement + Constraint + DecisionRecord + UseCase + PortContract + Component + VerificationPlan + UX contract)
 3. Idea intake (Idea)
 4. Idea scoping (Idea -> Feature)
-5. Feature spec/test loop (Feature + Scenario + PromptTask + GateDecision)
+5. Feature spec/test loop (Feature + Scenario + ChangeSet + PromptTask + GateDecisionRecord)
 6. UX alignment (Term + UIComponent + UIScreen)
-7. Quality and hardening (QualitySignal + Risk + Dependency)
-8. Delivery (Release -> Deployment -> Rollback)
-9. Audit closure (ProcessEvent + final GateDecision)
+7. Quality and hardening (VerificationPlan + QualityEvidenceRecord + Risk + Dependency)
+8. Data and environment readiness (DataSchema + Migration + RuntimeEnvironment, gdy dotyczy)
+9. Delivery (Release -> Deployment -> Rollback)
+10. Audit closure (ProcessEventRecord + final GateDecisionRecord)
 
 ## Decyzje operatora
 Operator podejmuje decyzje:
 - wybór aktywnej idei/feature,
-- GateDecision (approve/request_changes/defer/reject),
+- GateDecisionRecord (approve/request_changes/defer/reject),
 - acceptance lub escalation dla Risk/Exception,
 - publikacja release i ewentualny rollback.
 

@@ -12,7 +12,7 @@
       "decision": "approve",
       "reason": "baseline kompletny i niesprzeczny"
     },
-    "extracted_terms": "# Glossary\n\n- DS: Development Supervisor\n- OP: Obiekt Procesu\n- GateDecision: jawna decyzja operatora"
+    "extracted_terms": "# Glossary\n\n- DS: Development Supervisor\n- OP: Obiekt Procesu\n- GateDecisionRecord: record jawnej decyzji operatora"
   },
   "add_idea": {
     "idea_title": "Zbudowac aplikacje do zarzadzania developmentem projektow",

@@ -13,12 +13,12 @@
 - real_runtime_capture: no
 
 ## Runtime Coverage
-- e2e_op_types: 26/26
-- chaos_op_types: 26/26
-- e2e_events: 158
-- e2e_gates: 22
-- chaos_events: 89
-- chaos_gates: 23
+- e2e_op_types: 29/29
+- chaos_op_types: 29/29
+- e2e_events: 198
+- e2e_gates: 28
+- chaos_events: 104
+- chaos_gates: 30
 - e2e_evidence_class: fixture-simulation
 - chaos_evidence_class: fixture-simulation
 - app_quality_lane_e2e: pass

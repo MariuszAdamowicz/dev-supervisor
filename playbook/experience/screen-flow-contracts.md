@@ -33,6 +33,7 @@ Musi pokazac:
 - user goal: `utworz nowy projekt i przygotuj baseline`
 - formularz nazwa/opis projektu
 - wizard wyboru profili
+- status Repository i VerificationPlan
 - status baseline artifacts (overview/constraints/glossary/use-case/port-contract/component-map/adr/ux)
 - CTA: `approve baseline` tylko gdy guards spelnione
 
@@ -86,7 +87,7 @@ Musi pokazac:
 ## 5. Gate Review Screen
 
 Widoczne gdy:
-- transition wymaga GateDecision
+- transition wymaga GateDecisionRecord
 
 Musi pokazac:
 - review package (diff, test mapping, quality)
@@ -97,7 +98,20 @@ Musi pokazac:
 Zakaz:
 - brak mozliwosci zmiany stanu bez decyzji gate
 
-## 6. Release & Operations Screen
+## 6. Data & Environment Screen
+
+Widoczne gdy:
+- DataSchema.drafted/reviewed/approved/applied
+- Migration.drafted/reviewed/ready/applied
+- RuntimeEnvironment.defined/validated/ready/degraded
+
+Musi pokazac:
+- user goal: `utrzymaj gotowosc danych i srodowiska`
+- status kompatybilnosci schematu i migracji
+- status gotowosci local/ci/staging/prod
+- CTA: approve schema / apply migration / confirm environment readiness
+
+## 7. Release & Operations Screen
 
 Widoczne gdy:
 - Release.candidate/approved/published
@@ -110,7 +124,7 @@ Musi pokazac:
 - rollback readiness i compensation status
 - CTA: start deploy / confirm rollback
 
-## 7. Exception & Timeout Screen
+## 8. Exception & Timeout Screen
 
 Widoczne gdy:
 - Exception.detected/escalated
@@ -130,7 +144,7 @@ Musi pokazac:
 - kazda zablokowana akcja ma jawny reason z OP guard.
 
 3. Audit contract
-- kazda akcja operatora zapisuje ProcessEvent.
+- kazda akcja operatora zapisuje ProcessEventRecord.
 
 4. Determinism contract
 - ten sam stan OP zawsze generuje ten sam zestaw akcji UI.

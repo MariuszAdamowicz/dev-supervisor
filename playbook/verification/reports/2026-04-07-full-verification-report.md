@@ -1,7 +1,7 @@
 # Verification Report
 
-> Status: superseded by `playbook/verification/reports/2026-04-07-full-op-verification-report.md`
-> Scope note: ten raport obejmuje starszy zakres referencyjny, nie pelny full-op 26/26.
+> Status: superseded by `playbook/verification/reports/2026-04-07-verify-all-summary.md`
+> Scope note: ten raport obejmuje starszy zakres referencyjny sprzed iteracji `32 -> 29 OP` i nie jest aktualnym wynikiem kontraktowym.
 
 ## Metadata
 - date: 2026-04-07

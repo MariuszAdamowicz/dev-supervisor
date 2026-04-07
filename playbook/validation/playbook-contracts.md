@@ -23,7 +23,7 @@ formalnie walidowac kompletnosc i spojnosc Playbook Layer wzgledem OP Layer.
 - brak envelope albo brak pol krytycznych (change_set, validation, decision_effects) = transition invalid.
 
 4. Audit contract
-- kazda akcja krytyczna generuje ProcessEvent.
+- kazda akcja krytyczna generuje ProcessEventRecord.
 - brak audytu = transition invalid.
 
 5. Source-of-truth contract
@@ -40,7 +40,8 @@ formalnie walidowac kompletnosc i spojnosc Playbook Layer wzgledem OP Layer.
 
 5b. Baseline completeness contract
 - `workflow/setup.md` i `runtime/playbook-exec.yaml` musza definiowac ten sam minimalny baseline.
-- baseline MUST obejmowac: overview, constraints, glossary, Requirement, Constraint, DecisionRecord, UseCase, PortContract, Component, ActorRolePermission i artefakt UX entrypointu.
+- baseline MUST obejmowac: overview, constraints, glossary, Repository, Requirement, Constraint, DecisionRecord, UseCase, PortContract, Component, ActorRolePermission, VerificationPlan i artefakt UX entrypointu.
+- `RuntimeEnvironment` jest wymagany w baseline tylko gdy profil aktywuje `deployable-runtime`.
 - brak zgodnosci workflow/exec dla baseline = playbook invalid.
 
 5c. Runtime lifecycle coverage contract
@@ -72,6 +73,10 @@ formalnie walidowac kompletnosc i spojnosc Playbook Layer wzgledem OP Layer.
 3. Storage neutrality contract
 - te same action/binding dzialaja dla file-ai i sqlbase przez storage-adapter.
 
+3a. OP applicability contract
+- OP oznaczony jako warunkowy (`interactive-ui`, `version-controlled`, `formal-validation`, `persistent-data`, `deployable-runtime`) nie moze byc wymagany bez aktywacji odpowiedniego capability/profile.
+- jesli capability/profile jest aktywny, wymagane OP musza istniec operacyjnie, nie tylko opisowo.
+
 4. UX projection contract
 - UI pokazuje tylko akcje legalne dla current_state i guardow.
 - akcja ukryta/przedwczesna = projection invalid.
@@ -82,8 +87,13 @@ formalnie walidowac kompletnosc i spojnosc Playbook Layer wzgledem OP Layer.
 
 5. CRUD integrity contract
 - create/read/update/remove dla OP musi byc opisane i audytowalne zgodnie z `workflow/op-crud-contract.md`.
-- hard delete OP po pojawieniu sie ProcessEvent = invalid.
+- hard delete OP po pojawieniu sie ProcessEventRecord = invalid.
 - brak parent linkage lub dangling link = playbook invalid.
+
+6. System record contract
+- `GateDecisionRecord`, `ProcessEventRecord` i `QualityEvidenceRecord` nie sa OP, ale sa kanonicznymi recordami systemowymi.
+- recordy systemowe sa append-only; korekta oznacza nowy record, nie nadpisanie starego.
+- brak wymaganego recordu systemowego uniewaznia transition lub evidence package.
 
 ## 3. Contracts of Safety
 
@@ -91,7 +101,7 @@ formalnie walidowac kompletnosc i spojnosc Playbook Layer wzgledem OP Layer.
 - zadna zmiana stanu OP nie zachodzi bez bindingu i audytu.
 
 2. Fail-safe gate
-- QualitySignal.fail wymusza request_changes lub defer, nigdy auto-approve.
+- QualityEvidenceRecord.fail wymusza request_changes lub defer, nigdy auto-approve.
 
 3. Recovery contract
 - dla Deployment.failed musi istniec binding rollback + compensation.
@@ -121,6 +131,22 @@ formalnie walidowac kompletnosc i spojnosc Playbook Layer wzgledem OP Layer.
 9. Testability contract
 - UseCase/Domain musza miec testy niezalezne od UI/DB/sieci.
 - jesli test logiki biznesowej wymaga infrastruktury, oznacz jako architectural coupling i blokuj gate approve.
+
+9a. Version-control contract
+- projekt z aktywnym profilem git/VCS musi miec Repository jako stan projektu i ChangeSet jako sledzony pakiet zmian.
+- commit bez traceability do ChangeSet albo ChangeSet bez powiazania z OP pracy = invalid.
+
+9b. Verification planning contract
+- projekt z `formal-validation` musi miec VerificationPlan dla baseline oraz dla scope, ktory zmienia ryzyko, delivery albo zakres testow.
+- brak mapowania lane -> Feature/ChangeSet/Release = playbook invalid.
+
+9c. Data evolution contract
+- projekt z `persistent-data` musi utrzymywac DataSchema, a zmiana niekompatybilna lub operacyjnie istotna musi miec Migration.
+- zmiana danych bez rollback/compatibility policy = playbook invalid.
+
+9d. Environment readiness contract
+- projekt z `deployable-runtime` musi miec RuntimeEnvironment dla lokalnej walidacji oraz dla kazdego srodowiska delivery.
+- Release.approved i Deployment.prepared bez RuntimeEnvironment w stanie co najmniej `ready` = invalid.
 
 10. Non-happy path contract
 - dla kazdego OP musi istniec co najmniej jedna sciezka alternatywna do happy path:
@@ -168,13 +194,17 @@ Minimalna procedura walidacji przy zmianie playbooka:
 9. Sprawdz architecture alignment (UseCase, PortContract, Component).
 10. Sprawdz dependency direction + no-cycle + composition root.
 11. Sprawdz testability contract dla UseCase/Domain.
-12. Sprawdz FSM completeness contract.
-13. Sprawdz non-happy path contract.
-14. Sprawdz baseline completeness i workflow<->exec alignment.
-15. Sprawdz runtime lifecycle coverage contract.
-16. Sprawdz CRUD integrity contract.
-17. Sprawdz semantic guard contract.
-18. Sprawdz evidence provenance contract.
+12. Sprawdz version-control contract i traceability ChangeSet.
+13. Sprawdz verification planning contract.
+14. Sprawdz data evolution contract.
+15. Sprawdz environment readiness contract.
+16. Sprawdz FSM completeness contract.
+17. Sprawdz non-happy path contract.
+18. Sprawdz baseline completeness i workflow<->exec alignment.
+19. Sprawdz runtime lifecycle coverage contract.
+20. Sprawdz CRUD integrity contract.
+21. Sprawdz semantic guard contract.
+22. Sprawdz evidence provenance contract.
 
 ## 6. Evidence Package
 
@@ -184,4 +214,4 @@ Kazdy pass walidacji generuje pakiet dowodowy:
 - lista naruszen,
 - klasy evidence i provenance metadata,
 - decyzja: pass/fail,
-- podpis operatora (GateDecision dla zmiany playbooka).
+- podpis operatora (GateDecisionRecord dla zmiany playbooka).
