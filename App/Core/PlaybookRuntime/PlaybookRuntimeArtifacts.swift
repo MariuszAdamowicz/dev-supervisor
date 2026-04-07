@@ -149,9 +149,12 @@ extension PlaybookRuntimeFileSystem {
             projectURL.appendingPathComponent("App"),
             projectURL.appendingPathComponent("Tests"),
             projectURL.appendingPathComponent("Scripts"),
+            projectURL.appendingPathComponent(".ai/adr"),
+            projectURL.appendingPathComponent(".ai/architecture"),
             projectURL.appendingPathComponent(".ai/prd"),
             projectURL.appendingPathComponent(".ai/features"),
             projectURL.appendingPathComponent(".ai/stack"),
+            projectURL.appendingPathComponent(".ai/ux"),
             projectURL.appendingPathComponent(".ai/runtime/v1/ops"),
         ]
     }
@@ -199,7 +202,13 @@ extension PlaybookRuntimeFileSystem {
             (projectURL.appendingPathComponent(".ai/prd/overview.md"), overviewMarkdown(name: request.projectName, description: request.projectDescription, profile: profile)),
             (projectURL.appendingPathComponent(".ai/prd/constraints.md"), constraintsMarkdown(profile: profile)),
             (projectURL.appendingPathComponent(".ai/prd/glossary.md"), glossaryMarkdown(projectName: request.projectName, description: request.projectDescription)),
+            (projectURL.appendingPathComponent(".ai/adr/0001-project-baseline.md"), adrMarkdown(name: request.projectName, profile: profile)),
+            (projectURL.appendingPathComponent(".ai/architecture/use-cases.md"), useCasesMarkdown(name: request.projectName)),
+            (projectURL.appendingPathComponent(".ai/architecture/port-contracts.md"), portContractsMarkdown(name: request.projectName)),
+            (projectURL.appendingPathComponent(".ai/architecture/component-map.md"), componentMapMarkdown(name: request.projectName)),
             (projectURL.appendingPathComponent(".ai/stack/rules.md"), stackRulesMarkdown(profile: profile)),
+            (projectURL.appendingPathComponent(".ai/ux/new-project.md"), newProjectUXMarkdown(name: request.projectName, profile: profile)),
+            (projectURL.appendingPathComponent(".ai/runtime/v1/op-index.json"), emptyOpIndexJSON()),
         ]
     }
 
@@ -363,7 +372,7 @@ extension PlaybookRuntimeFileSystem {
 
         ## First runtime target
         - uruchomienie projektu przez UI
-        - baseline `.ai/prd/*`
+        - baseline `.ai/prd/*`, `.ai/adr/*`, `.ai/architecture/*`, `.ai/ux/*`
         - instancja `OP.Project`
         """
     }
@@ -435,6 +444,125 @@ extension PlaybookRuntimeFileSystem {
         - no silent transitions
         - explicit gate decisions only
         """
+    }
+
+    func adrMarkdown(name: String, profile: PlaybookProfileSelection) -> String {
+        """
+        # ADR 0001: Project Baseline
+
+        ## Status
+        proposed
+
+        ## Context
+        - project: \(name)
+        - stack: \(profile.stack)
+        - architecture: \(profile.architecture)
+        - execution-style: \(profile.executionStyle)
+
+        ## Decision
+        - projekt startuje od task-first operator UI
+        - runtime musi zapisac audit trail i OP index
+        - baseline obejmuje overview, constraints, glossary, use cases, port contracts i component map
+
+        ## Consequences
+        - zmiana baseline wymaga jawnego gate
+        - brak silent transitions
+        """
+    }
+
+    func useCasesMarkdown(name: String) -> String {
+        """
+        # Use Cases
+
+        ## UC-001: Start projektu z UI
+        - actor: operator
+        - goal: uruchomic nowy projekt i otrzymac gotowy baseline
+        - input: name, path, profiles, overview
+        - output: Project.active + baseline artifacts + audit trail
+
+        ## Scope
+        - project: \(name)
+        """
+    }
+
+    func portContractsMarkdown(name: String) -> String {
+        """
+        # Port Contracts
+
+        ## Inbound
+        - NewProjectFormInput(name, path, profileSelection, overview, createRemoteRepository)
+        - AddIdeaInput(projectRootPath, title, description, gate)
+
+        ## Outbound
+        - LocalGitPort(init, addRemoteOrigin)
+        - GitHubRepositoryPort(ensureRepository)
+        - RuntimeStoragePort(writeSnapshot, appendAudit, appendEvidence)
+
+        ## Scope
+        - project: \(name)
+        """
+    }
+
+    func componentMapMarkdown(name: String) -> String {
+        """
+        # Component Map
+
+        - PlaybookRuntimeStarterView -> operator projection
+        - PlaybookRuntimeFileSystem -> runtime orchestration
+        - PlaybookRuntimeStorage -> snapshots, audit, evidence, op-index
+        - PlaybookRuntimeGitAdapters -> local git i GitHub adapter
+
+        ## Scope
+        - project: \(name)
+        """
+    }
+
+    func newProjectUXMarkdown(name: String, profile: PlaybookProfileSelection) -> String {
+        """
+        # New Project UX
+
+        - user_goal: uruchom nowy projekt i przygotuj baseline
+        - primary_job: uzupelnij dane projektu i zatwierdz baseline
+        - primary_action: create_project
+        - happy_path:
+          - wpisz name, path i profile
+          - uzupelnij overview
+          - zatwierdz baseline
+        - blocked_state: brak authz lub niekompletny baseline
+        - success_state: Project.active + baseline gotowy
+        - audit_mode:
+          - process events
+          - gate decisions
+          - evidence provenance
+        - stack: \(profile.stack)
+        - project: \(name)
+        """
+    }
+
+    func addIdeaUXMarkdown(ideaTitle: String) -> String {
+        """
+        # Add Idea UX
+
+        - user_goal: zapisz idee i wygeneruj pierwszy material roboczy
+        - primary_job: opisz idee i zdecyduj czy przechodzi dalej
+        - primary_action: save_idea
+        - happy_path:
+          - wpisz tytul i opis
+          - sprawdz derived OP
+          - zatwierdz gate konwersji
+        - blocked_state: projekt nieaktywny
+        - success_state: Idea.converted + derived OP zapisane
+        - current_idea_title: \(ideaTitle)
+        """
+    }
+
+    func emptyOpIndexJSON() -> String {
+        makeJSONString([
+            "schema_version": .string("file-ai-runtime/v1"),
+            "entity": .string("op_index"),
+            "updated_at": .string(timestamp()),
+            "entries": .array([]),
+        ])
     }
 
     func slugify(_ value: String) -> String {

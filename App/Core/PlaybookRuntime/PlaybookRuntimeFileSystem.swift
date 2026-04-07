@@ -55,8 +55,11 @@ struct PlaybookRuntimeFileSystem: PlaybookRuntimeContract {
                 projectState: nil,
                 remoteURL: nil,
                 allOps: [],
+                baselineArtifacts: [],
                 processEventCount: 0,
                 gateDecisionCount: 0,
+                evidenceCount: 0,
+                lastEvidenceClass: nil,
                 lastEventID: nil
             )
         }
@@ -68,8 +71,11 @@ struct PlaybookRuntimeFileSystem: PlaybookRuntimeContract {
             projectState: summaries.projectState,
             remoteURL: summaries.remoteURL,
             allOps: summaries.ops.sorted { $0.opID < $1.opID },
+            baselineArtifacts: baselineArtifactStatuses(projectRoot: projectURL),
             processEventCount: countLines(at: projectURL.appendingPathComponent(".ai/runtime/v1/process-events.ndjson")),
             gateDecisionCount: countLines(at: projectURL.appendingPathComponent(".ai/runtime/v1/gate-decisions.ndjson")),
+            evidenceCount: summaries.evidenceCount,
+            lastEvidenceClass: summaries.lastEvidenceClass,
             lastEventID: summaries.lastEventID
         )
     }
@@ -79,6 +85,8 @@ private struct RuntimeSummarySnapshot {
     let ops: [PlaybookDerivedOPSummary]
     let projectState: String?
     let remoteURL: String?
+    let evidenceCount: Int
+    let lastEvidenceClass: String?
     let lastEventID: String?
 }
 
@@ -119,6 +127,8 @@ private extension PlaybookRuntimeFileSystem {
         var summaries: [PlaybookDerivedOPSummary] = []
         var remoteURL: String?
         var projectState: String?
+        var evidenceCount = 0
+        var lastEvidenceClass: String?
         var lastEventID: String?
 
         for opDirectory in opDirectories {
@@ -148,11 +158,52 @@ private extension PlaybookRuntimeFileSystem {
             }
         }
 
+        let evidenceURL = projectRoot.appendingPathComponent(".ai/runtime/v1/evidence.ndjson")
+        if let evidenceText = try? String(contentsOf: evidenceURL, encoding: .utf8) {
+            let lines = evidenceText
+                .split(whereSeparator: \.isNewline)
+                .map(String.init)
+                .filter { !$0.isEmpty }
+            evidenceCount = lines.count
+
+            if let lastLine = lines.last,
+               let data = lastLine.data(using: .utf8),
+               let evidence = try? JSONDecoder().decode(RuntimeEvidenceRecord.self, from: data)
+            {
+                lastEvidenceClass = evidence.evidenceClass
+            }
+        }
+
         return RuntimeSummarySnapshot(
             ops: summaries,
             projectState: projectState,
             remoteURL: remoteURL,
+            evidenceCount: evidenceCount,
+            lastEvidenceClass: lastEvidenceClass,
             lastEventID: lastEventID
         )
+    }
+
+    func baselineArtifactStatuses(projectRoot: URL) -> [PlaybookArtifactStatus] {
+        let artifacts: [(String, String)] = [
+            (".ai/prd/overview.md", "Overview"),
+            (".ai/prd/constraints.md", "Constraints"),
+            (".ai/prd/glossary.md", "Glossary"),
+            (".ai/adr/0001-project-baseline.md", "ADR"),
+            (".ai/architecture/use-cases.md", "Use cases"),
+            (".ai/architecture/port-contracts.md", "Port contracts"),
+            (".ai/architecture/component-map.md", "Component map"),
+            (".ai/ux/new-project.md", "New project UX"),
+            (".ai/runtime/v1/op-index.json", "OP index"),
+        ]
+
+        return artifacts.map { relativePath, label in
+            let url = projectRoot.appendingPathComponent(relativePath)
+            return PlaybookArtifactStatus(
+                path: url.path,
+                label: label,
+                exists: fileManager.fileExists(atPath: url.path)
+            )
+        }
     }
 }

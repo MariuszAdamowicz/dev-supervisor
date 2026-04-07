@@ -75,12 +75,37 @@ extension PlaybookRuntimeFileSystem {
 
     func executeAddIdea(_ context: IdeaContext) throws -> PlaybookAddIdeaResult {
         try requireActiveProject(at: context.projectURL)
+        try recordPolicyEvent(
+            opID: "project.ds",
+            opType: "Project",
+            eventType: "policy.authorized",
+            actor: context.request.convertGate.actor,
+            detail: "Operator moze uruchomic add_idea dla aktywnego projektu.",
+            idempotencyKey: "project.ds|policy-authorized|add-idea",
+            projectRoot: context.projectURL
+        )
         let ideaID = nextSequentialOpID(prefix: "idea", projectRoot: context.projectURL)
 
         try createIdeaInstance(context, ideaID: ideaID)
+        try recordPolicyEvent(
+            opID: ideaID,
+            opType: "Idea",
+            eventType: "policy.semantics_validated",
+            actor: "policy-engine",
+            detail: "Idea ma aktywny parent project.ds i moze przejsc do scoped.",
+            idempotencyKey: "\(ideaID)|policy-semantics|add-idea",
+            projectRoot: context.projectURL
+        )
         let derivedArtifacts = try createDerivedArtifacts(for: context, ideaID: ideaID)
         let envelopePath = try writeIdeaEnvelope(for: context, ideaID: ideaID, derivedArtifacts: derivedArtifacts)
         let ideaSnapshot = try applyIdeaDecision(context, ideaID: ideaID)
+        try recordRuntimeEvidence(
+            opID: ideaID,
+            sourceRef: envelopePath,
+            actor: "system:dev-supervisor",
+            replayableInputRef: "playbook/runtime/playbook-exec.yaml#add_idea",
+            projectRoot: context.projectURL
+        )
 
         return PlaybookAddIdeaResult(
             result: .success,
@@ -144,11 +169,37 @@ private extension PlaybookRuntimeFileSystem {
     func configureNewProjectRuntime(_ context: NewProjectContext, setup: NewProjectSetup) throws -> String {
         let projectLinks = [RuntimeLink(rel: "playbook_instance", target: setup.playbookInstancePath)] + remoteRepositoryLinks(setup.remoteURL)
         try createProjectOp(context, links: projectLinks, remoteURL: setup.remoteURL)
+        try recordPolicyEvent(
+            opID: "project.ds",
+            opType: "Project",
+            eventType: "policy.authorized",
+            actor: context.request.baselineGate.actor,
+            detail: "Operator moze uruchomic new_project dla wskazanego katalogu i profilu.",
+            idempotencyKey: "project.ds|policy-authorized|new-project",
+            projectRoot: context.projectURL
+        )
         try moveProjectToConfigured(projectRoot: context.projectURL)
+        try createBaselineBundle(context)
+        try recordPolicyEvent(
+            opID: "project.ds",
+            opType: "Project",
+            eventType: "policy.semantics_validated",
+            actor: "policy-engine",
+            detail: "Baseline bundle i artefakty wymagane przez playbook zostaly przygotowane.",
+            idempotencyKey: "project.ds|policy-semantics|new-project",
+            projectRoot: context.projectURL
+        )
 
         let envelopePath = try writeBaselineEnvelope(for: context, remoteURL: setup.remoteURL)
         try applyBaselineDecision(context, projectRoot: context.projectURL)
         try activateProjectIfApproved(context, projectRoot: context.projectURL)
+        try recordRuntimeEvidence(
+            opID: "project.ds",
+            sourceRef: envelopePath,
+            actor: "system:dev-supervisor",
+            replayableInputRef: "playbook/runtime/playbook-exec.yaml#new_project",
+            projectRoot: context.projectURL
+        )
         return envelopePath
     }
 
@@ -202,6 +253,172 @@ private extension PlaybookRuntimeFileSystem {
         _ = try applyTransition(request, projectRoot: projectRoot)
     }
 
+    func createBaselineBundle(_ context: NewProjectContext) throws {
+        let definitions = baselineDefinitions(for: context)
+
+        for definition in definitions {
+            let request = RuntimeCreateOpRequest(
+                opID: definition.opID,
+                opType: definition.opType,
+                state: definition.initialState,
+                owner: "operator",
+                links: definition.links,
+                tags: definition.tags,
+                payload: definition.payload,
+                actor: "system:dev-supervisor"
+            )
+            _ = try createOpInstance(request, projectRoot: context.projectURL)
+        }
+    }
+
+    func baselineDefinitions(for context: NewProjectContext) -> [RuntimeDerivedDefinition] {
+        let parentLinks = [RuntimeLink(rel: "parent", target: "project.ds")]
+        let operatorActor = context.request.baselineGate.actor
+
+        return [
+            baselineRequirementDefinition(parentLinks: parentLinks),
+            baselineConstraintDefinition(parentLinks: parentLinks),
+            baselineDecisionDefinition(parentLinks: parentLinks),
+            baselineUseCaseDefinition(parentLinks: parentLinks),
+            baselinePortContractDefinition(parentLinks: parentLinks),
+            baselineComponentDefinition(parentLinks: parentLinks),
+            baselinePermissionDefinition(
+                parentLinks: parentLinks,
+                operatorActor: operatorActor,
+                projectPath: context.projectURL.path
+            ),
+        ]
+    }
+
+    func baselineRequirementDefinition(parentLinks: [RuntimeLink]) -> RuntimeDerivedDefinition {
+        RuntimeDerivedDefinition(
+            opID: "requirement.bootstrap",
+            opType: "Requirement",
+            initialState: "proposed",
+            links: parentLinks,
+            tags: ["baseline", "entrypoint:new_project"],
+            payload: [
+                "requirement_id": .string("REQ-BOOTSTRAP-001"),
+                "source": .string("new_project"),
+                "priority": .string("P1"),
+                "acceptance_criteria": .array([
+                    .string("Operator moze uruchomic projekt z UI."),
+                    .string("Baseline artefakty sa tworzone bez silent transitions."),
+                ]),
+            ]
+        )
+    }
+
+    func baselineConstraintDefinition(parentLinks: [RuntimeLink]) -> RuntimeDerivedDefinition {
+        RuntimeDerivedDefinition(
+            opID: "constraint.bootstrap",
+            opType: "Constraint",
+            initialState: "proposed",
+            links: parentLinks,
+            tags: ["baseline", "entrypoint:new_project"],
+            payload: [
+                "constraint_id": .string("CON-BOOTSTRAP-001"),
+                "class": .string("process"),
+                "rationale": .string("Playbook wymaga jawnego audytu i gate decisions."),
+                "enforce_level": .string("required"),
+            ]
+        )
+    }
+
+    func baselineDecisionDefinition(parentLinks: [RuntimeLink]) -> RuntimeDerivedDefinition {
+        RuntimeDerivedDefinition(
+            opID: "decision.bootstrap",
+            opType: "DecisionRecord",
+            initialState: "drafted",
+            links: parentLinks,
+            tags: ["baseline", "entrypoint:new_project"],
+            payload: [
+                "decision_id": .string("ADR-0001"),
+                "options_considered": .array([
+                    .string("prompt-centric starter"),
+                    .string("task-first operator starter"),
+                ]),
+                "selected_option": .string("task-first operator starter"),
+                "consequence": .string("Operator UI oddziela prace od audytu."),
+            ]
+        )
+    }
+
+    func baselineUseCaseDefinition(parentLinks: [RuntimeLink]) -> RuntimeDerivedDefinition {
+        RuntimeDerivedDefinition(
+            opID: "usecase.bootstrap-start-project",
+            opType: "UseCase",
+            initialState: "drafted",
+            links: parentLinks,
+            tags: ["baseline", "entrypoint:new_project"],
+            payload: [
+                "use_case_id": .string("UC-001"),
+                "actor": .string("operator"),
+                "goal": .string("uruchomic projekt i baseline z UI"),
+                "input_dto": .string("NewProjectFormInput"),
+                "output_dto": .string("ProjectActivationSummary"),
+            ]
+        )
+    }
+
+    func baselinePortContractDefinition(parentLinks: [RuntimeLink]) -> RuntimeDerivedDefinition {
+        RuntimeDerivedDefinition(
+            opID: "portcontract.bootstrap-start-project",
+            opType: "PortContract",
+            initialState: "proposed",
+            links: parentLinks + [RuntimeLink(rel: "owner_use_case", target: "usecase.bootstrap-start-project")],
+            tags: ["baseline", "entrypoint:new_project"],
+            payload: [
+                "port_id": .string("PORT-NEW-PROJECT-001"),
+                "direction": .string("inbound"),
+                "contract_schema_ref": .string(".ai/architecture/port-contracts.md"),
+                "dto_set": .array([
+                    .string("NewProjectFormInput"),
+                    .string("ProjectActivationSummary"),
+                ]),
+            ]
+        )
+    }
+
+    func baselineComponentDefinition(parentLinks: [RuntimeLink]) -> RuntimeDerivedDefinition {
+        RuntimeDerivedDefinition(
+            opID: "component.bootstrap-workspace",
+            opType: "Component",
+            initialState: "identified",
+            links: parentLinks,
+            tags: ["baseline", "entrypoint:new_project"],
+            payload: [
+                "component_id": .string("COMP-STARTER-001"),
+                "responsibility": .string("operator starter + runtime storage"),
+                "stability_index": .string("high"),
+                "abstraction_level": .string("application"),
+            ]
+        )
+    }
+
+    func baselinePermissionDefinition(
+        parentLinks: [RuntimeLink],
+        operatorActor: String,
+        projectPath: String
+    ) -> RuntimeDerivedDefinition {
+        RuntimeDerivedDefinition(
+            opID: "permission.operator-local",
+            opType: "ActorRolePermission",
+            initialState: "active",
+            links: parentLinks + [RuntimeLink(rel: "actor", target: operatorActor)],
+            tags: ["baseline", "entrypoint:new_project", "authz"],
+            payload: [
+                "actor_id": .string(operatorActor),
+                "role": .string("operator"),
+                "allowed_actions": .array([
+                    .string("new_project"),
+                    .string("add_idea"),
+                ]),
+                "scope": .string(projectPath),
+            ]
+        )
+    }
+
     func writeBaselineEnvelope(for context: NewProjectContext, remoteURL: String?) throws -> String {
         let envelope = RuntimeDecisionEnvelope(
             transitionRef: "Project.configured -> Project.\(context.request.baselineGate.decision.targetProjectState)",
@@ -211,9 +428,16 @@ private extension PlaybookRuntimeFileSystem {
                 RuntimeEnvelopeCondition(name: "overview_exists", passed: true, detail: ".ai/prd/overview.md"),
                 RuntimeEnvelopeCondition(name: "constraints_exists", passed: true, detail: ".ai/prd/constraints.md"),
                 RuntimeEnvelopeCondition(name: "glossary_exists", passed: true, detail: ".ai/prd/glossary.md"),
-                RuntimeEnvelopeCondition(name: "authz_precheck", passed: true, detail: "operator-ui actor accepted"),
+                RuntimeEnvelopeCondition(name: "adr_exists", passed: true, detail: ".ai/adr/0001-project-baseline.md"),
+                RuntimeEnvelopeCondition(name: "use_cases_exists", passed: true, detail: ".ai/architecture/use-cases.md"),
+                RuntimeEnvelopeCondition(name: "port_contracts_exists", passed: true, detail: ".ai/architecture/port-contracts.md"),
+                RuntimeEnvelopeCondition(name: "component_map_exists", passed: true, detail: ".ai/architecture/component-map.md"),
+                RuntimeEnvelopeCondition(name: "new_project_ux_exists", passed: true, detail: ".ai/ux/new-project.md"),
+                RuntimeEnvelopeCondition(name: "op_index_exists", passed: true, detail: ".ai/runtime/v1/op-index.json"),
+                RuntimeEnvelopeCondition(name: "operator_permission_active", passed: true, detail: "ActorRolePermission.active"),
+                RuntimeEnvelopeCondition(name: "authz_precheck", passed: true, detail: "policy-engine authorized operator"),
             ],
-            scope: "Baseline projektu i przejscie Project.configured -> \(context.request.baselineGate.decision.targetProjectState).",
+            scope: "Task-first baseline projektu i przejscie Project.configured -> \(context.request.baselineGate.decision.targetProjectState).",
             changeSet: baselineChangeSet(projectRoot: context.projectURL),
             validation: RuntimeEnvelopeValidation(
                 buildStatus: "not_run",
@@ -226,6 +450,11 @@ private extension PlaybookRuntimeFileSystem {
                 "overview -> .ai/prd/overview.md",
                 "constraints -> .ai/prd/constraints.md",
                 "glossary -> .ai/prd/glossary.md",
+                "adr -> .ai/adr/0001-project-baseline.md",
+                "use_cases -> .ai/architecture/use-cases.md",
+                "port_contracts -> .ai/architecture/port-contracts.md",
+                "component_map -> .ai/architecture/component-map.md",
+                "ux -> .ai/ux/new-project.md",
             ],
             risks: remoteURL == nil ? ["remote_repository_not_connected"] : [],
             rollbackOrReworkPlan: [
@@ -348,8 +577,15 @@ private extension PlaybookRuntimeFileSystem {
             ideaDescription: context.ideaDescription,
             derivedOps: derivedOps
         )
+        let uxArtifact = try writeIdeaUXArtifact(projectRoot: context.projectURL, ideaTitle: context.ideaTitle)
 
-        return DerivedIdeaArtifacts(createdArtifacts: files, derivedOps: derivedOps)
+        return DerivedIdeaArtifacts(createdArtifacts: files + [uxArtifact], derivedOps: derivedOps)
+    }
+
+    func writeIdeaUXArtifact(projectRoot: URL, ideaTitle: String) throws -> String {
+        let url = projectRoot.appendingPathComponent(".ai/ux/add-idea.md")
+        try addIdeaUXMarkdown(ideaTitle: ideaTitle).write(to: url, atomically: true, encoding: .utf8)
+        return url.path
     }
 
     func writeIdeaEnvelope(
@@ -363,7 +599,8 @@ private extension PlaybookRuntimeFileSystem {
             targetState: context.request.convertGate.decision.targetIdeaState,
             preconditions: [
                 RuntimeEnvelopeCondition(name: "project_active", passed: true, detail: "project.ds.state=active"),
-                RuntimeEnvelopeCondition(name: "authz_precheck", passed: true, detail: "operator-ui actor accepted"),
+                RuntimeEnvelopeCondition(name: "authz_precheck", passed: true, detail: "policy-engine authorized operator"),
+                RuntimeEnvelopeCondition(name: "idea_ux_exists", passed: true, detail: ".ai/ux/add-idea.md"),
             ],
             scope: "Konwersja pierwszej idei i wygenerowanie pochodnych OP.",
             changeSet: derivedArtifacts.derivedOps.map { "created_op:\($0.opType):\($0.opID)" }
@@ -380,6 +617,7 @@ private extension PlaybookRuntimeFileSystem {
                 "Idea -> Requirement",
                 "Idea -> Term",
                 "Idea -> PromptTask",
+                "Idea -> .ai/ux/add-idea.md",
             ],
             risks: [],
             rollbackOrReworkPlan: [
@@ -417,5 +655,74 @@ private extension PlaybookRuntimeFileSystem {
             gate: context.request.convertGate
         )
         return try applyTransition(request, projectRoot: context.projectURL)
+    }
+
+    @discardableResult
+    func recordPolicyEvent(
+        opID: String,
+        opType: String?,
+        eventType: String,
+        actor: String,
+        detail: String,
+        idempotencyKey: String,
+        projectRoot: URL
+    ) throws -> String {
+        let event = RuntimeProcessEvent(
+            eventID: nextProcessEventID(projectRoot: projectRoot),
+            opID: opID,
+            opType: opType,
+            eventType: eventType,
+            payloadHash: hash([
+                "detail": .string(detail),
+                "event_type": .string(eventType),
+            ]),
+            actor: actor,
+            ts: timestamp(),
+            idempotencyKey: idempotencyKey,
+            fromState: nil,
+            toState: nil,
+            gateDecisionID: nil
+        )
+        try appendProcessEvent(event, projectRoot: projectRoot)
+        return event.eventID
+    }
+
+    @discardableResult
+    func recordRuntimeEvidence(
+        opID: String,
+        sourceRef: String,
+        actor: String,
+        replayableInputRef: String,
+        projectRoot: URL
+    ) throws -> String {
+        let evidence = RuntimeEvidenceRecord(
+            evidenceID: nextEvidenceID(projectRoot: projectRoot),
+            evidenceClass: "runtime-capture",
+            sourceRef: sourceRef,
+            executorRef: "PlaybookRuntimeFileSystem",
+            actorOrSystem: actor,
+            subjectHash: hash([
+                "op_id": .string(opID),
+                "source_ref": .string(sourceRef),
+                "replayable_input_ref": .string(replayableInputRef),
+            ]),
+            startedAt: timestamp(),
+            finishedAt: timestamp(),
+            environment: "local-macos-swiftui",
+            replayableInputRef: replayableInputRef,
+            attestationRef: nil,
+            idempotencyKey: "\(opID)|evidence|\(sourceRef)"
+        )
+        try appendEvidence(evidence, projectRoot: projectRoot)
+        try recordPolicyEvent(
+            opID: opID,
+            opType: nil,
+            eventType: "evidence.classified",
+            actor: "policy-engine",
+            detail: "Dowod sklasyfikowano jako runtime-capture.",
+            idempotencyKey: "\(opID)|evidence-classified|\(sourceRef)",
+            projectRoot: projectRoot
+        )
+        return evidence.evidenceID
     }
 }

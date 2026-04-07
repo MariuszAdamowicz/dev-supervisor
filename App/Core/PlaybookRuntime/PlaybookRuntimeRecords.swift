@@ -185,6 +185,109 @@ struct RuntimeGateDecision: Codable, Equatable, IdempotentRuntimeRecord {
     }
 }
 
+struct RuntimeEvidenceRecord: Codable, Equatable, IdempotentRuntimeRecord {
+    let schemaVersion: String
+    let entity: String
+    let evidenceID: String
+    let evidenceClass: String
+    let sourceRef: String
+    let executorRef: String
+    let actorOrSystem: String
+    let subjectHash: String
+    let startedAt: String
+    let finishedAt: String
+    let environment: String
+    let replayableInputRef: String
+    let attestationRef: String?
+    let idempotencyKey: String
+
+    init(
+        evidenceID: String,
+        evidenceClass: String,
+        sourceRef: String,
+        executorRef: String,
+        actorOrSystem: String,
+        subjectHash: String,
+        startedAt: String,
+        finishedAt: String,
+        environment: String,
+        replayableInputRef: String,
+        attestationRef: String?,
+        idempotencyKey: String
+    ) {
+        schemaVersion = "file-ai-runtime/v1"
+        entity = "evidence_record"
+        self.evidenceID = evidenceID
+        self.evidenceClass = evidenceClass
+        self.sourceRef = sourceRef
+        self.executorRef = executorRef
+        self.actorOrSystem = actorOrSystem
+        self.subjectHash = subjectHash
+        self.startedAt = startedAt
+        self.finishedAt = finishedAt
+        self.environment = environment
+        self.replayableInputRef = replayableInputRef
+        self.attestationRef = attestationRef
+        self.idempotencyKey = idempotencyKey
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case schemaVersion = "schema_version"
+        case entity
+        case evidenceID = "evidence_id"
+        case evidenceClass = "evidence_class"
+        case sourceRef = "source_ref"
+        case executorRef = "executor_ref"
+        case actorOrSystem = "actor_or_system"
+        case subjectHash = "subject_hash"
+        case startedAt = "started_at"
+        case finishedAt = "finished_at"
+        case environment
+        case replayableInputRef = "replayable_input_ref"
+        case attestationRef = "attestation_ref"
+        case idempotencyKey = "idempotency_key"
+    }
+}
+
+struct RuntimeOpIndexEntry: Codable, Equatable {
+    let opID: String
+    let opType: String
+    let state: String
+    let parentID: String?
+    let terminal: Bool
+    let lastEventID: String
+
+    private enum CodingKeys: String, CodingKey {
+        case opID = "op_id"
+        case opType = "op_type"
+        case state
+        case parentID = "parent_id"
+        case terminal
+        case lastEventID = "last_event_id"
+    }
+}
+
+struct RuntimeOpIndex: Codable, Equatable {
+    let schemaVersion: String
+    let entity: String
+    let updatedAt: String
+    let entries: [RuntimeOpIndexEntry]
+
+    init(updatedAt: String, entries: [RuntimeOpIndexEntry]) {
+        schemaVersion = "file-ai-runtime/v1"
+        entity = "op_index"
+        self.updatedAt = updatedAt
+        self.entries = entries
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case schemaVersion = "schema_version"
+        case entity
+        case updatedAt = "updated_at"
+        case entries
+    }
+}
+
 struct RuntimeEnvelopeCondition: Codable, Equatable {
     let name: String
     let passed: Bool

@@ -137,6 +137,16 @@ struct PlaybookDerivedOPSummary: Equatable, Identifiable {
     }
 }
 
+struct PlaybookArtifactStatus: Equatable, Identifiable {
+    let path: String
+    let label: String
+    let exists: Bool
+
+    var id: String {
+        path
+    }
+}
+
 struct PlaybookAddIdeaResult: Equatable {
     let result: RegistryOperationResult
     let projectPath: String
@@ -152,7 +162,10 @@ struct PlaybookRuntimeSummary: Equatable {
     let projectState: String?
     let remoteURL: String?
     let allOps: [PlaybookDerivedOPSummary]
+    let baselineArtifacts: [PlaybookArtifactStatus]
     let processEventCount: Int
     let gateDecisionCount: Int
+    let evidenceCount: Int
+    let lastEvidenceClass: String?
     let lastEventID: String?
 }

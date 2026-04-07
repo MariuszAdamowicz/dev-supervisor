@@ -31,6 +31,13 @@ final class PlaybookRuntimeFileSystemTests: XCTestCase {
         XCTAssertTrue(FileManager.default.fileExists(atPath: projectURL.appendingPathComponent(".ai/prd/overview.md").path))
         XCTAssertTrue(FileManager.default.fileExists(atPath: projectURL.appendingPathComponent(".ai/prd/constraints.md").path))
         XCTAssertTrue(FileManager.default.fileExists(atPath: projectURL.appendingPathComponent(".ai/prd/glossary.md").path))
+        XCTAssertTrue(FileManager.default.fileExists(atPath: projectURL.appendingPathComponent(".ai/adr/0001-project-baseline.md").path))
+        XCTAssertTrue(FileManager.default.fileExists(atPath: projectURL.appendingPathComponent(".ai/architecture/use-cases.md").path))
+        XCTAssertTrue(FileManager.default.fileExists(atPath: projectURL.appendingPathComponent(".ai/architecture/port-contracts.md").path))
+        XCTAssertTrue(FileManager.default.fileExists(atPath: projectURL.appendingPathComponent(".ai/architecture/component-map.md").path))
+        XCTAssertTrue(FileManager.default.fileExists(atPath: projectURL.appendingPathComponent(".ai/ux/new-project.md").path))
+        XCTAssertTrue(FileManager.default.fileExists(atPath: projectURL.appendingPathComponent(".ai/runtime/v1/op-index.json").path))
+        XCTAssertTrue(FileManager.default.fileExists(atPath: projectURL.appendingPathComponent(".ai/runtime/v1/evidence.ndjson").path))
         XCTAssertTrue(FileManager.default.fileExists(atPath: projectURL.appendingPathComponent(".ai/runtime/v1/ops/project.ds/versions/000001.json").path))
         XCTAssertTrue(FileManager.default.fileExists(atPath: projectURL.appendingPathComponent(".ai/runtime/v1/ops/project.ds/gates.ndjson").path))
         XCTAssertEqual(
@@ -44,8 +51,15 @@ final class PlaybookRuntimeFileSystemTests: XCTestCase {
         let summary = sut.summarizeRuntime(at: projectURL.path)
         XCTAssertEqual(summary.projectState, "active")
         XCTAssertEqual(summary.remoteURL, "git@github.com:test/starter-ds.git")
-        XCTAssertEqual(summary.processEventCount, 8)
+        XCTAssertTrue(summary.baselineArtifacts.allSatisfy { $0.exists })
+        XCTAssertTrue(summary.allOps.contains(where: { $0.opType == "ActorRolePermission" && $0.state == "active" }))
+        XCTAssertTrue(summary.allOps.contains(where: { $0.opType == "UseCase" }))
+        XCTAssertTrue(summary.allOps.contains(where: { $0.opType == "PortContract" }))
+        XCTAssertTrue(summary.allOps.contains(where: { $0.opType == "Component" }))
+        XCTAssertGreaterThanOrEqual(summary.processEventCount, 12)
         XCTAssertEqual(summary.gateDecisionCount, 1)
+        XCTAssertEqual(summary.evidenceCount, 1)
+        XCTAssertEqual(summary.lastEvidenceClass, "runtime-capture")
     }
 
     func testAddIdea_createsDerivedOpsFeatureArtifactsAndAuditTrail() throws {
@@ -95,11 +109,18 @@ final class PlaybookRuntimeFileSystemTests: XCTestCase {
                 atPath: projectURL.appendingPathComponent(".ai/features/uruchomienie-projektu-z-ui/traceability.md").path
             )
         )
+        XCTAssertTrue(
+            FileManager.default.fileExists(
+                atPath: projectURL.appendingPathComponent(".ai/ux/add-idea.md").path
+            )
+        )
 
         let summary = sut.summarizeRuntime(at: projectURL.path)
         XCTAssertEqual(summary.projectState, "active")
-        XCTAssertEqual(summary.processEventCount, 18)
+        XCTAssertGreaterThanOrEqual(summary.processEventCount, 24)
         XCTAssertEqual(summary.gateDecisionCount, 2)
+        XCTAssertEqual(summary.evidenceCount, 2)
+        XCTAssertEqual(summary.lastEvidenceClass, "runtime-capture")
         XCTAssertTrue(summary.allOps.contains(where: { $0.opType == "Idea" && $0.state == "converted" }))
         XCTAssertTrue(summary.allOps.contains(where: { $0.opType == "Feature" && $0.state == "drafted" }))
     }
@@ -131,8 +152,10 @@ final class PlaybookRuntimeFileSystemTests: XCTestCase {
 
         let summary = sut.summarizeRuntime(at: projectURL.path)
         XCTAssertEqual(summary.projectState, "configured")
-        XCTAssertEqual(summary.processEventCount, 6)
+        XCTAssertGreaterThanOrEqual(summary.processEventCount, 10)
         XCTAssertEqual(summary.gateDecisionCount, 1)
+        XCTAssertEqual(summary.evidenceCount, 1)
+        XCTAssertEqual(summary.lastEvidenceClass, "runtime-capture")
 
         let addIdea = sut.addIdea(
             PlaybookAddIdeaRequest(

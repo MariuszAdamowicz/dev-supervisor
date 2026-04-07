@@ -225,6 +225,7 @@ extension PlaybookRuntimeFileSystem {
 
         let data = try makeEncoder().encode(snapshot)
         try data.write(to: fileURL, options: .atomic)
+        try writeOpIndex(projectRoot: projectRoot)
     }
 
     func appendProcessEvent(_ event: RuntimeProcessEvent, projectRoot: URL) throws {
@@ -237,6 +238,10 @@ extension PlaybookRuntimeFileSystem {
         let opURL = opDirectory(for: gate.opID, projectRoot: projectRoot)
         try appendRecord(gate, to: opURL.appendingPathComponent("gates.ndjson"))
         try appendRecord(gate, to: projectRoot.appendingPathComponent(".ai/runtime/v1/gate-decisions.ndjson"))
+    }
+
+    func appendEvidence(_ evidence: RuntimeEvidenceRecord, projectRoot: URL) throws {
+        try appendRecord(evidence, to: projectRoot.appendingPathComponent(".ai/runtime/v1/evidence.ndjson"))
     }
 
     func appendRecord<Record: Codable & IdempotentRuntimeRecord>(_ record: Record, to url: URL) throws {
@@ -291,6 +296,11 @@ extension PlaybookRuntimeFileSystem {
         return String(format: "gate_%04d", count + 1)
     }
 
+    func nextEvidenceID(projectRoot: URL) -> String {
+        let count = countLines(at: projectRoot.appendingPathComponent(".ai/runtime/v1/evidence.ndjson"))
+        return String(format: "evidence_%04d", count + 1)
+    }
+
     func countLines(at url: URL) -> Int {
         guard let text = try? String(contentsOf: url, encoding: .utf8), !text.isEmpty else {
             return 0
@@ -315,7 +325,20 @@ extension PlaybookRuntimeFileSystem {
             projectRoot.appendingPathComponent(".ai/prd/overview.md").path,
             projectRoot.appendingPathComponent(".ai/prd/constraints.md").path,
             projectRoot.appendingPathComponent(".ai/prd/glossary.md").path,
+            projectRoot.appendingPathComponent(".ai/adr/0001-project-baseline.md").path,
+            projectRoot.appendingPathComponent(".ai/architecture/use-cases.md").path,
+            projectRoot.appendingPathComponent(".ai/architecture/port-contracts.md").path,
+            projectRoot.appendingPathComponent(".ai/architecture/component-map.md").path,
+            projectRoot.appendingPathComponent(".ai/ux/new-project.md").path,
+            projectRoot.appendingPathComponent(".ai/runtime/v1/op-index.json").path,
             projectRoot.appendingPathComponent(".ai/runtime/v1/ops/project.ds").path,
+            projectRoot.appendingPathComponent(".ai/runtime/v1/ops/requirement.bootstrap").path,
+            projectRoot.appendingPathComponent(".ai/runtime/v1/ops/constraint.bootstrap").path,
+            projectRoot.appendingPathComponent(".ai/runtime/v1/ops/decision.bootstrap").path,
+            projectRoot.appendingPathComponent(".ai/runtime/v1/ops/usecase.bootstrap-start-project").path,
+            projectRoot.appendingPathComponent(".ai/runtime/v1/ops/portcontract.bootstrap-start-project").path,
+            projectRoot.appendingPathComponent(".ai/runtime/v1/ops/component.bootstrap-workspace").path,
+            projectRoot.appendingPathComponent(".ai/runtime/v1/ops/permission.operator-local").path,
         ]
     }
 
@@ -341,5 +364,51 @@ extension PlaybookRuntimeFileSystem {
         let json = makeJSONString(object)
         let digest = SHA256.hash(data: Data(json.utf8))
         return digest.map { String(format: "%02x", $0) }.joined()
+    }
+
+    func writeOpIndex(projectRoot: URL) throws {
+        let opsRoot = projectRoot.appendingPathComponent(".ai/runtime/v1/ops")
+        let opDirectories = (try? fileManager.contentsOfDirectory(
+            at: opsRoot,
+            includingPropertiesForKeys: nil,
+            options: [.skipsHiddenFiles]
+        )) ?? []
+
+        let entries = try opDirectories.compactMap { opDirectory -> RuntimeOpIndexEntry? in
+            guard let snapshot = try latestSnapshot(for: opDirectory.lastPathComponent, projectRoot: projectRoot) else {
+                return nil
+            }
+
+            let parentID = snapshot.links.first(where: { $0.rel == "parent" })?.target
+            return RuntimeOpIndexEntry(
+                opID: snapshot.opID,
+                opType: snapshot.opType,
+                state: snapshot.state,
+                parentID: parentID,
+                terminal: isTerminalState(snapshot.state),
+                lastEventID: snapshot.lastEventID
+            )
+        }
+        .sorted { $0.opID < $1.opID }
+
+        let index = RuntimeOpIndex(updatedAt: timestamp(), entries: entries)
+        let url = projectRoot.appendingPathComponent(".ai/runtime/v1/op-index.json")
+        let data = try makeEncoder().encode(index)
+        try fileManager.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
+        try data.write(to: url, options: .atomic)
+    }
+
+    func isTerminalState(_ state: String) -> Bool {
+        [
+            "archived",
+            "cancelled",
+            "closed",
+            "converted",
+            "deprecated",
+            "done",
+            "dropped",
+            "published",
+            "revoked",
+        ].contains(state)
     }
 }
