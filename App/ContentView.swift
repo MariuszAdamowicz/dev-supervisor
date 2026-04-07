@@ -51,6 +51,8 @@ struct ContentView: View {
                     .font(.largeTitle.bold())
                 Text("Deterministyczny bootstrap i inspekcja projektu")
                     .foregroundStyle(.secondary)
+                PlaybookRuntimeStarterView()
+                Divider()
                 newProjectSection
                 Divider()
                 ideaRegistrySection
