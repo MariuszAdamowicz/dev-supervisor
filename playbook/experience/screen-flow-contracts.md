@@ -124,11 +124,11 @@ Musi pokazac:
 - rollback readiness i compensation status
 - CTA: start deploy / confirm rollback
 
-## 8. Exception & Timeout Screen
+## 8. Exception & Timer Screen
 
 Widoczne gdy:
 - Exception.detected/escalated
-- Timeout.fired/escalated
+- aktywny `SchedulerTimer` po `timeout.fired`
 
 Musi pokazac:
 - severity i impacted OP

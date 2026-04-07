@@ -22,7 +22,6 @@
 - runtimeenvironment: retired
 - scenario: obsolete
 - term: deprecated
-- timeout: escalated
 - uicomponent: deprecated
 - uiscreen: deprecated
 - usecase: deprecated

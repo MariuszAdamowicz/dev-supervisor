@@ -31,6 +31,5 @@ Deployment,failed,deployment.retry-requested (gate=request_changes|defer),failed
 Rollback,running,rollback.failed,failed
 Rollback,failed,rollback.retry-requested (gate=request_changes|defer),failed
 Exception,classified,exception.handle-requested (gate=defer),escalated
-Timeout,fired,timeout.handle-requested (gate=defer|reject),escalated
 Compensation,running,compensation.failed,failed
 Compensation,failed,compensation.retry-requested (gate=request_changes|defer|reject),failed

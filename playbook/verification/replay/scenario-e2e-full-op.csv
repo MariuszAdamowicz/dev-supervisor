@@ -74,8 +74,6 @@ Release,approved,deployment.succeeded,published
 Feature,stabilized,feature.release-requested,released
 Feature,released,feature.done-requested (gate=approve),done
 Release,published,release.close-requested (gate=approve),closed
-Timeout,scheduled,timeout.fired,fired
-Timeout,fired,timeout.handle-requested (gate=approve),handled
 Exception,detected,exception.classify-requested,classified
 Exception,classified,exception.handle-requested (gate=approve),handled
 Compensation,planned,compensation.start-requested,running

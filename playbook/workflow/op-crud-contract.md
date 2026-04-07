@@ -22,6 +22,13 @@ ustalic jednoznaczny kontrakt tworzenia, odczytu, modyfikacji i usuwania OP oraz
 - relacja grafu musi byc queryable w przod i wstecz (`relation-index` + `reverse-relation-index`).
 - `DependencyRelation` musi byc widoczna dla scope Feature/Component/Release/Deployment, gdy ma status `blocked` albo `waived`.
 
+## 2b. Scheduler control contract
+
+- runtime musi utrzymywac mutowalne timery zgodnie z `layers/op/scheduler-contracts.md`.
+- `SchedulerTimer` nie jest OP i nie bierze udzialu w OP coverage audit.
+- scheduler control musi byc queryable po `target_ref`, `status` i `due_at`.
+- timer po `timeout.fired` musi zostac `consumed` albo `cancelled` w jawny sposob.
+
 ## 3. Update
 
 - update OP zachodzi tylko przez legal transition albo audytowalny update artefaktu niezmieniajacy state.

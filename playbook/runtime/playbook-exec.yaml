@@ -3,6 +3,7 @@ source_of_truth:
   op_layer:
     object_catalog: playbook/layers/op/object-catalog.md
     relation_contracts: playbook/layers/op/relation-contracts.md
+    scheduler_contracts: playbook/layers/op/scheduler-contracts.md
     state_machines: playbook/layers/op/state-machines.md
     trigger_rules: playbook/layers/op/trigger-rules.md
   playbook_layer:
@@ -878,7 +879,7 @@ entrypoint_catalog:
     transition_refs:
       - Exception.detected -> Exception.classified
       - Exception.classified -> Exception.escalated
-      - Timeout.fired -> Timeout.escalated
+      - timeout.fired -> Exception.escalated
       - Deployment.failed -> Rollback.prepared
       - Rollback.prepared -> Rollback.running
 

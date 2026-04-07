@@ -4,7 +4,7 @@ Cel:
 sprawdzic odpornosc procesu na bledy i niepewnosc operacyjna.
 
 ## Wstrzykiwane zaklocenia
-1. `timeout.fired` dla PromptTask i Timeout OP.
+1. `timeout.fired` dla PromptTask i SchedulerTimer.
 2. `authz.denied` przed transition krytycznym.
 3. `QualityEvidenceRecord.fail` po implementacji.
 4. `deployment.failed` w Release flow.

@@ -16,9 +16,11 @@ zweryfikowac nie tylko obecnosc nazw i artefaktow, ale tez prawdziwa semantyke p
 
 4. Invariant semantics
 - parent linkage, no-cycle, dependency relation status, dependency direction, open critical task rules i terminal path rules sa sprawdzane na dowodach runtime.
+- `SchedulerTimer` ma poprawny lifecycle `scheduled -> fired -> consumed|cancelled`.
 
 5. CRUD semantics
 - create/read/update/remove dla OP, relacji grafu i artefaktow jest deterministyczne i audytowalne.
+- create/read/update/remove dla scheduler controls jest deterministyczne i audytowalne.
 
 6. Evidence class semantics
 - symulacja, fixture, runtime capture i lane binarny maja jawna klase dowodu.

@@ -43,6 +43,7 @@ Linki:
 - `execution-object`: obiekt wykonawczy zwiazany z uruchomieniem pracy, zmian lub wdrozen.
 - `environment-object`: obiekt opisujacy repo, schemat danych lub srodowisko uruchomieniowe.
 - `graph-relation`: mutowalna relacja w grafie OP, niebedaca osobnym OP.
+- `scheduler-control`: mutowalny runtime handle czasu i retry, niebedacy OP.
 - `system-record`: rekord audytowy lub dowodowy. Nie jest OP, jest append-only i rzadko jest primary task.
 
 ## Reguly stosowalnosci
@@ -196,13 +197,6 @@ Linki:
 - lifecycle: detected -> classified -> handled albo escalated.
 - CRUD: create przy authz/quality/runtime fail; update przez classify/handle; remove = handled/closed by lifecycle, nie delete.
 
-### Timeout
-- class: `execution-object`
-- applies_when: `always`
-- znaczenie: timeout jest stanem procesu, nie tylko timestampem w logu.
-- lifecycle: scheduled -> fired -> handled albo escalated.
-- CRUD: create przy defer/retry waiting; update przy recover; remove = handled.
-
 ### Compensation
 - class: `execution-object`
 - applies_when: `always` gdy failure_policy wymaga undo
@@ -260,6 +254,13 @@ Linki:
 - znaczenie: zaleznosc jest krawedzia grafu z wlasnosciami, nie obiektem pracy. To pozwala pytac o downstream/upstream bez sztucznego tworzenia OP.
 - lifecycle: relacja nie ma pelnego FSM OP; ma mutowalny `status` opisany w `relation-contracts.md`.
 - CRUD: create przy odkryciu blokera lub warunku zewnetrznego; update przez zmiane `status` i propagation; remove = `retired`, nigdy hard delete po audycie.
+
+### SchedulerTimer
+- class: `scheduler-control`
+- applies_when: `always`
+- znaczenie: timer jest runtime handle scheduler'a, a nie obiektem pracy. Ma gwarantowac deterministyczne `timeout.fired`, cancel i consume.
+- lifecycle: timer nie ma pelnego FSM OP; ma mutowalny `status` opisany w `scheduler-contracts.md`.
+- CRUD: create przy defer/retry/deadline; update przez `scheduled -> fired|cancelled -> consumed`; remove = `cancelled` albo `consumed`.
 
 ## System Records
 

@@ -22,7 +22,6 @@
 - runtimeenvironment: validated
 - scenario: reviewed
 - term: proposed
-- timeout: fired
 - uicomponent: implemented
 - uiscreen: mapped
 - usecase: reviewed

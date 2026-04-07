@@ -22,7 +22,6 @@
 - runtimeenvironment: defined
 - scenario: drafted
 - term: proposed
-- timeout: scheduled
 - uicomponent: proposed
 - uiscreen: proposed
 - usecase: drafted

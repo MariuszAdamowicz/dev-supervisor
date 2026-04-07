@@ -312,17 +312,6 @@ Transitions:
 5. classified --exception.handle-requested (gate=reject)--> escalated
 6. escalated --exception.reassess-requested--> classified
 
-### Timeout
-States:
-scheduled, fired, handled, escalated
-
-Transitions:
-1. scheduled --timeout.fired--> fired
-2. fired --timeout.handle-requested (gate=approve)--> handled
-3. fired --timeout.handle-requested (gate=request_changes)--> scheduled
-4. fired --timeout.handle-requested (gate=defer|reject)--> escalated
-5. escalated --timeout.recover-requested--> scheduled
-
 ### Compensation
 States:
 planned, running, completed, failed

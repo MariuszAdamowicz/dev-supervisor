@@ -46,7 +46,7 @@ formalnie walidowac kompletnosc i spojnosc Playbook Layer wzgledem OP Layer.
 
 5c. Runtime lifecycle coverage contract
 - kazdy entrypoint wymieniony w `workflow/daily-workflow.md` musi miec runtime definition albo template coverage w `runtime/playbook-exec.yaml`.
-- brak runtime coverage dla Feature, UX alignment, Release lub Exception/Timeout = playbook invalid.
+- brak runtime coverage dla Feature, UX alignment, Release lub Exception/timer escalation = playbook invalid.
 
 6. Architecture alignment contract
 - kazda kluczowa zmiana Feature z zachowaniem biznesowym ma powiazany UseCase (co najmniej drafted, docelowo approved przed Feature.implemented).
@@ -125,6 +125,11 @@ formalnie walidowac kompletnosc i spojnosc Playbook Layer wzgledem OP Layer.
 - mutowalne relacje grafu musza byc opisane w `layers/op/relation-contracts.md`.
 - zmiana statusu `DependencyRelation` musi byc audytowana i propagowana downstream.
 - relacja blokujaca bez reverse lookup albo bez projection blocker = playbook invalid.
+
+6b. Scheduler contract
+- mutowalne timery runtime musza byc opisane w `layers/op/scheduler-contracts.md`.
+- `timeout.fired` bez odpowiadajacego `SchedulerTimer` = invalid.
+- defer/retry bez zaplanowania albo anulowania/consumingu timera = invalid.
 
 7. No-cycle contract
 - graf zaleznosci miedzy Component nie moze zawierac cykli (ADP).

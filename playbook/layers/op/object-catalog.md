@@ -37,6 +37,7 @@ Semantyka operacyjna i stosowalnosc OP:
 - `control-object`: obiekt sterujacy polityka, jakoscia, uprawnieniami albo decyzja.
 - `execution-object`: obiekt wykonania pracy, wdrozenia, retry lub kompensacji.
 - `environment-object`: obiekt opisujacy repo, schemat danych lub srodowisko uruchomieniowe.
+- `scheduler-control`: mutowalny runtime handle czasu i retry; nie jest OP.
 - `system-record`: append-only record audytowy lub dowodowy; nie jest OP.
 
 ## Reguly stosowalnosci
@@ -170,49 +171,43 @@ Semantyka operacyjna i stosowalnosc OP:
 - Stosowalnosc: `always`
 - Kluczowe pola: exception_id, class, severity, compensation_required.
 
-### 21. Timeout
-- Rola: przekroczenie SLA/deadline.
-- Klasa: `execution-object`
-- Stosowalnosc: `always`
-- Kluczowe pola: timeout_id, related_op, deadline, escalation_policy.
-
-### 22. Compensation
+### 21. Compensation
 - Rola: akcja kompensacyjna po bledzie.
 - Klasa: `execution-object`
 - Stosowalnosc: `always` gdy failure_policy wymaga undo
 - Kluczowe pola: compensation_id, target_op, action_plan, status.
 
-### 23. Repository
+### 22. Repository
 - Rola: stan repozytorium projektu i polityk VCS.
 - Klasa: `environment-object`
 - Stosowalnosc: `version-controlled`
 - Kluczowe pola: repo_id, vcs, local_root, remote_origin, default_branch, branch_policy, cleanliness.
 
-### 24. ChangeSet
+### 23. ChangeSet
 - Rola: ograniczony pakiet zmian powiazany z OP, plikami i commitami.
 - Klasa: `execution-object`
 - Stosowalnosc: `version-controlled`
 - Kluczowe pola: changeset_id, repository_ref, branch_ref, file_scope, op_refs, commit_refs, validation_refs.
 
-### 25. VerificationPlan
+### 24. VerificationPlan
 - Rola: plan warstw testow i evidence dla Feature, ChangeSet lub Release.
 - Klasa: `control-object`
 - Stosowalnosc: `formal-validation`
 - Kluczowe pola: verification_id, target_scope, required_lanes, pass_criteria, evidence_rules.
 
-### 26. DataSchema
+### 25. DataSchema
 - Rola: kanoniczny kontrakt modelu danych i kompatybilnosci.
 - Klasa: `environment-object`
 - Stosowalnosc: `persistent-data`
 - Kluczowe pola: schema_id, storage_engine, compatibility_policy, owned_structures, migration_refs.
 
-### 27. Migration
+### 26. Migration
 - Rola: wykonanie zmiany schematu lub danych z jawna gotowoscia rollback.
 - Klasa: `execution-object`
 - Stosowalnosc: `persistent-data`
 - Kluczowe pola: migration_id, schema_ref, direction, compatibility_window, execution_lane, rollback_ref.
 
-### 28. RuntimeEnvironment
+### 27. RuntimeEnvironment
 - Rola: srodowisko lokalne, CI, staging lub prod wraz z capability i config policy.
 - Klasa: `environment-object`
 - Stosowalnosc: `deployable-runtime`
@@ -225,6 +220,14 @@ Semantyka operacyjna i stosowalnosc OP:
 - Klasa: `graph-relation`
 - Stosowalnosc: `always`
 - Kluczowe pola: relation_id, source_ref, target_ref|external_ref, status, scope, criticality, blocking_scope, waiver_ref.
+
+## Scheduler Controls (nie sa OP, ale sa kanoniczne i mutowalne)
+
+### SchedulerTimer
+- Rola: runtime handle harmonogramu dla defer, retry i SLA/deadline.
+- Klasa: `scheduler-control`
+- Stosowalnosc: `always`
+- Kluczowe pola: timer_id, target_ref, status, due_at, reason, fire_policy, retry_budget.
 
 ## System Records (nie sa OP, ale sa kanoniczne i wymagane)
 
@@ -262,7 +265,8 @@ Semantyka operacyjna i stosowalnosc OP:
 - Feature -> DataSchema -> Migration
 - Feature -> Release -> Deployment -> Rollback
 - Release -> RuntimeEnvironment
-- Exception/Timeout -> Compensation
+- Exception -> Compensation
+- target_ref -(SchedulerTimer)-> timeout.fired
 - Wszystko emituje ProcessEventRecord i moze miec GateDecisionRecord / QualityEvidenceRecord
 
 ## Invariants warstwy OP
@@ -276,6 +280,7 @@ Semantyka operacyjna i stosowalnosc OP:
 - DataSchema i Migration sa wymagane, gdy zmiana obejmuje trwale dane lub niekompatybilna ewolucje schematu.
 - Deployment i Release nie moga byc wykonane bez RuntimeEnvironment w stanie co najmniej `ready`.
 - DependencyRelation z `status=blocked` musi byc widoczna w reverse lookup i projection operatora.
+- SchedulerTimer musi byc consumowany albo anulowany po domknieciu target scope.
 - UseCase i PortContract musza byc utrzymane bez zaleznosci od frameworkowych typow.
 - Component graph nie moze zawierac cykli.
 - Hard delete OP po pojawieniu sie ProcessEventRecord jest zabronione.

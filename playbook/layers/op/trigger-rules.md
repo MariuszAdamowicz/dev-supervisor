@@ -228,7 +228,7 @@ Kazda regula ma:
 - Action: cofnij PromptTask do ready + utworz PromptTask(rework)
 
 - Event: prompt.validation-requested (gate=defer)
-- Action: pozostaw PromptTask w executed + utworz Timeout.scheduled
+- Action: pozostaw PromptTask w executed + zaplanuj SchedulerTimer
 
 - Event: prompt.validation-requested (gate=reject)
 - Action: anuluj PromptTask (state=cancelled) + utworz Exception(rejected-output)
@@ -259,7 +259,7 @@ Kazda regula ma:
 - Action: cofniecie Feature do test-ready + utworz PromptTask(rework)
 
 - Event: feature.stabilize-requested (gate=defer)
-- Action: pozostaw Feature w implemented + utworz Timeout.scheduled
+- Action: pozostaw Feature w implemented + zaplanuj SchedulerTimer
 
 - Event: feature.stabilize-requested (gate=reject)
 - Action: cofniecie Feature do specified + utworz PromptTask(respec)
@@ -271,7 +271,7 @@ Kazda regula ma:
 - Action: cofniecie Release do planned + utworz PromptTask(release-rework)
 
 - Event: release.approve-requested (gate=defer)
-- Action: pozostaw Release w candidate + utworz Timeout.scheduled
+- Action: pozostaw Release w candidate + zaplanuj SchedulerTimer
 
 - Event: release.approve-requested (gate=reject)
 - Action: zamknij Release (state=closed) + utworz DecisionRecord(release-rejection)
@@ -301,8 +301,8 @@ Kazda regula ma:
 - Event: rollback.failed
 - Action: przejdz Rollback.running -> Rollback.failed + eskaluj
 
-### 5. Timeout i eskalacje
-- Event: Timeout.fired
+### 5. Timery i eskalacje
+- Event: timeout.fired
 - Action: utworz Exception(timeout) + GateDecisionRecord(defer) candidate
 - Failure policy: escalation do operatora
 
@@ -341,7 +341,7 @@ Reguly:
 2. Dla kazdego transition gate-required:
 - `GateDecisionRecord=approve` przeprowadza transition do `to_state` z happy path.
 - `GateDecisionRecord=request_changes` uruchamia rework loop wskazany w FSM.
-- `GateDecisionRecord=defer` utrzymuje current_state i tworzy `Timeout.scheduled`.
+- `GateDecisionRecord=defer` utrzymuje current_state i tworzy `SchedulerTimer.scheduled`.
 - `GateDecisionRecord=reject` przechodzi do stanu odrzucenia/terminalnego wskazanego w FSM.
 
 3. Dla transition retryable:

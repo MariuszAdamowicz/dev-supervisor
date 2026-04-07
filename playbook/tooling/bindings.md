@@ -559,7 +559,7 @@ Kazdy binding ma:
 - action_plan: decide_gate
 - tool_plan:
   - operator-ui: gate=defer
-  - storage-adapter: persist defer reason + Timeout.scheduled
+  - storage-adapter: persist defer reason + schedule SchedulerTimer
 - required: true
 
 12c. Feature.implemented -> Feature.specified
@@ -724,7 +724,7 @@ Kazdy binding ma:
 - action_plan: decide_gate
 - tool_plan:
   - operator-ui: gate=defer
-  - storage-adapter: persist defer reason + Timeout.scheduled
+  - storage-adapter: persist defer reason + schedule SchedulerTimer
 - required: true
 
 22ac. PromptTask.executed -> PromptTask.cancelled
@@ -789,7 +789,7 @@ Kazdy binding ma:
 - action_plan: decide_gate
 - tool_plan:
   - operator-ui: gate=defer
-  - storage-adapter: persist defer reason + Timeout.scheduled
+  - storage-adapter: persist defer reason + schedule SchedulerTimer
 - required: true
 
 26c. Release.candidate -> Release.closed
@@ -940,7 +940,7 @@ Zakres OP objetych tym mechanizmem:
 - PromptTask, ActorRolePermission
 - UseCase, PortContract, Component
 - Risk, Release, Deployment, Rollback
-- Exception, Timeout, Compensation
+- Exception, Compensation
 - Repository, ChangeSet, VerificationPlan, DataSchema, Migration, RuntimeEnvironment
 
 Zasada:
@@ -958,7 +958,7 @@ G1. Gate-required transition template
 - required: true
 - failure_policy:
   - request_changes -> rework loop wg FSM
-  - defer -> pozostanie w current_state + Timeout.scheduled
+  - defer -> pozostanie w current_state + schedule SchedulerTimer
   - reject -> przejscie do stanu odrzucenia/terminalnego wg FSM
 
 G2. Non-gate transition template

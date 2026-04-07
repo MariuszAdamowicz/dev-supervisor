@@ -87,6 +87,7 @@ Kanoniczna warstwa OP (event-driven):
 Pliki kanoniczne:
 - layers/op/object-catalog.md
 - layers/op/relation-contracts.md
+- layers/op/scheduler-contracts.md
 - layers/op/state-machines.md
 - layers/op/trigger-rules.md
 

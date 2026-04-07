@@ -22,7 +22,6 @@
 - runtimeenvironment: active
 - scenario: passing
 - term: approved
-- timeout: handled
 - uicomponent: verified
 - uiscreen: verified
 - usecase: verified
