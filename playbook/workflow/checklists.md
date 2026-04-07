@@ -87,6 +87,14 @@
 - source-of-truth contract: brak konfliktu z layers/op/*
 - AI orchestration contract: control-plane i scheduler sa po stronie DS
 
+## Checklista verification run
+
+- static validation wykonane i oznaczone PASS/FAIL
+- deterministic replay wykonany dla scenariuszy referencyjnych
+- e2e reference run wykonany na mini-projekcie
+- chaos process tests wykonane (timeout/authz/quality/deploy/rollback/gate reject)
+- raport verification zapisany wg verification/report-template.md
+
 ## Checklista architektury (Martin alignment)
 
 - use-case first: implementacja mapuje sie na UseCase, nie na framework task

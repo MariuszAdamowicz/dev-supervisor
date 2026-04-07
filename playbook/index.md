@@ -59,6 +59,13 @@ Kontrakty poprawnosci Playbook Layer:
 - gate/audit safety
 - AI orchestration contract
 
+### verification
+Praktyczna weryfikacja, czy playbook dziala end-to-end:
+- static validation
+- deterministic replay
+- e2e reference run
+- chaos process tests
+
 ## Moduly OP Layer
 
 ### layers/op
@@ -89,6 +96,7 @@ Moduly obowiazkowe:
 - layers/op/*
 - tooling/*
 - validation/*
+- verification/*
 - jeden profil stack/*
 - jeden profil architecture/*
 - jeden profil language/*
@@ -109,8 +117,9 @@ Sposob kompozycji:
 6. Wygeneruj projection OP -> UI/Prompt/Checklist.
 7. Wyznacz Action i Tool plan z tooling/*.
 8. Zwaliduj kontrakty z validation/*.
-9. Wykonaj akcje, walidacje i GateDecision.
-10. Powtorz az do domkniecia celu runtime.
+9. Wykonaj verification flow z verification/*.
+10. Wykonaj akcje, walidacje i GateDecision.
+11. Powtorz az do domkniecia celu runtime.
 
 ## Zasada wykonania
 

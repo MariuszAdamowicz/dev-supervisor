@@ -89,3 +89,16 @@ Podczas setup aktywuj walidacje kontraktow playbooka:
 
 Wymaganie:
 - kazda zmiana warstwy playbooka (workflow/core/experience/tooling/profiles) przechodzi przez validation contracts przed zatwierdzeniem.
+
+## Verification bootstrap
+
+Podczas setup aktywuj modul praktycznej weryfikacji:
+- verification/index.md
+- verification/static-validation.md
+- verification/deterministic-replay.md
+- verification/e2e-reference-run.md
+- verification/chaos-tests.md
+- verification/report-template.md
+
+Wymaganie:
+- przed uznaniem wersji playbooka za operacyjna powstaje raport PASS/FAIL wg verification/report-template.md.
