@@ -1,0 +1,27 @@
+# Runtime Snapshot After
+- actorrolepermission: revoked
+- compensation: failed
+- component: refactor-required
+- constraint: retired
+- decisionrecord: superseded
+- dependency: validated
+- deployment: failed
+- exception: escalated
+- feature: specified
+- gatedecision: recorded
+- idea: dropped
+- portcontract: deprecated
+- processevent: recorded
+- project: archived
+- prompttask: cancelled
+- qualitysignal: fail
+- release: closed
+- requirement: deprecated
+- risk: escalated
+- rollback: failed
+- scenario: obsolete
+- term: deprecated
+- timeout: escalated
+- uicomponent: deprecated
+- uiscreen: deprecated
+- usecase: deprecated

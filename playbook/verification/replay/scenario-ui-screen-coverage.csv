@@ -1,0 +1,4 @@
+op_type,from_state,event,to_state
+UIScreen,proposed,screen.map-requested,mapped
+UIScreen,mapped,screen.verify-requested (gate=approve),verified
+UIScreen,mapped,screen.verify-requested (gate=reject),deprecated

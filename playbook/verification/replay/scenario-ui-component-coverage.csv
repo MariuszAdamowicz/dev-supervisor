@@ -1,0 +1,5 @@
+op_type,from_state,event,to_state
+UIComponent,proposed,ui.map-requested,mapped
+UIComponent,mapped,ui.implement-requested,implemented
+UIComponent,implemented,ui.verify-requested (gate=approve),verified
+UIComponent,implemented,ui.verify-requested (gate=reject),deprecated

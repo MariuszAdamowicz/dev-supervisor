@@ -14,7 +14,15 @@ sprawdzic, czy playbook dziala deterministycznie i operacyjnie, a nie tylko jest
 - verification/deterministic-replay.md
 - verification/e2e-reference-run.md
 - verification/chaos-tests.md
+- verification/playbook-correctness-matrix.md
 - verification/report-template.md
+- verification/replay/README.md
+- verification/scripts/verify-all.sh
+
+## Canonical outcome (full-op)
+
+Raport nadrzedny dla decyzji globalnej:
+- `verification/reports/2026-04-07-full-op-verification-report.md`
 
 ## Kryterium koncowe
 Playbook uznajemy za dzialajacy, jesli wszystkie cztery warstwy testu przejda i powstanie raport zgodny z `verification/report-template.md`.

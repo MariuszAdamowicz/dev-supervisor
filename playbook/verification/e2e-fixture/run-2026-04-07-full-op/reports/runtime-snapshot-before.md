@@ -1,0 +1,27 @@
+# Runtime Snapshot Before
+- actorrolepermission: defined
+- compensation: planned
+- component: identified
+- constraint: proposed
+- decisionrecord: drafted
+- dependency: identified
+- deployment: prepared
+- exception: detected
+- feature: drafted
+- gatedecision: *
+- idea: captured
+- portcontract: proposed
+- processevent: *
+- project: created
+- prompttask: created
+- qualitysignal: collected
+- release: planned
+- requirement: proposed
+- risk: identified
+- rollback: prepared
+- scenario: drafted
+- term: proposed
+- timeout: scheduled
+- uicomponent: proposed
+- uiscreen: proposed
+- usecase: drafted

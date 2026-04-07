@@ -1,12 +1,17 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-SCENARIO="playbook/verification/replay/scenario-e2e-reference.csv"
-OUT_BASE="playbook/verification/e2e-fixture/run-2026-04-07"
+SCENARIO="${1:-playbook/verification/replay/scenario-e2e-reference.csv}"
+OUT_BASE="${2:-playbook/verification/e2e-fixture/run-2026-04-07}"
 OUT_RUNTIME="$OUT_BASE/.ai/runtime/v1"
 OUT_REPORTS="$OUT_BASE/reports"
 OUT_QUALITY="$OUT_BASE/quality"
 APP_QUALITY_OUT="$OUT_BASE/app-quality"
+
+if [ ! -f "$SCENARIO" ]; then
+  echo "ERROR scenario not found: $SCENARIO" >&2
+  exit 2
+fi
 
 rm -rf "$OUT_BASE"
 mkdir -p "$OUT_RUNTIME" "$OUT_REPORTS" "$OUT_QUALITY"

@@ -1,0 +1,34 @@
+op_type,from_state,event,to_state
+Project,configured,project.baseline-approve-requested (gate=reject),archived
+Requirement,clarified,requirement.approve-requested (gate=reject),deprecated
+Constraint,validated,constraint.enforce-requested (gate=reject),retired
+DecisionRecord,reviewed,decision.approve-requested (gate=reject),superseded
+Idea,scoped,idea.convert-requested (gate=reject),dropped
+Feature,implemented,feature.stabilize-requested (gate=request_changes),test-ready
+Feature,implemented,feature.stabilize-requested (gate=reject),specified
+Scenario,drafted,scenario.approve-requested (gate=reject),obsolete
+Term,proposed,term.approve-requested (gate=reject),deprecated
+UIComponent,implemented,ui.verify-requested (gate=reject),deprecated
+UIScreen,mapped,screen.verify-requested (gate=reject),deprecated
+PromptTask,ready,timeout.fired (retry_budget=0),cancelled
+PromptTask,executed,prompt.validation-requested (gate=reject),cancelled
+ActorRolePermission,defined,permission.activate-requested (gate=reject),revoked
+Dependency,validated,dependency.blocked-detected,blocked
+Dependency,blocked,dependency.unblock-requested,validated
+UseCase,reviewed,usecase.approve-requested (gate=reject),deprecated
+PortContract,reviewed,port-contract.approve-requested (gate=reject),deprecated
+Component,mapped,component.check-requested (check=fail),refactor-required
+Component,checked,component.compliance-requested (gate=reject),refactor-required
+Risk,assessed,risk.escalate-requested (gate=approve),escalated
+Release,candidate,release.approve-requested (gate=reject),closed
+Deployment,running,deployment.failed,failed
+Deployment,failed,deployment.retry-requested (gate=request_changes|defer),failed
+Rollback,running,rollback.failed,failed
+Rollback,failed,rollback.retry-requested (gate=request_changes|defer),failed
+QualitySignal,evaluated,quality.failed,fail
+Exception,classified,exception.handle-requested (gate=defer),escalated
+Timeout,fired,timeout.handle-requested (gate=defer|reject),escalated
+Compensation,running,compensation.failed,failed
+Compensation,failed,compensation.retry-requested (gate=request_changes|defer|reject),failed
+GateDecision,*,gate.recorded(approve|request_changes|defer|reject),recorded
+ProcessEvent,*,event.appended,recorded

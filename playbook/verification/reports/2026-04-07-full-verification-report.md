@@ -1,5 +1,8 @@
 # Verification Report
 
+> Status: superseded by `playbook/verification/reports/2026-04-07-full-op-verification-report.md`
+> Scope note: ten raport obejmuje starszy zakres referencyjny, nie pelny full-op 26/26.
+
 ## Metadata
 - date: 2026-04-07
 - operator: codex
@@ -24,6 +27,7 @@
 ## Report References
 - static: `playbook/verification/reports/2026-04-07-static-validation-report.md`
 - deterministic replay: `playbook/verification/reports/2026-04-07-deterministic-replay-report.md`
+- ui/term replay coverage: `playbook/verification/reports/2026-04-07-ui-terms-replay-report.md`
 - app quality lane: `playbook/verification/reports/2026-04-07-app-quality-lane-report.md`
 - e2e: `playbook/verification/reports/2026-04-07-e2e-reference-run-report.md`
 - chaos: `playbook/verification/reports/2026-04-07-chaos-tests-report.md`

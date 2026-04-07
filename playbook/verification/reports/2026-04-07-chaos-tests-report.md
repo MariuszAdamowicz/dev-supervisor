@@ -1,5 +1,8 @@
 # Verification Report
 
+> Status: scoped report (legacy subset).
+> Finalna decyzja globalna: `playbook/verification/reports/2026-04-07-full-op-verification-report.md`.
+
 ## Metadata
 - date: 2026-04-07
 - operator: codex
