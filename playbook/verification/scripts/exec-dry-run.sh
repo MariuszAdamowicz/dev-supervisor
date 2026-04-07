@@ -122,6 +122,30 @@ def session_get(session, ref)
   cur
 end
 
+def session_set(session, ref, value)
+  return unless ref.is_a?(String) && ref.start_with?("session.")
+  path = ref.split(".")
+  path = path[1..] if path.first == "session"
+  cur = session
+  path[0...-1].each do |p|
+    cur[p] ||= {}
+    cur = cur[p]
+  end
+  cur[path[-1]] = value
+end
+
+def session_has?(session, ref)
+  return false unless ref.is_a?(String) && ref.start_with?("session.")
+  path = ref.split(".")
+  path = path[1..] if path.first == "session"
+  cur = session
+  path.each do |p|
+    return false unless cur.is_a?(Hash) && cur.key?(p)
+    cur = cur[p]
+  end
+  true
+end
+
 def simulate(tool, action, input, session, runtime)
   now = Time.now.utc.iso8601
   case tool
@@ -201,6 +225,13 @@ def simulate(tool, action, input, session, runtime)
       "lint_status" => "pass",
       "report_ref" => "quality:bootstrap"
     }
+  when "github-adapter"
+    repo_name = input["repository_name"] || input["repository_name_ref"] || "ds"
+    {
+      "status" => "ok",
+      "repository_id" => "ghrepo-#{SecureRandom.hex(3)}",
+      "remote_url" => "git@github.com:simulated/#{repo_name}.git"
+    }
   when "git"
     {
       "status" => "ok",
@@ -233,6 +264,29 @@ steps.each_with_index do |step, idx|
   puts "REQUEST=#{JSON.pretty_generate(req_resolved)}"
   puts "RESPONSE=#{JSON.pretty_generate(resp)}"
   if step["success_output"]
+    so = step["success_output"]
+    if so["data_ref"]
+      unless session_has?(session, so["data_ref"])
+        val =
+          if tool == "operator-ui"
+            resp["values"]
+          elsif tool == "ai-runner"
+            resp["output_ref"] || resp
+          elsif tool == "github-adapter"
+            resp["remote_url"] || resp
+          else
+            resp
+          end
+        session_set(session, so["data_ref"], val)
+      end
+    end
+    if so["op_ref"] && resp["op_id"]
+      session_set(session, so["op_ref"], resp["op_id"])
+    end
+    if so["op_state_ref"]
+      op_id = req_resolved["op_id"] || req_resolved["op_id_ref"]
+      session_set(session, so["op_state_ref"], runtime["op_states"][op_id]) if op_id
+    end
     puts "SUCCESS_OUTPUT=#{JSON.pretty_generate(step['success_output'])}"
   end
   puts "STATE_DELTA=#{JSON.pretty_generate('op_states' => runtime['op_states'])}"

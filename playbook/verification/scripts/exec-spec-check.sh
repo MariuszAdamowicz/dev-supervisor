@@ -13,10 +13,13 @@ required_patterns=(
   '^source_of_truth:'
   '^determinism_contract:'
   '^tool_contracts:'
+  '^  github-adapter:'
   '^persistence_map:'
   '^entrypoints:'
   '^  new_project:'
   '^  add_idea:'
+  '^transition_execution:'
+  '^  compiler_mode: template_compiled'
   '^failure_and_retry_policy:'
   '^git_ci_contract:'
 )
@@ -30,6 +33,12 @@ done
 
 if rg -n 'tool: .*\\+' "$SPEC_FILE" >/dev/null; then
   echo "FAIL rule=one_tool_per_step reason=invalid_tool_union"
+  exit 1
+fi
+
+github_bootstrap_steps="$(rg -n 'step_id: NP-02A|step_id: NP-02B|step_id: NP-02C' "$SPEC_FILE" | wc -l | tr -d ' ')"
+if [ "$github_bootstrap_steps" -lt 3 ]; then
+  echo "FAIL reason=missing_github_bootstrap_steps expected=3 got=$github_bootstrap_steps"
   exit 1
 fi
 

@@ -15,15 +15,21 @@ SCENARIO_CHAOS="$REPLAY_DIR/scenario-chaos-full-op.csv"
 
 mkdir -p "$REPLAY_OUT" "$REPORTS_DIR"
 
-echo "[1/6] exec spec check"
+echo "[1/7] exec spec check"
 ./playbook/verification/scripts/exec-spec-check.sh playbook/runtime/playbook-exec.yaml \
   > "$REPLAY_OUT/exec-spec-check.log"
 
-echo "[2/6] static coverage audit"
+echo "[2/7] exec transition coverage check"
+./playbook/verification/scripts/exec-transition-coverage-check.sh \
+  playbook/runtime/playbook-exec.yaml \
+  playbook/layers/op/state-machines.md \
+  > "$REPLAY_OUT/exec-transition-coverage-check.log"
+
+echo "[3/7] static coverage audit"
 ./playbook/verification/scripts/op-coverage-audit.sh "$SCENARIO_E2E" "$SCENARIO_CHAOS" \
   > "$REPLAY_OUT/static-op-coverage-audit.log"
 
-echo "[3/6] deterministic replay checks (run1/run2)"
+echo "[4/7] deterministic replay checks (run1/run2)"
 for s in "$SCENARIO_E2E" "$SCENARIO_CHAOS"; do
   b="$(basename "$s" .csv)"
   ./playbook/verification/scripts/fsm-replay-check.sh "$s" > "$REPLAY_OUT/${b}.run1.log"
@@ -33,13 +39,13 @@ for s in "$SCENARIO_E2E" "$SCENARIO_CHAOS"; do
   diff -u "$REPLAY_OUT/${b}.run1.log" "$REPLAY_OUT/${b}.run2.log" > "$REPLAY_OUT/${b}.diff" || true
 done
 
-echo "[4/6] e2e full-op fixture"
+echo "[5/7] e2e full-op fixture"
 ./playbook/verification/scripts/e2e-fixture-run.sh "$SCENARIO_E2E" "$E2E_OUT" > "$REPLAY_OUT/e2e-fixture-full-op.log"
 
-echo "[5/6] chaos full-op fixture"
+echo "[6/7] chaos full-op fixture"
 ./playbook/verification/scripts/e2e-fixture-run.sh "$SCENARIO_CHAOS" "$CHAOS_OUT" > "$REPLAY_OUT/e2e-fixture-chaos-full-op.log"
 
-echo "[6/6] build summary report"
+echo "[7/7] build summary report"
 E2E_EVENTS="$(awk -F= '/^EVENTS_COUNT=/{print $2}' "$E2E_OUT/reports/summary.txt")"
 E2E_GATES="$(awk -F= '/^GATES_COUNT=/{print $2}' "$E2E_OUT/reports/summary.txt")"
 E2E_APP_LANE="$(awk -F= '/^APP_QUALITY_LANE=/{print $2}' "$E2E_OUT/reports/summary.txt")"
@@ -76,6 +82,7 @@ cat > "$SUMMARY_MD" <<EOF
 
 ## Evidence
 - exec spec check: \`${REPLAY_OUT}/exec-spec-check.log\`
+- exec transition coverage: \`${REPLAY_OUT}/exec-transition-coverage-check.log\`
 - static audit: \`${REPLAY_OUT}/static-op-coverage-audit.log\`
 - replay logs/hashes: \`${REPLAY_OUT}/\`
 - e2e fixture: \`${E2E_OUT}/\`

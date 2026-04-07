@@ -132,6 +132,21 @@ tool_contracts:
         - test_status
         - lint_status
         - report_ref
+  github-adapter:
+    request_schema:
+      required:
+        - action
+        - repository_name
+        - visibility
+      optional:
+        - organization
+        - default_branch
+    response_schema:
+      required:
+        - status
+      optional:
+        - remote_url
+        - repository_id
 
 persistence_map:
   project_instance_root: "<project_root>/.ai"
@@ -189,6 +204,33 @@ entrypoints:
             path_ref: session.new_project.form.project_root_path
         success_output:
           data_ref: session.new_project.fs_root_created
+      - step_id: NP-02A
+        tool: git
+        action: initialize_local_repository
+        input:
+          action: init_repository
+          repository_path_ref: session.new_project.form.project_root_path
+        success_output:
+          data_ref: session.new_project.local_git_initialized
+      - step_id: NP-02B
+        tool: github-adapter
+        action: create_remote_repository
+        input:
+          action: create_repository
+          repository_name_ref: session.new_project.form.project_name
+          visibility: private
+          default_branch: main
+        success_output:
+          data_ref: session.new_project.remote_repository
+      - step_id: NP-02C
+        tool: git
+        action: connect_remote_origin
+        input:
+          action: add_remote_origin
+          repository_path_ref: session.new_project.form.project_root_path
+          remote_url_ref: session.new_project.remote_repository
+        success_output:
+          data_ref: session.new_project.remote_origin_connected
       - step_id: NP-03
         tool: storage-adapter
         action: create_playbook_instance
@@ -459,6 +501,57 @@ entrypoints:
             - next_action
         success_output:
           terminal_ui_state: project_dashboard_ready
+
+transition_execution:
+  compiler_mode: template_compiled
+  transition_source: playbook/layers/op/state-machines.md
+  binding_source: playbook/tooling/bindings.md
+  gate_classifier_source: playbook/workflow/decision-envelope.md
+  coverage_policy:
+    all_fsm_transitions_must_bind: true
+    explicit_override_or_template_required: true
+  templates:
+    gate_required:
+      applies_when:
+        - transition has gate outcome
+      step_chain:
+        - render_decision_envelope
+        - produce_review_package
+        - operator_gate_prompt
+        - storage_record_gate_decision
+        - storage_apply_transition
+        - storage_append_process_event
+      required_tools:
+        - operator-ui
+        - storage-adapter
+        - shell
+    non_gate:
+      applies_when:
+        - transition has no gate outcome
+      step_chain:
+        - storage_apply_transition
+        - storage_append_process_event
+      required_tools:
+        - storage-adapter
+    retry_escalation:
+      applies_when:
+        - event is timeout.fired or *.retry-requested or *.recover-requested
+      step_chain:
+        - execute_retry_or_recovery_action
+        - storage_append_process_event
+        - operator_escalation_prompt_if_needed
+      required_tools:
+        - storage-adapter
+        - operator-ui
+  explicit_overrides:
+    - transition_ref: Project.created -> Project.configured
+      uses_entrypoint: new_project
+    - transition_ref: Project.configured -> Project.baseline-approved
+      uses_entrypoint: new_project
+    - transition_ref: Idea.captured -> Idea.scoped
+      uses_entrypoint: add_idea
+    - transition_ref: Idea.scoped -> Idea.converted
+      uses_entrypoint: add_idea
 
 failure_and_retry_policy:
   default:

@@ -35,6 +35,7 @@ formalnie walidowac kompletnosc i spojnosc Playbook Layer wzgledem OP Layer.
 - brak mapowania `entrypoint -> steps -> tool input/output -> side effects` = playbook invalid.
 - krok wykonawczy moze wywolywac dokladnie jedno narzedzie (one tool invocation per step).
 - logika runtime poza exec spec (ukryte reguly w UI/kodzie) = playbook invalid.
+- bootstrap `new_project` MUST zawierac kroki git lokalny + utworzenie/podpiecie repozytorium zdalnego (GitHub adapter lub rownowazny).
 
 6. Architecture alignment contract
 - kazda kluczowa zmiana Feature z zachowaniem biznesowym ma powiazany UseCase (co najmniej drafted, docelowo approved przed Feature.implemented).
@@ -126,6 +127,7 @@ formalnie walidowac kompletnosc i spojnosc Playbook Layer wzgledem OP Layer.
 
 Minimalna procedura walidacji przy zmianie playbooka:
 0. Sprawdz execution spec contract (`runtime/playbook-exec.yaml`).
+0a. Sprawdz FSM transition coverage przez execution templates (gate/non-gate/retry-escalation).
 1. Sprawdz coverage transition -> binding.
 2. Sprawdz action -> capability -> tool.
 3. Sprawdz gate-required transitions.
