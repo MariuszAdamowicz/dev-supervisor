@@ -30,6 +30,12 @@ formalnie walidowac kompletnosc i spojnosc Playbook Layer wzgledem OP Layer.
 - Playbook Layer nie redefiniuje state machine ani trigger semantics.
 - konflikt z layers/op/* = playbook invalid.
 
+5a. Execution spec contract
+- deterministyczna orkiestracja runtime MUST byc opisana w jednym pliku `runtime/playbook-exec.yaml`.
+- brak mapowania `entrypoint -> steps -> tool input/output -> side effects` = playbook invalid.
+- krok wykonawczy moze wywolywac dokladnie jedno narzedzie (one tool invocation per step).
+- logika runtime poza exec spec (ukryte reguly w UI/kodzie) = playbook invalid.
+
 6. Architecture alignment contract
 - kazda kluczowa zmiana Feature z zachowaniem biznesowym ma powiazany UseCase (co najmniej drafted, docelowo approved przed Feature.implemented).
 - kazda granica rdzen <-> swiat zewnetrzny ma PortContract.
@@ -119,6 +125,7 @@ formalnie walidowac kompletnosc i spojnosc Playbook Layer wzgledem OP Layer.
 ## 5. Validation Procedure
 
 Minimalna procedura walidacji przy zmianie playbooka:
+0. Sprawdz execution spec contract (`runtime/playbook-exec.yaml`).
 1. Sprawdz coverage transition -> binding.
 2. Sprawdz action -> capability -> tool.
 3. Sprawdz gate-required transitions.

@@ -1,0 +1,492 @@
+schema_version: ds-playbook-exec/v1
+source_of_truth:
+  op_layer:
+    object_catalog: playbook/layers/op/object-catalog.md
+    state_machines: playbook/layers/op/state-machines.md
+    trigger_rules: playbook/layers/op/trigger-rules.md
+  playbook_layer:
+    tool_registry: playbook/tooling/tool-registry.md
+    action_catalog: playbook/tooling/action-catalog.md
+    bindings: playbook/tooling/bindings.md
+  verification:
+    full_op_report: playbook/verification/reports/2026-04-07-full-op-verification-report.md
+
+determinism_contract:
+  no_silent_transitions: true
+  gate_required_needs_explicit_decision: true
+  idempotency_required_for_critical_writes: true
+  one_tool_invocation_per_step: true
+  disallow_hidden_logic_outside_exec_spec: true
+
+profile_selection:
+  required_fields:
+    - stack
+    - architecture
+    - language
+    - execution_style
+    - storage
+  allowed_values:
+    stack:
+      - macos-swiftui
+      - kotlin-android
+      - flutter-dart
+      - react-node-postgres
+      - python-fastapi-react
+    architecture:
+      - modular-monolith
+      - clean-architecture
+      - hexagonal
+      - layered-monolith
+    language:
+      - pl
+      - en
+    execution_style:
+      - iterative-tdd
+      - batch-feature
+      - hybrid
+    storage:
+      - file-ai
+      - sqlbase
+
+tool_contracts:
+  operator-ui:
+    request_schema:
+      required:
+        - prompt_id
+        - prompt_text
+        - expected_fields
+      optional:
+        - validation_rules
+        - gate_options
+    response_schema:
+      required:
+        - prompt_id
+        - answered_at
+        - values
+        - actor
+  storage-adapter:
+    request_schema:
+      required:
+        - action
+        - idempotency_key
+      optional:
+        - op_type
+        - op_id
+        - payload
+        - transition
+        - gate_decision
+    response_schema:
+      required:
+        - status
+        - storage_version
+      optional:
+        - op_id
+        - op_version
+        - event_id
+        - gate_decision_id
+  ai-runner:
+    request_schema:
+      required:
+        - action
+        - prompt_template
+        - context_refs
+        - idempotency_key
+      optional:
+        - timeout_sec
+        - max_retries
+    response_schema:
+      required:
+        - status
+      optional:
+        - job_id
+        - output_ref
+        - tokens_in
+        - tokens_out
+        - error_code
+  git:
+    request_schema:
+      required:
+        - action
+        - repository_path
+      optional:
+        - branch
+        - commit_message
+    response_schema:
+      required:
+        - status
+      optional:
+        - branch
+        - commit_hash
+  quality-runner:
+    request_schema:
+      required:
+        - action
+        - repository_path
+      optional:
+        - profile
+    response_schema:
+      required:
+        - status
+      optional:
+        - build_status
+        - test_status
+        - lint_status
+        - report_ref
+
+persistence_map:
+  project_instance_root: "<project_root>/.ai"
+  required_files_after_new_project:
+    - ".ai/prd/overview.md"
+    - ".ai/prd/constraints.md"
+    - ".ai/prd/glossary.md"
+    - ".ai/runtime/v1/ops/project.ds/versions/000001.json"
+    - ".ai/runtime/v1/ops/project.ds/events.ndjson"
+    - ".ai/runtime/v1/ops/project.ds/gates.ndjson"
+  op_instance_path: ".ai/runtime/v1/ops/<op_id>/versions/<op_version>.json"
+  op_events_path: ".ai/runtime/v1/ops/<op_id>/events.ndjson"
+  op_gates_path: ".ai/runtime/v1/ops/<op_id>/gates.ndjson"
+  append_only:
+    - events_ndjson
+    - gates_ndjson
+    - versioned_snapshots
+
+entrypoints:
+  new_project:
+    input_schema:
+      required:
+        - project_name
+        - project_root_path
+        - stack
+        - architecture
+        - language
+        - execution_style
+        - storage
+    terminal_ui_state: project_dashboard_ready
+    steps:
+      - step_id: NP-01
+        tool: operator-ui
+        action: collect_project_form
+        input:
+          prompt_id: new_project_form
+          prompt_text: "Podaj: nazwe projektu, sciezke, stack, architecture, language, execution-style, storage."
+          expected_fields:
+            - project_name
+            - project_root_path
+            - stack
+            - architecture
+            - language
+            - execution_style
+            - storage
+        success_output:
+          data_ref: session.new_project.form
+      - step_id: NP-02
+        tool: storage-adapter
+        action: create_project_directory
+        input:
+          action: create_directory
+          idempotency_key: NP-02|project_root
+          payload:
+            path_ref: session.new_project.form.project_root_path
+        success_output:
+          data_ref: session.new_project.fs_root_created
+      - step_id: NP-03
+        tool: storage-adapter
+        action: create_playbook_instance
+        input:
+          action: initialize_playbook_instance
+          idempotency_key: NP-03|playbook_instance
+          payload:
+            profile_selection_ref: session.new_project.form
+        success_output:
+          data_ref: session.new_project.playbook_instance_id
+      - step_id: NP-04
+        tool: storage-adapter
+        action: create_project_op_instance
+        input:
+          action: create_op_instance
+          idempotency_key: NP-04|project_op_create
+          op_type: Project
+          op_id: project.ds
+          payload:
+            state: created
+            owner: operator
+            links:
+              - rel: playbook_instance
+                target: session.new_project.playbook_instance_id
+        success_output:
+          op_ref: project.ds
+      - step_id: NP-05
+        tool: storage-adapter
+        action: apply_transition_project_configured
+        input:
+          action: apply_transition
+          idempotency_key: NP-05|project_created_to_configured
+          op_id: project.ds
+          transition:
+            from_state: created
+            event: project.configure-requested
+            to_state: configured
+        success_output:
+          op_state: Project.configured
+      - step_id: NP-06
+        tool: quality-runner
+        action: bootstrap_stack_environment
+        input:
+          action: bootstrap
+          repository_path_ref: session.new_project.form.project_root_path
+          profile_ref: session.new_project.form.stack
+        success_output:
+          data_ref: session.new_project.bootstrap_report
+      - step_id: NP-07
+        tool: operator-ui
+        action: collect_project_description
+        input:
+          prompt_id: project_description
+          prompt_text: "Podaj opis projektu (overview baseline)."
+          expected_fields:
+            - project_description
+        success_output:
+          data_ref: session.new_project.project_description
+      - step_id: NP-08
+        tool: storage-adapter
+        action: write_prd_baseline_files
+        input:
+          action: write_files
+          idempotency_key: NP-08|prd_baseline
+          payload:
+            files:
+              - path: ".ai/prd/overview.md"
+                content_ref: session.new_project.project_description
+              - path: ".ai/prd/constraints.md"
+                content: "# Constraints\n\n- TBD"
+        success_output:
+          data_ref: session.new_project.prd_baseline_written
+      - step_id: NP-09
+        tool: ai-runner
+        action: extract_terms_from_overview
+        input:
+          action: submit_and_wait
+          prompt_template: term-extract
+          context_refs:
+            - ".ai/prd/overview.md"
+          idempotency_key: NP-09|extract_terms
+        success_output:
+          data_ref: session.new_project.extracted_terms
+      - step_id: NP-10
+        tool: storage-adapter
+        action: write_glossary
+        input:
+          action: write_files
+          idempotency_key: NP-10|glossary_write
+          payload:
+            files:
+              - path: ".ai/prd/glossary.md"
+                content_ref: session.new_project.extracted_terms
+        success_output:
+          data_ref: session.new_project.glossary_written
+      - step_id: NP-11
+        tool: operator-ui
+        action: baseline_gate_prompt
+        input:
+          prompt_id: project_baseline_gate
+          prompt_text: "Gate baseline projektu: approve/request_changes/defer/reject + reason."
+          gate_options:
+            - approve
+            - request_changes
+            - defer
+            - reject
+          expected_fields:
+            - decision
+            - reason
+        success_output:
+          data_ref: session.new_project.baseline_gate_decision
+      - step_id: NP-12
+        tool: storage-adapter
+        action: apply_project_baseline_gate_transition
+        input:
+          action: apply_gate_transition
+          idempotency_key: NP-12|baseline_gate
+          op_id: project.ds
+          gate_decision_ref: session.new_project.baseline_gate_decision
+          transition_map:
+            approve: baseline-approved
+            request_changes: configured
+            defer: configured
+            reject: archived
+        success_output:
+          op_state_ref: session.project.current_state
+      - step_id: NP-13
+        tool: storage-adapter
+        action: activate_project_when_baseline_approved
+        input:
+          action: conditional_transition
+          idempotency_key: NP-13|project_activate
+          op_id: project.ds
+          condition:
+            current_state_equals: baseline-approved
+          transition:
+            from_state: baseline-approved
+            event: project.activate-requested
+            to_state: active
+        success_output:
+          op_state: Project.active
+      - step_id: NP-14
+        tool: operator-ui
+        action: show_project_dashboard
+        input:
+          prompt_id: project_dashboard
+          prompt_text: "Projekt aktywny. Dostepne akcje: add_idea."
+          expected_fields:
+            - next_action
+        success_output:
+          terminal_ui_state: project_dashboard_ready
+
+  add_idea:
+    preconditions:
+      - project.ds.state == active
+    input_schema:
+      required:
+        - idea_title
+        - idea_description
+    terminal_ui_state: project_dashboard_ready
+    steps:
+      - step_id: AI-01
+        tool: operator-ui
+        action: collect_idea_form
+        input:
+          prompt_id: add_idea_form
+          prompt_text: "Podaj tytul i opis idei."
+          expected_fields:
+            - idea_title
+            - idea_description
+        success_output:
+          data_ref: session.add_idea.form
+      - step_id: AI-02
+        tool: storage-adapter
+        action: create_idea_op_instance
+        input:
+          action: create_op_instance
+          idempotency_key: AI-02|idea_create
+          op_type: Idea
+          op_id_template: "idea.<generated_id>"
+          payload:
+            parent: project.ds
+            state: captured
+            title_ref: session.add_idea.form.idea_title
+            description_ref: session.add_idea.form.idea_description
+        success_output:
+          op_ref: session.add_idea.idea_op_id
+      - step_id: AI-03
+        tool: storage-adapter
+        action: apply_idea_scope_transition
+        input:
+          action: apply_transition
+          idempotency_key: AI-03|idea_scope
+          op_id_ref: session.add_idea.idea_op_id
+          transition:
+            from_state: captured
+            event: idea.scope-requested
+            to_state: scoped
+        success_output:
+          op_state: Idea.scoped
+      - step_id: AI-04
+        tool: ai-runner
+        action: infer_feature_and_terms_from_idea
+        input:
+          action: submit_and_wait
+          prompt_template: idea-to-feature-and-terms
+          context_refs:
+            - session.add_idea.form.idea_title
+            - session.add_idea.form.idea_description
+            - ".ai/prd/constraints.md"
+            - ".ai/prd/glossary.md"
+          idempotency_key: AI-04|idea_infer
+        success_output:
+          data_ref: session.add_idea.ai_inference
+      - step_id: AI-05
+        tool: storage-adapter
+        action: create_related_ops_from_inference
+        input:
+          action: create_multiple_ops
+          idempotency_key: AI-05|ops_from_idea
+          payload:
+            source_ref: session.add_idea.ai_inference
+            create_types:
+              - Feature
+              - Term
+              - Requirement
+              - PromptTask
+        success_output:
+          data_ref: session.add_idea.created_ops
+      - step_id: AI-06
+        tool: operator-ui
+        action: idea_convert_gate_prompt
+        input:
+          prompt_id: idea_convert_gate
+          prompt_text: "Gate convert idei: approve/request_changes/defer/reject + reason."
+          gate_options:
+            - approve
+            - request_changes
+            - defer
+            - reject
+          expected_fields:
+            - decision
+            - reason
+        success_output:
+          data_ref: session.add_idea.gate_decision
+      - step_id: AI-07
+        tool: storage-adapter
+        action: apply_idea_convert_gate_transition
+        input:
+          action: apply_gate_transition
+          idempotency_key: AI-07|idea_convert_gate
+          op_id_ref: session.add_idea.idea_op_id
+          gate_decision_ref: session.add_idea.gate_decision
+          transition_map:
+            approve: converted
+            request_changes: scoped
+            defer: scoped
+            reject: dropped
+        success_output:
+          op_state_ref: session.add_idea.idea_final_state
+      - step_id: AI-08
+        tool: operator-ui
+        action: show_project_dashboard_after_add_idea
+        input:
+          prompt_id: project_dashboard_after_add_idea
+          prompt_text: "Idea zapisana. Dostepne akcje: add_idea, refine_feature, start_flow."
+          expected_fields:
+            - next_action
+        success_output:
+          terminal_ui_state: project_dashboard_ready
+
+failure_and_retry_policy:
+  default:
+    on_tool_failure:
+      - create_process_event
+      - retry_if_retryable_with_backoff
+      - escalate_to_operator_after_retry_budget
+  ai_runner:
+    retry_budget: 2
+    timeout_sec: 120
+    on_timeout:
+      - create_timeout_op_if_not_exists
+      - route_to_gate_decision: defer
+  storage_adapter:
+    retry_budget: 1
+    on_idempotency_conflict:
+      - block_transition
+      - request_operator_resolution
+
+git_ci_contract:
+  when_branch_created:
+    - on_feature_implementation_start
+    - on_release_candidate_preparation
+  required_pre_commit_checks:
+    - build
+    - test
+    - lint
+  required_evidence_before_release_gate:
+    - review_package
+    - quality_signal_pass
+    - process_event_trace_complete

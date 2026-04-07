@@ -52,6 +52,10 @@ Warstwa wykonawcza Playbook Layer:
 - action catalog
 - OP -> Action -> Tool bindings
 
+### runtime
+Kanoniczny spec wykonawczy DS (machine-readable):
+- runtime/playbook-exec.yaml
+
 ### validation
 Kontrakty poprawnosci Playbook Layer:
 - coverage transition -> binding
@@ -95,6 +99,7 @@ Moduly obowiazkowe:
 - experience/*
 - layers/op/*
 - tooling/*
+- runtime/*
 - validation/*
 - verification/*
 - jeden profil stack/*

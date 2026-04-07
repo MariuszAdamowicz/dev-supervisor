@@ -15,11 +15,15 @@ SCENARIO_CHAOS="$REPLAY_DIR/scenario-chaos-full-op.csv"
 
 mkdir -p "$REPLAY_OUT" "$REPORTS_DIR"
 
-echo "[1/5] static coverage audit"
+echo "[1/6] exec spec check"
+./playbook/verification/scripts/exec-spec-check.sh playbook/runtime/playbook-exec.yaml \
+  > "$REPLAY_OUT/exec-spec-check.log"
+
+echo "[2/6] static coverage audit"
 ./playbook/verification/scripts/op-coverage-audit.sh "$SCENARIO_E2E" "$SCENARIO_CHAOS" \
   > "$REPLAY_OUT/static-op-coverage-audit.log"
 
-echo "[2/5] deterministic replay checks (run1/run2)"
+echo "[3/6] deterministic replay checks (run1/run2)"
 for s in "$SCENARIO_E2E" "$SCENARIO_CHAOS"; do
   b="$(basename "$s" .csv)"
   ./playbook/verification/scripts/fsm-replay-check.sh "$s" > "$REPLAY_OUT/${b}.run1.log"
@@ -29,13 +33,13 @@ for s in "$SCENARIO_E2E" "$SCENARIO_CHAOS"; do
   diff -u "$REPLAY_OUT/${b}.run1.log" "$REPLAY_OUT/${b}.run2.log" > "$REPLAY_OUT/${b}.diff" || true
 done
 
-echo "[3/5] e2e full-op fixture"
+echo "[4/6] e2e full-op fixture"
 ./playbook/verification/scripts/e2e-fixture-run.sh "$SCENARIO_E2E" "$E2E_OUT" > "$REPLAY_OUT/e2e-fixture-full-op.log"
 
-echo "[4/5] chaos full-op fixture"
+echo "[5/6] chaos full-op fixture"
 ./playbook/verification/scripts/e2e-fixture-run.sh "$SCENARIO_CHAOS" "$CHAOS_OUT" > "$REPLAY_OUT/e2e-fixture-chaos-full-op.log"
 
-echo "[5/5] build summary report"
+echo "[6/6] build summary report"
 E2E_EVENTS="$(awk -F= '/^EVENTS_COUNT=/{print $2}' "$E2E_OUT/reports/summary.txt")"
 E2E_GATES="$(awk -F= '/^GATES_COUNT=/{print $2}' "$E2E_OUT/reports/summary.txt")"
 E2E_APP_LANE="$(awk -F= '/^APP_QUALITY_LANE=/{print $2}' "$E2E_OUT/reports/summary.txt")"
@@ -71,6 +75,7 @@ cat > "$SUMMARY_MD" <<EOF
 - app_quality_lane_chaos: ${CHAOS_APP_LANE}
 
 ## Evidence
+- exec spec check: \`${REPLAY_OUT}/exec-spec-check.log\`
 - static audit: \`${REPLAY_OUT}/static-op-coverage-audit.log\`
 - replay logs/hashes: \`${REPLAY_OUT}/\`
 - e2e fixture: \`${E2E_OUT}/\`

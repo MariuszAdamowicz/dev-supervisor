@@ -10,6 +10,7 @@ sprawdzic, czy playbook dziala deterministycznie i operacyjnie, a nie tylko jest
 4. Testy odpornosci procesu (chaos procesowy).
 
 ## Artefakty modulu
+- runtime/playbook-exec.yaml
 - verification/static-validation.md
 - verification/deterministic-replay.md
 - verification/e2e-reference-run.md
@@ -18,6 +19,7 @@ sprawdzic, czy playbook dziala deterministycznie i operacyjnie, a nie tylko jest
 - verification/report-template.md
 - verification/replay/README.md
 - verification/scripts/verify-all.sh
+- verification/scripts/exec-spec-check.sh
 
 ## Canonical outcome (full-op)
 

@@ -21,6 +21,7 @@
 - app_quality_lane_chaos: pass
 
 ## Evidence
+- exec spec check: `playbook/verification/replay/run-2026-04-07-full-op/exec-spec-check.log`
 - static audit: `playbook/verification/replay/run-2026-04-07-full-op/static-op-coverage-audit.log`
 - replay logs/hashes: `playbook/verification/replay/run-2026-04-07-full-op/`
 - e2e fixture: `playbook/verification/e2e-fixture/run-2026-04-07-full-op/`
