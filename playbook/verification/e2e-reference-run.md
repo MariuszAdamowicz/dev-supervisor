@@ -22,7 +22,7 @@ zweryfikowac playbook na realnym mini-projekcie (niewielki zakres, pelny proces)
 - ProcessEvent log
 - GateDecision log
 - Review packages dla gate-required transitions
-- Wyniki build/test/lint
+- Wyniki build/test/lint (lane kontraktowy i lane binarny aplikacji)
 - Runtime snapshot przed i po runie
 
 ## Kryterium PASS
@@ -30,3 +30,4 @@ zweryfikowac playbook na realnym mini-projekcie (niewielki zakres, pelny proces)
 - brak nielegalnych przejsc FSM
 - komplet audytu i decyzji gate
 - legalny final state dla wszystkich zmienianych OP
+- lane binarny aplikacji (build/test/lint) ma status pass

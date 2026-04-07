@@ -18,6 +18,8 @@
 - no_silent_transitions:
 - non_happy_path_coverage:
 - architecture_alignment:
+- quality_lane_contract:
+- quality_lane_binary:
 
 ## Findings
 1. finding_id:

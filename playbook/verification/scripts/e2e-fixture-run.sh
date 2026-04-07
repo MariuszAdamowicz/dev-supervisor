@@ -6,6 +6,7 @@ OUT_BASE="playbook/verification/e2e-fixture/run-2026-04-07"
 OUT_RUNTIME="$OUT_BASE/.ai/runtime/v1"
 OUT_REPORTS="$OUT_BASE/reports"
 OUT_QUALITY="$OUT_BASE/quality"
+APP_QUALITY_OUT="$OUT_BASE/app-quality"
 
 rm -rf "$OUT_BASE"
 mkdir -p "$OUT_RUNTIME" "$OUT_REPORTS" "$OUT_QUALITY"
@@ -109,11 +110,27 @@ PKG
 EVENTS_COUNT="$(wc -l < "$EVENTS" | tr -d ' ')"
 GATES_COUNT="$(wc -l < "$GATES" | tr -d ' ')"
 
+# 7) Binary app quality lane (build/test/lint)
+APP_QUALITY_STATUS="fail"
+if ./playbook/verification/scripts/app-quality-run.sh "$APP_QUALITY_OUT" > "$OUT_REPORTS/app-quality-lane.log" 2>&1; then
+  APP_QUALITY_STATUS="pass"
+fi
+
+E2E_FIXTURE_STATUS="pass"
+if [ "$APP_QUALITY_STATUS" != "pass" ]; then
+  E2E_FIXTURE_STATUS="fail"
+fi
+
 {
-  echo "E2E_FIXTURE_RUN=PASS"
+  echo "E2E_FIXTURE_RUN=$E2E_FIXTURE_STATUS"
   echo "SCENARIO=$SCENARIO"
   echo "EVENTS_COUNT=$EVENTS_COUNT"
   echo "GATES_COUNT=$GATES_COUNT"
+  echo "APP_QUALITY_LANE=$APP_QUALITY_STATUS"
 } > "$OUT_REPORTS/summary.txt"
 
 cat "$OUT_REPORTS/summary.txt"
+
+if [ "$E2E_FIXTURE_STATUS" != "pass" ]; then
+  exit 1
+fi

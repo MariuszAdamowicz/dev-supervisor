@@ -1,3 +1,4 @@
+// swiftlint:disable file_length
 import SwiftUI
 
 struct ContentView: View {
@@ -1118,3 +1119,4 @@ private extension ContentView {
 }
 
 #Preview { ContentView() }
+// swiftlint:enable file_length

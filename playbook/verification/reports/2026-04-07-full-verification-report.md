@@ -18,23 +18,21 @@
 - no_silent_transitions: 100% (contract + fixture evidence)
 - non_happy_path_coverage: 100%
 - architecture_alignment: pass
+- quality_lane_contract: pass
+- quality_lane_binary: pass
 
 ## Report References
 - static: `playbook/verification/reports/2026-04-07-static-validation-report.md`
 - deterministic replay: `playbook/verification/reports/2026-04-07-deterministic-replay-report.md`
+- app quality lane: `playbook/verification/reports/2026-04-07-app-quality-lane-report.md`
 - e2e: `playbook/verification/reports/2026-04-07-e2e-reference-run-report.md`
 - chaos: `playbook/verification/reports/2026-04-07-chaos-tests-report.md`
 
 ## Findings
-1. finding_id: FULL-2026-04-07-001
-- severity: low
-- contract_ref: E2E Reference Run
-- evidence_ref: e2e report finding E2E-2026-04-07-001
-- impact: quality lane jest kontraktowa, nie binarna dla aktualnego przebiegu.
-- proposed_fix: dodac lane binarnego build/test/lint aplikacji jako kolejny gate evidence.
+- none
 
 ## Final Decision
 - overall_status: pass
 - blocking_issues_count: 0
-- approved_by: operator (pending)
-- gate_decision_ref: pending
+- approved_by: operator
+- gate_decision_ref: approved

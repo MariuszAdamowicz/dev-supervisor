@@ -1,4 +1,5 @@
-E2E_FIXTURE_RUN=PASS
+E2E_FIXTURE_RUN=pass
 SCENARIO=playbook/verification/replay/scenario-e2e-reference.csv
 EVENTS_COUNT=108
 GATES_COUNT=16
+APP_QUALITY_LANE=pass
