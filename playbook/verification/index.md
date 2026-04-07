@@ -22,6 +22,7 @@ sprawdzic, czy playbook dziala deterministycznie i operacyjnie, a nie tylko jest
 - verification/scripts/exec-spec-check.sh
 - verification/scripts/exec-dry-run.sh
 - verification/scripts/exec-transition-coverage-check.sh
+- verification/scripts/exec-transition-preview.sh
 
 ## Canonical outcome (full-op)
 

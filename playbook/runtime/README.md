@@ -24,3 +24,9 @@ Wymaganie:
 ```bash
 ./playbook/verification/scripts/exec-dry-run.sh add_idea playbook/runtime/playbook-exec.yaml playbook/runtime/simulation-inputs/new-project-ds.json
 ```
+
+Podglad globalny (pierwsze N transition z calego FSM, mapowane na templates wykonawcze):
+
+```bash
+./playbook/verification/scripts/exec-transition-preview.sh playbook/runtime/playbook-exec.yaml playbook/layers/op/state-machines.md 40
+```
