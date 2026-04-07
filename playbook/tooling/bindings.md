@@ -439,7 +439,7 @@ Kazdy binding ma:
 
 12a. Feature.implemented -> Feature.test-ready
 - event_ref: feature.stabilize-requested
-- action_plan: request_rework
+- action_plan: decide_gate, request_rework
 - tool_plan:
   - operator-ui: gate=request_changes
   - storage-adapter: update Feature state to test-ready
@@ -456,7 +456,7 @@ Kazdy binding ma:
 
 12c. Feature.implemented -> Feature.specified
 - event_ref: feature.stabilize-requested
-- action_plan: request_rework
+- action_plan: decide_gate, request_rework
 - tool_plan:
   - operator-ui: gate=reject
   - storage-adapter: update Feature state to specified
@@ -604,7 +604,7 @@ Kazdy binding ma:
 
 22aa. PromptTask.executed -> PromptTask.ready
 - event_ref: prompt.validation-requested
-- action_plan: request_rework
+- action_plan: decide_gate, request_rework
 - tool_plan:
   - operator-ui: gate=request_changes
   - storage-adapter: update PromptTask state to ready
@@ -621,7 +621,7 @@ Kazdy binding ma:
 
 22ac. PromptTask.executed -> PromptTask.cancelled
 - event_ref: prompt.validation-requested
-- action_plan: cancel_ai_job
+- action_plan: decide_gate, cancel_ai_job
 - tool_plan:
   - operator-ui: gate=reject
   - ai-runner: cancel_job
@@ -685,7 +685,7 @@ Kazdy binding ma:
 
 26a. Release.candidate -> Release.planned
 - event_ref: release.gate-requested
-- action_plan: request_rework
+- action_plan: decide_gate, request_rework
 - tool_plan:
   - operator-ui: gate=request_changes
   - storage-adapter: update Release state to planned
