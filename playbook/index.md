@@ -55,6 +55,7 @@ Warstwa wykonawcza Playbook Layer:
 ### runtime
 Kanoniczny spec wykonawczy DS (machine-readable):
 - runtime/playbook-exec.yaml
+- runtime/README.md
 
 ### validation
 Kontrakty poprawnosci Playbook Layer:

@@ -1,0 +1,25 @@
+{
+  "new_project": {
+    "project_name": "DS",
+    "project_root_path": "/Users/operator/Projects/DS",
+    "stack": "macos-swiftui",
+    "architecture": "modular-monolith",
+    "language": "pl",
+    "execution_style": "iterative-tdd",
+    "storage": "file-ai",
+    "project_description": "DS to deterministic supervisor procesu developmentu.",
+    "baseline_gate_decision": {
+      "decision": "approve",
+      "reason": "baseline kompletny i niesprzeczny"
+    },
+    "extracted_terms": "# Glossary\n\n- DS: Development Supervisor\n- OP: Obiekt Procesu\n- GateDecision: jawna decyzja operatora"
+  },
+  "add_idea": {
+    "idea_title": "Zbudowac aplikacje do zarzadzania developmentem projektow",
+    "idea_description": "Jedno narzedzie, pelny deterministic flow",
+    "gate_decision": {
+      "decision": "approve",
+      "reason": "idea gotowa do konwersji"
+    }
+  }
+}
