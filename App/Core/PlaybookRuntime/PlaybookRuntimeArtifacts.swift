@@ -46,6 +46,9 @@ extension PlaybookRuntimeFileSystem {
             "created_at": .string(timestamp()),
         ])
         try payload.write(to: playbookInstanceURL, atomically: true, encoding: .utf8)
+        if profile.storage == .sqlbase {
+            _ = try sqlProjectStore.storeArtifactFile(at: playbookInstanceURL, projectRoot: projectURL)
+        }
         return playbookInstanceURL.path
     }
 
@@ -69,6 +72,9 @@ extension PlaybookRuntimeFileSystem {
             let fileURL = featureRoot.appendingPathComponent(name)
             try content.write(to: fileURL, atomically: true, encoding: .utf8)
             createdArtifacts.append(fileURL.path)
+            if isSQLBaseRuntime(projectRoot: projectRoot) {
+                _ = try sqlProjectStore.storeArtifactFile(at: fileURL, projectRoot: projectRoot)
+            }
         }
         return createdArtifacts
     }
@@ -167,8 +173,8 @@ extension PlaybookRuntimeFileSystem {
         let stateDirectory = projectURL.appendingPathComponent("State")
         try fileManager.createDirectory(at: stateDirectory, withIntermediateDirectories: true)
 
-        let sqlitePath = stateDirectory.appendingPathComponent("supervisor.sqlite3")
-        try Data().write(to: sqlitePath, options: .atomic)
+        let sqlitePath = sqlProjectStore.databaseURL(projectRoot: projectURL)
+        try sqlProjectStore.ensureDatabase(projectRoot: projectURL)
         return [stateDirectory.path, sqlitePath.path]
     }
 
@@ -179,6 +185,9 @@ extension PlaybookRuntimeFileSystem {
         for (url, content) in files {
             try content.write(to: url, atomically: true, encoding: .utf8)
             createdArtifacts.append(url.path)
+            if request.profileSelection.storage == .sqlbase, url.path.contains("/.ai/") {
+                _ = try sqlProjectStore.storeArtifactFile(at: url, projectRoot: projectURL)
+            }
         }
         return createdArtifacts
     }
@@ -569,5 +578,9 @@ extension PlaybookRuntimeFileSystem {
         let lowered = value.lowercased()
         let replaced = lowered.replacingOccurrences(of: "[^a-z0-9]+", with: "-", options: .regularExpression)
         return replaced.trimmingCharacters(in: CharacterSet(charactersIn: "-"))
+    }
+
+    var sqlProjectStore: SQLProjectStore {
+        SQLProjectStore(fileManager: fileManager)
     }
 }

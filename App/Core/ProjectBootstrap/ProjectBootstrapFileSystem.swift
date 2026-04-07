@@ -219,9 +219,14 @@ struct ProjectBootstrapFileSystem: ProjectBootstrapContract {
         try write(projectURL.appendingPathComponent(".ai/stack/rules.md"), "- Bez force unwrap\n- Bez globalnego mutowalnego stanu\n- Nie modyfikuj niepowiązanych plików\n")
 
         if input.storageProfile == .sqlbase {
-            let stateDirectory = projectURL.appendingPathComponent("State")
-            try fileManager.createDirectory(at: stateDirectory, withIntermediateDirectories: true)
-            try write(stateDirectory.appendingPathComponent("supervisor.sqlite3"), "")
+            let sqlProjectStore = SQLProjectStore(fileManager: fileManager)
+            try sqlProjectStore.ensureDatabase(projectRoot: projectURL)
+            try bootstrapArtifactRelativePaths().forEach { relativePath in
+                try sqlProjectStore.storeArtifactFile(
+                    at: projectURL.appendingPathComponent(relativePath),
+                    projectRoot: projectURL
+                )
+            }
         }
     }
 
@@ -252,6 +257,20 @@ struct ProjectBootstrapFileSystem: ProjectBootstrapContract {
 
     private func write(_ url: URL, _ text: String) throws {
         try text.write(to: url, atomically: true, encoding: .utf8)
+    }
+
+    private func bootstrapArtifactRelativePaths() -> [String] {
+        [
+            ".ai/project-profile.json",
+            ".ai/ideas.md",
+            ".ai/agent.md",
+            ".ai/prd/overview.md",
+            ".ai/prd/constraints.md",
+            ".ai/prd/glossary.md",
+            ".ai/stack/architecture.md",
+            ".ai/stack/shared-code.md",
+            ".ai/stack/rules.md",
+        ]
     }
 
     private func initializeGitRepository(projectURL: URL) -> String? {

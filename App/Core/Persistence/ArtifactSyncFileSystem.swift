@@ -1,15 +1,13 @@
 import Foundation
 
 struct ArtifactSyncFileSystem: ArtifactSyncContract {
-    private typealias Mapping = (aiRelative: String, sqlRelative: String)
+    private let fileManager: FileManager
+    private let sqlProjectStore: SQLProjectStore
 
-    private let mappings: [Mapping] = [
-        (".ai/prd/overview.md", "State/sqlbase/prd/overview.md"),
-        (".ai/prd/constraints.md", "State/sqlbase/prd/constraints.md"),
-        (".ai/prd/glossary.md", "State/sqlbase/prd/glossary.md"),
-        (".ai/ideas.md", "State/sqlbase/ideas.md"),
-        (".ai/project-profile.json", "State/sqlbase/project-profile.json"),
-    ]
+    init(fileManager: FileManager = .default, sqlProjectStore: SQLProjectStore = SQLProjectStore()) {
+        self.fileManager = fileManager
+        self.sqlProjectStore = sqlProjectStore
+    }
 
     func synchronize(_ request: ArtifactSyncRequest) -> ArtifactSyncResult {
         let rootPath = request.projectPath.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -28,73 +26,85 @@ struct ArtifactSyncFileSystem: ArtifactSyncContract {
         }
 
         var isDirectory: ObjCBool = false
-        guard FileManager.default.fileExists(atPath: rootPath, isDirectory: &isDirectory), isDirectory.boolValue else {
+        guard fileManager.fileExists(atPath: rootPath, isDirectory: &isDirectory), isDirectory.boolValue else {
             return ArtifactSyncResult(
                 result: .failure(.init(message: "Project path does not exist or is not a directory.")),
                 synchronizedFiles: []
             )
         }
 
+        let projectRoot = URL(fileURLWithPath: rootPath)
         switch request.direction {
         case .exportAIToSQLBase:
-            return copyArtifacts(projectRoot: rootPath, direction: .exportAIToSQLBase)
+            return exportAIArtifacts(projectRoot: projectRoot)
         case .importSQLBaseToAI:
-            return copyArtifacts(projectRoot: rootPath, direction: .importSQLBaseToAI)
+            return importSQLArtifacts(projectRoot: projectRoot)
         }
     }
 
-    private func copyArtifacts(projectRoot: String, direction: ArtifactSyncDirection) -> ArtifactSyncResult {
-        var missing: [String] = []
-        var synchronized: [String] = []
-
-        for mapping in mappings {
-            let sourceRelative: String
-            let destinationRelative: String
-
-            switch direction {
-            case .exportAIToSQLBase:
-                sourceRelative = mapping.aiRelative
-                destinationRelative = mapping.sqlRelative
-            case .importSQLBaseToAI:
-                sourceRelative = mapping.sqlRelative
-                destinationRelative = mapping.aiRelative
-            }
-
-            let sourceURL = URL(fileURLWithPath: projectRoot).appendingPathComponent(sourceRelative)
-            let destinationURL = URL(fileURLWithPath: projectRoot).appendingPathComponent(destinationRelative)
-
-            guard FileManager.default.fileExists(atPath: sourceURL.path) else {
-                missing.append(sourceRelative)
-                continue
-            }
-
-            do {
-                try FileManager.default.createDirectory(
-                    at: destinationURL.deletingLastPathComponent(),
-                    withIntermediateDirectories: true
-                )
-
-                if FileManager.default.fileExists(atPath: destinationURL.path) {
-                    try FileManager.default.removeItem(at: destinationURL)
-                }
-
-                try FileManager.default.copyItem(at: sourceURL, to: destinationURL)
-                synchronized.append(destinationRelative)
-            } catch {
-                return ArtifactSyncResult(
-                    result: .failure(.init(message: "Artifact sync failed: \(error.localizedDescription)")),
-                    synchronizedFiles: synchronized
-                )
-            }
+    private func exportAIArtifacts(projectRoot: URL) -> ArtifactSyncResult {
+        let aiRoot = projectRoot.appendingPathComponent(".ai")
+        guard fileManager.fileExists(atPath: aiRoot.path) else {
+            return ArtifactSyncResult(
+                result: .failure(.init(message: "Artifact sync failed: .ai directory does not exist.")),
+                synchronizedFiles: []
+            )
         }
 
-        guard missing.isEmpty else {
+        let enumerator = fileManager.enumerator(
+            at: aiRoot,
+            includingPropertiesForKeys: [.isRegularFileKey],
+            options: [.skipsHiddenFiles]
+        )
+
+        var synchronized: [String] = []
+        do {
+            try sqlProjectStore.ensureDatabase(projectRoot: projectRoot)
+
+            while let fileURL = enumerator?.nextObject() as? URL {
+                let values = try fileURL.resourceValues(forKeys: [.isRegularFileKey])
+                guard values.isRegularFile == true else {
+                    continue
+                }
+
+                try synchronized.append(sqlProjectStore.storeArtifactFile(at: fileURL, projectRoot: projectRoot))
+            }
+        } catch {
             return ArtifactSyncResult(
-                result: .failure(.init(message: "Artifact sync failed: missing source files: \(missing.joined(separator: ", ")).")),
+                result: .failure(.init(message: "Artifact sync failed: \(error.localizedDescription)")),
                 synchronizedFiles: synchronized
             )
         }
 
+        guard !synchronized.isEmpty else {
+            return ArtifactSyncResult(
+                result: .failure(.init(message: "Artifact sync failed: no .ai artifacts found to export.")),
+                synchronizedFiles: []
+            )
+        }
+
         return ArtifactSyncResult(result: .success, synchronizedFiles: synchronized)
+    }
+
+    private func importSQLArtifacts(projectRoot: URL) -> ArtifactSyncResult {
+        do {
+            let keys = try sqlProjectStore.artifactKeys(projectRoot: projectRoot)
+            guard !keys.isEmpty else {
+                return ArtifactSyncResult(
+                    result: .failure(.init(message: "Artifact sync failed: sqlbase does not contain stored artifacts.")),
+                    synchronizedFiles: []
+                )
+            }
+
+            let synchronized = try keys.map {
+                try sqlProjectStore.materializeArtifact(relativePath: $0, projectRoot: projectRoot)
+            }
+            return ArtifactSyncResult(result: .success, synchronizedFiles: synchronized)
+        } catch {
+            return ArtifactSyncResult(
+                result: .failure(.init(message: "Artifact sync failed: \(error.localizedDescription)")),
+                synchronizedFiles: []
+            )
+        }
     }
 }

@@ -15,9 +15,10 @@ final class ArtifactSyncFileSystemTests: XCTestCase {
         )
 
         XCTAssertTrue(result.result.isSuccess)
-        XCTAssertTrue(FileManager.default.fileExists(atPath: projectRoot.appendingPathComponent("State/sqlbase/prd/overview.md").path))
-        XCTAssertTrue(FileManager.default.fileExists(atPath: projectRoot.appendingPathComponent("State/sqlbase/prd/constraints.md").path))
-        XCTAssertTrue(FileManager.default.fileExists(atPath: projectRoot.appendingPathComponent("State/sqlbase/prd/glossary.md").path))
+        let store = SQLProjectStore()
+        XCTAssertNotNil(try store.artifactContent(relativePath: ".ai/prd/overview.md", projectRoot: projectRoot))
+        XCTAssertNotNil(try store.artifactContent(relativePath: ".ai/prd/constraints.md", projectRoot: projectRoot))
+        XCTAssertNotNil(try store.artifactContent(relativePath: ".ai/prd/glossary.md", projectRoot: projectRoot))
     }
 
     func testSynchronize_importSQLBaseToAI_restoresAIDocumentsFromState() throws {
@@ -44,6 +45,54 @@ final class ArtifactSyncFileSystemTests: XCTestCase {
 
         XCTAssertTrue(result.result.isSuccess)
         XCTAssertTrue(FileManager.default.fileExists(atPath: projectRoot.appendingPathComponent(".ai/prd/glossary.md").path))
+    }
+
+    func testSynchronize_importSQLBaseToAI_importsLegacyStateArtifactsIntoDatabase() throws {
+        let sut = ArtifactSyncFileSystem()
+        let projectRoot = try makeProjectRoot()
+        let legacyOverview = projectRoot.appendingPathComponent("State/sqlbase/prd/overview.md")
+        try FileManager.default.createDirectory(at: legacyOverview.deletingLastPathComponent(), withIntermediateDirectories: true)
+        try "Legacy overview".write(to: legacyOverview, atomically: true, encoding: .utf8)
+        try FileManager.default.createDirectory(
+            at: projectRoot.appendingPathComponent("State/sqlbase/prd"),
+            withIntermediateDirectories: true
+        )
+        try "Legacy constraints".write(
+            to: projectRoot.appendingPathComponent("State/sqlbase/prd/constraints.md"),
+            atomically: true,
+            encoding: .utf8
+        )
+        try "Legacy glossary".write(
+            to: projectRoot.appendingPathComponent("State/sqlbase/prd/glossary.md"),
+            atomically: true,
+            encoding: .utf8
+        )
+        try "[]".write(
+            to: projectRoot.appendingPathComponent("State/sqlbase/ideas.md"),
+            atomically: true,
+            encoding: .utf8
+        )
+        try "{}".write(
+            to: projectRoot.appendingPathComponent("State/sqlbase/project-profile.json"),
+            atomically: true,
+            encoding: .utf8
+        )
+        try FileManager.default.removeItem(at: projectRoot.appendingPathComponent("State/supervisor.sqlite3"))
+        try FileManager.default.removeItem(at: projectRoot.appendingPathComponent(".ai/prd/overview.md"))
+
+        let result = sut.synchronize(
+            ArtifactSyncRequest(
+                projectPath: projectRoot.path,
+                storageProfile: .sqlbase,
+                direction: .importSQLBaseToAI
+            )
+        )
+
+        XCTAssertTrue(result.result.isSuccess)
+        XCTAssertEqual(
+            try String(contentsOf: projectRoot.appendingPathComponent(".ai/prd/overview.md"), encoding: .utf8),
+            "Legacy overview"
+        )
     }
 
     func testSynchronize_withNonSQLBaseProfile_returnsFailure() throws {

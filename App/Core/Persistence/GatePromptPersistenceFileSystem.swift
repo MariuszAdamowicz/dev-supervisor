@@ -2,9 +2,11 @@ import Foundation
 
 struct GatePromptPersistenceFileSystem: GatePromptPersistenceContract {
     private let fileManager: FileManager
+    private let sqlProjectStore: SQLProjectStore
 
-    init(fileManager: FileManager = .default) {
+    init(fileManager: FileManager = .default, sqlProjectStore: SQLProjectStore = SQLProjectStore()) {
         self.fileManager = fileManager
+        self.sqlProjectStore = sqlProjectStore
     }
 
     func persistPrompt(_ request: GatePromptPersistenceRequest) -> GatePromptPersistenceResult {
@@ -39,32 +41,34 @@ struct GatePromptPersistenceFileSystem: GatePromptPersistenceContract {
         let project = request.projectID?.rawValue ?? "no-project"
         let filename = "\(timestamp)_\(project)_\(idea).md"
 
-        let outputDirectory: URL
-        switch request.storageProfile {
-        case .fileAI:
-            outputDirectory = projectURL.appendingPathComponent(".ai/gates").appendingPathComponent(operationSlug)
-        case .sqlbase:
-            outputDirectory = projectURL.appendingPathComponent("State/gates").appendingPathComponent(operationSlug)
-        }
-        let outputURL = outputDirectory.appendingPathComponent(filename)
-
         do {
-            try fileManager.createDirectory(at: outputDirectory, withIntermediateDirectories: true)
+            switch request.storageProfile {
+            case .fileAI:
+                let outputDirectory = projectURL.appendingPathComponent(".ai/gates").appendingPathComponent(operationSlug)
+                let outputURL = outputDirectory.appendingPathComponent(filename)
+                try fileManager.createDirectory(at: outputDirectory, withIntermediateDirectories: true)
 
-            let payload = """
-            operation: \(request.operation)
-            project_id: \(project)
-            idea_id: \(idea)
-            storage: \(request.storageProfile.rawValue)
-            ---
-            \(trimmedPrompt)
-            """
-            try payload.write(to: outputURL, atomically: true, encoding: .utf8)
+                let payload = """
+                operation: \(request.operation)
+                project_id: \(project)
+                idea_id: \(idea)
+                storage: \(request.storageProfile.rawValue)
+                ---
+                \(trimmedPrompt)
+                """
+                try payload.write(to: outputURL, atomically: true, encoding: .utf8)
 
-            return GatePromptPersistenceResult(
-                result: .success,
-                persistedPath: outputURL.path
-            )
+                return GatePromptPersistenceResult(
+                    result: .success,
+                    persistedPath: outputURL.path
+                )
+            case .sqlbase:
+                let logicalPath = try sqlProjectStore.persistGatePrompt(request, projectRoot: projectURL)
+                return GatePromptPersistenceResult(
+                    result: .success,
+                    persistedPath: logicalPath
+                )
+            }
         } catch {
             return GatePromptPersistenceResult(
                 result: .failure(.init(message: "Failed to persist prompt: \(error.localizedDescription)")),

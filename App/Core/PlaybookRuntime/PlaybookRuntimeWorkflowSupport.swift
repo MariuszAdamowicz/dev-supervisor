@@ -585,6 +585,9 @@ private extension PlaybookRuntimeFileSystem {
     func writeIdeaUXArtifact(projectRoot: URL, ideaTitle: String) throws -> String {
         let url = projectRoot.appendingPathComponent(".ai/ux/add-idea.md")
         try addIdeaUXMarkdown(ideaTitle: ideaTitle).write(to: url, atomically: true, encoding: .utf8)
+        if isSQLBaseRuntime(projectRoot: projectRoot) {
+            _ = try sqlProjectStore.storeArtifactFile(at: url, projectRoot: projectRoot)
+        }
         return url.path
     }
 

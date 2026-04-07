@@ -209,6 +209,8 @@ final class PlaybookRuntimeFileSystemTests: XCTestCase {
         XCTAssertEqual(stats.evidenceCount, 1)
         XCTAssertGreaterThanOrEqual(stats.processEventCount, 12)
         XCTAssertGreaterThanOrEqual(stats.relationCount, 8)
+        XCTAssertNotNil(try SQLProjectStore().artifactContent(relativePath: ".ai/prd/overview.md", projectRoot: projectURL))
+        XCTAssertNotNil(try SQLProjectStore().artifactContent(relativePath: ".ai/runtime/v1/playbook-instance.json", projectRoot: projectURL))
     }
 
     func testAddIdea_sqlbaseReadsRuntimeSummaryFromDatabase() throws {
@@ -262,6 +264,13 @@ final class PlaybookRuntimeFileSystemTests: XCTestCase {
         let stats = try SQLRuntimeStore().stats(projectRoot: projectURL)
         XCTAssertEqual(stats.gateDecisionCount, 2)
         XCTAssertEqual(stats.evidenceCount, 2)
+        XCTAssertNotNil(
+            try SQLProjectStore().artifactContent(
+                relativePath: ".ai/features/uruchomienie-projektu-z-ui/prd.md",
+                projectRoot: projectURL
+            )
+        )
+        XCTAssertNotNil(try SQLProjectStore().artifactContent(relativePath: ".ai/ux/add-idea.md", projectRoot: projectURL))
     }
 
     func testSummarizeRuntime_sqlbaseImportsExistingFileAIRuntime() throws {

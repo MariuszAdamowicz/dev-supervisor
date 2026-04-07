@@ -75,6 +75,10 @@ final class ProjectBootstrapFileSystemTests: XCTestCase {
         XCTAssertTrue(inspection.productGatePassed)
         XCTAssertEqual(inspection.missingProductArtifacts, [])
         XCTAssertEqual(inspection.detectedStorageProfile, .sqlbase)
+        let projectURL = URL(fileURLWithPath: projectPath)
+        let projectStore = SQLProjectStore()
+        XCTAssertNotNil(try projectStore.artifactContent(relativePath: ".ai/prd/overview.md", projectRoot: projectURL))
+        XCTAssertNotNil(try projectStore.artifactContent(relativePath: ".ai/project-profile.json", projectRoot: projectURL))
     }
 
     func testInspectProject_whenGlossaryIsMissing_productGateFailsWithExplicitMissingArtifact() throws {
