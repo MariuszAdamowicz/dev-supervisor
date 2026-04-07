@@ -33,11 +33,11 @@ HEAD: 86c18e4
 - Deterministyczny classifier `gate_required`.
 - Twardy wymog Decision Envelope dla gate-required transition.
 - Operacyjny `authz precheck` i sciezka `Exception(authz)`.
-- Rozszerzone guardy delivery (`Dependency`, `Exception`, `Risk`).
+- Rozszerzone guardy delivery (`DependencyRelation`, `Exception`, `Risk`).
 
 ## 5) Tematy otwarte (poza P2)
 1. `GateDecisionRecord` jako standalone record systemowy ma semantyke, ale brakowalo wtedy pelnego, osobnego kontraktu poza osadzeniem w transitionach.
-2. `Dependency` ma stany `validated/satisfied/waived`, ale brak pelnego zestawu bindingow dla wszystkich przejsc.
+2. `DependencyRelation` wymaga osobnego kontraktu relacji i propagacji, zamiast pozostawania pseudo-OP.
 3. `Timeout` i `Compensation` maja semantyke bogatsza niz obecne pokrycie bindingami (zwlaszcza sciezki `failed`).
 4. Wymagane jest wykonanie ponownego globalnego audytu coverage wszystkich OP po zmianach P0-P2 (nie tylko scoped P2).
 
@@ -47,5 +47,5 @@ HEAD: 86c18e4
 
 ## 7) Rekomendowana kolejna iteracja (v2)
 1. Globalny audit coverage wszystkich OP po patchach.
-2. Domkniecie `Dependency`, `Timeout`, `Compensation`.
+2. Domkniecie `DependencyRelation`, `Timeout`, `Compensation`.
 3. Ujednolicenie `GateDecisionRecord` jako recordu systemowego.

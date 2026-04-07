@@ -6,6 +6,7 @@ Semantyka procesu jest kanoniczna w OP Layer.
 
 Kanoniczne definicje OP:
 - layers/op/object-catalog.md
+- layers/op/relation-contracts.md
 - layers/op/state-machines.md
 - layers/op/trigger-rules.md
 

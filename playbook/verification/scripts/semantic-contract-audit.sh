@@ -14,6 +14,7 @@ require_pattern() {
 
 files=(
   "$ROOT/layers/op/object-catalog.md"
+  "$ROOT/layers/op/relation-contracts.md"
   "$ROOT/layers/op/operational-semantics.md"
   "$ROOT/runtime/playbook-exec.yaml"
   "$ROOT/workflow/setup.md"
@@ -50,6 +51,7 @@ require_pattern 'VerificationPlan' "$ROOT/layers/op/object-catalog.md"
 require_pattern 'ChangeSet' "$ROOT/layers/op/object-catalog.md"
 require_pattern 'DataSchema' "$ROOT/layers/op/object-catalog.md"
 require_pattern 'RuntimeEnvironment' "$ROOT/layers/op/object-catalog.md"
+require_pattern 'DependencyRelation' "$ROOT/layers/op/relation-contracts.md"
 require_pattern 'Repository' "$ROOT/layers/op/operational-semantics.md"
 require_pattern 'ChangeSet' "$ROOT/layers/op/operational-semantics.md"
 require_pattern 'VerificationPlan' "$ROOT/layers/op/operational-semantics.md"

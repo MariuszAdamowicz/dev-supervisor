@@ -1,0 +1,6 @@
+E2E_FIXTURE_RUN=pass
+SCENARIO=playbook/verification/replay/scenario-e2e-full-op.csv
+EVENTS_COUNT=194
+GATES_COUNT=28
+EVIDENCE_CLASS=fixture-simulation
+APP_QUALITY_LANE=pass

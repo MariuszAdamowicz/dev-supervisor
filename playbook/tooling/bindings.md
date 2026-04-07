@@ -761,7 +761,7 @@ Kazdy binding ma:
   - operator-ui: confirm release scope
 - guards:
   - brak critical Exception
-  - Dependency != blocked
+  - brak DependencyRelation.status=blocked dla scope delivery
   - brak otwartych Risk.escalated o criticality=high
 - required: true
 
@@ -937,7 +937,7 @@ dla OP, ktore nie maja jeszcze jawnych wpisow per kazdy wariant.
 Zakres OP objetych tym mechanizmem:
 - Project, Requirement, Constraint, DecisionRecord, Idea, Feature, Scenario
 - Term, UIComponent, UIScreen
-- PromptTask, ActorRolePermission, Dependency
+- PromptTask, ActorRolePermission
 - UseCase, PortContract, Component
 - Risk, Release, Deployment, Rollback
 - Exception, Timeout, Compensation

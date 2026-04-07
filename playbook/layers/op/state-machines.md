@@ -198,18 +198,6 @@ Transitions:
 8. revised --permission.revoke-requested (gate=approve)--> revoked
 9. revised --permission.revoke-requested (gate=request_changes|defer)--> revised
 
-### Dependency
-States:
-identified, validated, satisfied, blocked, waived
-
-Transitions:
-1. identified --dependency.validate-requested--> validated
-2. validated --dependency.satisfy-requested--> satisfied
-3. validated --dependency.blocked-detected--> blocked
-4. validated --dependency.waive-requested (gate=approve)--> waived
-5. validated --dependency.waive-requested (gate=request_changes|defer)--> validated
-6. blocked --dependency.unblock-requested--> validated
-
 ### UseCase
 States:
 drafted, reviewed, approved, implemented, verified, deprecated
@@ -455,7 +443,7 @@ Transitions:
 
 3. Release.approved wymaga:
 - brak Risk.escalated o krytycznosci high,
-- brak Dependency.blocked.
+- brak DependencyRelation.status=blocked dla scope release/delivery.
 
 4. UseCase.verified wymaga:
 - test logiki biznesowej bez UI/DB/sieci.

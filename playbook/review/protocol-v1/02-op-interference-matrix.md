@@ -28,7 +28,7 @@ Jawnie zmapować interferencje między OP oraz wskazać, gdzie semantyka OP nie 
 | PromptTask | Feature/Term/UI, AI runner | GateDecisionRecord, review package | częściowe |
 | GateDecisionRecord | operator, review package | odblokowanie transition OP | częściowe |
 | ActorRolePermission | operator/admin | autoryzacja akcji | brak egzekucji |
-| Dependency | Feature | guardy release | częściowe |
+| DependencyRelation | Feature | guardy release | częściowe |
 | Risk | Feature/Quality | gate/rework/escalation | brak |
 | Release | Feature.stabilized | Deployment | częściowe |
 | Deployment | Release.approved | Rollback/Compensation | częściowe |

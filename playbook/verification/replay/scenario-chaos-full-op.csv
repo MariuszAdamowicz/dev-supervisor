@@ -16,8 +16,6 @@ PromptTask,ready,timeout.fired (retry_budget=0),cancelled
 PromptTask,executed,prompt.validation-requested (gate=reject),cancelled
 ChangeSet,staged,changeset.validate-requested (gate=reject),superseded
 ActorRolePermission,defined,permission.activate-requested (gate=reject),revoked
-Dependency,validated,dependency.blocked-detected,blocked
-Dependency,blocked,dependency.unblock-requested,validated
 UseCase,reviewed,usecase.approve-requested (gate=reject),deprecated
 PortContract,reviewed,port-contract.approve-requested (gate=reject),deprecated
 Component,mapped,component.check-requested (check=fail),refactor-required

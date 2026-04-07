@@ -25,7 +25,7 @@ Primary copy nie opisuje:
 4. Idea scoping (Idea -> Feature)
 5. Feature spec/test loop (Feature + Scenario + ChangeSet + PromptTask + GateDecisionRecord)
 6. UX alignment (Term + UIComponent + UIScreen)
-7. Quality and hardening (VerificationPlan + QualityEvidenceRecord + Risk + Dependency)
+7. Quality and hardening (VerificationPlan + QualityEvidenceRecord + Risk + dependency relations)
 8. Data and environment readiness (DataSchema + Migration + RuntimeEnvironment, gdy dotyczy)
 9. Delivery (Release -> Deployment -> Rollback)
 10. Audit closure (ProcessEventRecord + final GateDecisionRecord)

@@ -122,107 +122,109 @@ Semantyka operacyjna i stosowalnosc OP:
 - Stosowalnosc: `always`
 - Kluczowe pola: actor_id, role, allowed_actions, scope.
 
-### 13. Dependency
-- Rola: zaleznosc miedzy OP lub zewnetrznym elementem.
-- Klasa: `control-object`
-- Stosowalnosc: `always`
-- Kluczowe pola: dependency_id, source_op, target_op, criticality.
-
-### 14. UseCase
+### 13. UseCase
 - Rola: przypadek uzycia opisujacy zachowanie aplikacyjne niezalezne od frameworka.
 - Klasa: `work-object`
 - Stosowalnosc: `always` dla zachowania biznesowego
 - Kluczowe pola: use_case_id, actor, goal, input_dto, output_dto, business_rules_refs.
 
-### 15. PortContract
+### 14. PortContract
 - Rola: kontrakt granicy (wejscie/wyjscie) miedzy rdzeniem a adapterem.
 - Klasa: `work-object`
 - Stosowalnosc: `always` przy granicy rdzen <-> zewnetrze
 - Kluczowe pola: port_id, direction(inbound|outbound), contract_schema_ref, dto_set, owner_use_case.
 
-### 16. Component
+### 15. Component
 - Rola: komponent/modul architektoniczny do kontroli spojnosci i zaleznosci.
 - Klasa: `work-object`
 - Stosowalnosc: `always`
 - Kluczowe pola: component_id, responsibility, stability_index, abstraction_level, dependencies.
 
-### 17. Risk
+### 16. Risk
 - Rola: ryzyko produktu/procesu.
 - Klasa: `control-object`
 - Stosowalnosc: `formal-validation`
 - Kluczowe pola: risk_id, probability, impact, mitigation_plan.
 
-### 18. Release
+### 17. Release
 - Rola: pakiet zmian gotowy do wydania.
 - Klasa: `execution-object`
 - Stosowalnosc: `formal-validation`
 - Kluczowe pola: release_id, included_features, release_gate_status.
 
-### 19. Deployment
+### 18. Deployment
 - Rola: wykonanie wdrozenia.
 - Klasa: `execution-object`
 - Stosowalnosc: `deployable-runtime`
 - Kluczowe pola: deployment_id, environment, result, rollback_ref.
 
-### 20. Rollback
+### 19. Rollback
 - Rola: cofniecie wdrozenia.
 - Klasa: `execution-object`
 - Stosowalnosc: `deployable-runtime`
 - Kluczowe pola: rollback_id, trigger_reason, recovered_state.
 
-### 21. Exception
+### 20. Exception
 - Rola: blad procesu lub biznesowy exception case.
 - Klasa: `execution-object`
 - Stosowalnosc: `always`
 - Kluczowe pola: exception_id, class, severity, compensation_required.
 
-### 22. Timeout
+### 21. Timeout
 - Rola: przekroczenie SLA/deadline.
 - Klasa: `execution-object`
 - Stosowalnosc: `always`
 - Kluczowe pola: timeout_id, related_op, deadline, escalation_policy.
 
-### 23. Compensation
+### 22. Compensation
 - Rola: akcja kompensacyjna po bledzie.
 - Klasa: `execution-object`
 - Stosowalnosc: `always` gdy failure_policy wymaga undo
 - Kluczowe pola: compensation_id, target_op, action_plan, status.
 
-### 24. Repository
+### 23. Repository
 - Rola: stan repozytorium projektu i polityk VCS.
 - Klasa: `environment-object`
 - Stosowalnosc: `version-controlled`
 - Kluczowe pola: repo_id, vcs, local_root, remote_origin, default_branch, branch_policy, cleanliness.
 
-### 25. ChangeSet
+### 24. ChangeSet
 - Rola: ograniczony pakiet zmian powiazany z OP, plikami i commitami.
 - Klasa: `execution-object`
 - Stosowalnosc: `version-controlled`
 - Kluczowe pola: changeset_id, repository_ref, branch_ref, file_scope, op_refs, commit_refs, validation_refs.
 
-### 26. VerificationPlan
+### 25. VerificationPlan
 - Rola: plan warstw testow i evidence dla Feature, ChangeSet lub Release.
 - Klasa: `control-object`
 - Stosowalnosc: `formal-validation`
 - Kluczowe pola: verification_id, target_scope, required_lanes, pass_criteria, evidence_rules.
 
-### 27. DataSchema
+### 26. DataSchema
 - Rola: kanoniczny kontrakt modelu danych i kompatybilnosci.
 - Klasa: `environment-object`
 - Stosowalnosc: `persistent-data`
 - Kluczowe pola: schema_id, storage_engine, compatibility_policy, owned_structures, migration_refs.
 
-### 28. Migration
+### 27. Migration
 - Rola: wykonanie zmiany schematu lub danych z jawna gotowoscia rollback.
 - Klasa: `execution-object`
 - Stosowalnosc: `persistent-data`
 - Kluczowe pola: migration_id, schema_ref, direction, compatibility_window, execution_lane, rollback_ref.
 
-### 29. RuntimeEnvironment
+### 28. RuntimeEnvironment
 - Rola: srodowisko lokalne, CI, staging lub prod wraz z capability i config policy.
 - Klasa: `environment-object`
 - Stosowalnosc: `deployable-runtime`
 - Kluczowe pola: environment_id, class, capabilities, secret_policy, deploy_constraints, release_refs.
+
+## Graph Relations (nie sa OP, ale sa kanoniczne i mutowalne)
+
+### DependencyRelation
+- Rola: mutowalna krawedz grafu opisujaca zaleznosc source -> target/external_ref.
+- Klasa: `graph-relation`
+- Stosowalnosc: `always`
+- Kluczowe pola: relation_id, source_ref, target_ref|external_ref, status, scope, criticality, blocking_scope, waiver_ref.
 
 ## System Records (nie sa OP, ale sa kanoniczne i wymagane)
 
@@ -251,11 +253,11 @@ Semantyka operacyjna i stosowalnosc OP:
 - Project -> Constraint -> DecisionRecord -> Feature
 - Feature -> UseCase -> PortContract
 - Feature -> Term -> UIComponent -> UIScreen
-- Feature -> Component -> Dependency
+- Feature -> Component
 - Feature -> PromptTask
 - Feature -> ChangeSet
 - Feature -> VerificationPlan
-- Feature -> Dependency
+- Feature -(DependencyRelation)-> external_ref|Component|RuntimeEnvironment
 - Feature -> Risk
 - Feature -> DataSchema -> Migration
 - Feature -> Release -> Deployment -> Rollback
@@ -273,6 +275,7 @@ Semantyka operacyjna i stosowalnosc OP:
 - VerificationPlan musi byc przypisany do Feature, ChangeSet albo Release wymagajacego formalnej walidacji.
 - DataSchema i Migration sa wymagane, gdy zmiana obejmuje trwale dane lub niekompatybilna ewolucje schematu.
 - Deployment i Release nie moga byc wykonane bez RuntimeEnvironment w stanie co najmniej `ready`.
+- DependencyRelation z `status=blocked` musi byc widoczna w reverse lookup i projection operatora.
 - UseCase i PortContract musza byc utrzymane bez zaleznosci od frameworkowych typow.
 - Component graph nie moze zawierac cykli.
 - Hard delete OP po pojawieniu sie ProcessEventRecord jest zabronione.

@@ -42,6 +42,7 @@ Linki:
 - `control-object`: obiekt sterujacy polityka, uprawnieniami, jakością albo decyzja.
 - `execution-object`: obiekt wykonawczy zwiazany z uruchomieniem pracy, zmian lub wdrozen.
 - `environment-object`: obiekt opisujacy repo, schemat danych lub srodowisko uruchomieniowe.
+- `graph-relation`: mutowalna relacja w grafie OP, niebedaca osobnym OP.
 - `system-record`: rekord audytowy lub dowodowy. Nie jest OP, jest append-only i rzadko jest primary task.
 
 ## Reguly stosowalnosci
@@ -138,13 +139,6 @@ Linki:
 - znaczenie: ownership i authz musza byc stanem projektu, a nie domyslem runtime.
 - lifecycle: defined -> active -> revised -> revoked.
 - CRUD: create przy onboarding/new scope; update przez revise; remove = revoke.
-
-### Dependency
-- class: `control-object`
-- applies_when: `always`
-- znaczenie: zaleznosci moga blokowac feature, release i komponenty; potrzebuja wlasnego statusu.
-- lifecycle: identified -> validated -> satisfied lub blocked/waived.
-- CRUD: create przy odkryciu zaleznosci; update przy unblock/waive; remove = close przez satisfy lub explicit retire.
 
 ### UseCase
 - class: `work-object`
@@ -257,6 +251,15 @@ Linki:
 - znaczenie: srodowisko lokalne, CI, staging, prod ma wlasne capability, config i readiness. Nie powinno byc ukryte w wiki.
 - lifecycle: defined -> validated -> ready -> active -> degraded -> retired.
 - CRUD: create dla kazdego srodowiska operacyjnego; update przy zmianie config/capabilities; remove = retire po decommission.
+
+## Graph Relations
+
+### DependencyRelation
+- class: `graph-relation`
+- applies_when: `always`
+- znaczenie: zaleznosc jest krawedzia grafu z wlasnosciami, nie obiektem pracy. To pozwala pytac o downstream/upstream bez sztucznego tworzenia OP.
+- lifecycle: relacja nie ma pelnego FSM OP; ma mutowalny `status` opisany w `relation-contracts.md`.
+- CRUD: create przy odkryciu blokera lub warunku zewnetrznego; update przez zmiane `status` i propagation; remove = `retired`, nigdy hard delete po audycie.
 
 ## System Records
 

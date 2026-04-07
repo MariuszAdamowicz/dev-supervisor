@@ -15,10 +15,10 @@ zweryfikowac nie tylko obecnosc nazw i artefaktow, ale tez prawdziwa semantyke p
 - guardy z OP sa egzekwowane przed zapisem stanu, a nie tylko opisywane w dokumentacji.
 
 4. Invariant semantics
-- parent linkage, no-cycle, dependency direction, open critical task rules i terminal path rules sa sprawdzane na dowodach runtime.
+- parent linkage, no-cycle, dependency relation status, dependency direction, open critical task rules i terminal path rules sa sprawdzane na dowodach runtime.
 
 5. CRUD semantics
-- create/read/update/remove dla OP i artefaktow jest deterministyczne i audytowalne.
+- create/read/update/remove dla OP, relacji grafu i artefaktow jest deterministyczne i audytowalne.
 
 6. Evidence class semantics
 - symulacja, fixture, runtime capture i lane binarny maja jawna klase dowodu.

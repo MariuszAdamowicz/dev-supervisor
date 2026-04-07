@@ -51,7 +51,7 @@
 - krytyczne Constraint sa w stanie `enforced` lub `revised` przed `Feature.done`
 - wymagane DecisionRecord sa w stanie `approved` przed `Feature.done`
 - Scenario OP powiazane z testami
-- Dependency i Risk ocenione
+- dependency relations i Risk ocenione
 - brak krytycznych otwartych PromptTask
 
 ## Checklista release runtime

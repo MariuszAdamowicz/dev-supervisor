@@ -29,5 +29,5 @@ Podczas rewrite musza byc zaktualizowane:
 
 Jesli rewrite powoduje regression risk:
 - utworz Risk OP,
-- zweryfikuj Dependency OP,
+- zweryfikuj dependency relations,
 - wykonaj dodatkowy gate przed release handoff.

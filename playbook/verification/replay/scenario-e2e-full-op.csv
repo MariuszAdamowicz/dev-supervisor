@@ -29,8 +29,6 @@ PortContract,approved,port-contract.adopt-requested,adopted
 Component,identified,component.map-requested,mapped
 Component,mapped,component.check-requested (check=pass),checked
 Component,checked,component.compliance-requested (gate=approve),compliant
-Dependency,identified,dependency.validate-requested,validated
-Dependency,validated,dependency.satisfy-requested,satisfied
 Term,proposed,term.approve-requested (gate=approve),approved
 UIComponent,proposed,ui.map-requested,mapped
 UIComponent,mapped,ui.implement-requested,implemented

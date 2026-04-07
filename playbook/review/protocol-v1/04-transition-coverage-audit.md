@@ -27,7 +27,7 @@ Sprawdzic pokrycie legalnych transition z `state-machines.md` przez `tooling/bin
 | PromptTask | partial | brak `executed -> validated -> closed` |
 | GateDecisionRecord | partial | brakowalo wtedy formalnego kontraktu `recorded` jako standalone record systemowy |
 | ActorRolePermission | missing | brak lifecycle egzekucji uprawnien |
-| Dependency | partial | brak `satisfied/waived` transitions |
+| DependencyRelation | partial | w tamtym momencie brak osobnego kontraktu relacji i propagacji |
 | Risk | missing | brak lifecycle `assessed/mitigated/accepted/escalated/closed` |
 | Release | partial | brak `approved -> published -> closed` |
 | Deployment | partial | binding sklejony (`prepared->running->succeeded`) |

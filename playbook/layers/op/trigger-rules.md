@@ -248,7 +248,7 @@ Kazda regula ma:
 
 ### 4. Delivery
 - Event: Feature.stabilized
-- Guard: brak krytycznych Exception, Dependency!=blocked
+- Guard: brak krytycznych Exception i brak DependencyRelation.status=blocked dla scope delivery
 - Action: utworz Release.candidate
 
 - Event: Feature.implemented

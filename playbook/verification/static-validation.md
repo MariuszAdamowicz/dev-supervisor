@@ -5,6 +5,7 @@ potwierdzic, ze dokumenty playbooka sa formalnie spojne (bez uruchamiania projek
 
 ## Wejscie
 - layers/op/object-catalog.md
+- layers/op/relation-contracts.md
 - layers/op/state-machines.md
 - layers/op/trigger-rules.md
 - tooling/action-catalog.md

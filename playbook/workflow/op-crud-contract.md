@@ -15,6 +15,13 @@ ustalic jednoznaczny kontrakt tworzenia, odczytu, modyfikacji i usuwania OP oraz
 - projection operatora pokazuje task-first summary, a nie surowe ids jako primary UI.
 - audit/debug moze czytac pelny graph, event log i gate log.
 
+## 2a. Graph relation contract
+
+- runtime musi utrzymywac mutowalne relacje grafu zgodnie z `layers/op/relation-contracts.md`.
+- relacja grafu nie jest OP; nie ma osobnego parent linkage i nie bierze udzialu w OP coverage audit.
+- relacja grafu musi byc queryable w przod i wstecz (`relation-index` + `reverse-relation-index`).
+- `DependencyRelation` musi byc widoczna dla scope Feature/Component/Release/Deployment, gdy ma status `blocked` albo `waived`.
+
 ## 3. Update
 
 - update OP zachodzi tylko przez legal transition albo audytowalny update artefaktu niezmieniajacy state.
@@ -70,11 +77,12 @@ ustalic jednoznaczny kontrakt tworzenia, odczytu, modyfikacji i usuwania OP oraz
 - brak osieroconych OP poza `Project`.
 - brak dangling links.
 - kazdy child zna parent, a parent ma mozliwosc projekcji child summary.
-- `Component` i `Dependency` wymagaja kontroli kierunku zaleznosci i no-cycle.
+- `Component` i `DependencyRelation` wymagaja kontroli kierunku zaleznosci i no-cycle.
 - `UseCase` / `PortContract` / `Component` musza byc wyszukiwalne z `Feature`.
 - `Repository` i `ChangeSet` musza byc wyszukiwalne z `Feature`, `Requirement` i `Scenario`, gdy istnieje traceability.
 - `VerificationPlan` musi byc wyszukiwalny z `Feature`, `ChangeSet` i `Release`, gdy `formal-validation` jest aktywne.
 - `DataSchema` / `Migration` / `RuntimeEnvironment` musza miec reverse lookup do OP, ktore zalezne sa od danych lub deploymentu.
+- `DependencyRelation` musi miec reverse lookup do impacted OP i jawny `status`.
 
 ## 6. Runtime artefakty
 

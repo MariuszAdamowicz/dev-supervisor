@@ -6,6 +6,7 @@ Operator wybiera entrypoint OP, a system wyznacza next_transition z OP Layer.
 
 Kanoniczna semantyka:
 - layers/op/object-catalog.md
+- layers/op/relation-contracts.md
 - layers/op/state-machines.md
 - layers/op/trigger-rules.md
 
@@ -19,7 +20,7 @@ Dopuszczalne entrypointy (zalezne od kontekstu):
 - Feature (spec/test/implement)
 - VerificationPlan (polityka unit/integration/acceptance/e2e)
 - UseCase/PortContract (granice i kontrakty aplikacyjne)
-- Component/Dependency (reguly zaleznosci i spojnosci)
+- Component / relation graph (reguly zaleznosci i spojnosci)
 - DataSchema/Migration (ewolucja danych)
 - Term/UIComponent (UX alignment)
 - ActorRolePermission (authz i ownership)

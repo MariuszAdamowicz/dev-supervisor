@@ -117,8 +117,14 @@ formalnie walidowac kompletnosc i spojnosc Playbook Layer wzgledem OP Layer.
 - rozbieznosc klasyfikacji miedzy UI/CLI/service = playbook invalid.
 
 6. Dependency rule contract
+- dependency relations musza byc reprezentowane w grafie relacji, a nie jako ukryte pola albo niesledzone TODO.
 - zaleznosci kodowe i komponentowe sa skierowane do warstw bardziej wewnetrznych (business policies).
 - naruszenie kierunku zaleznosci = playbook invalid.
+
+6a. Graph relation contract
+- mutowalne relacje grafu musza byc opisane w `layers/op/relation-contracts.md`.
+- zmiana statusu `DependencyRelation` musi byc audytowana i propagowana downstream.
+- relacja blokujaca bez reverse lookup albo bez projection blocker = playbook invalid.
 
 7. No-cycle contract
 - graf zaleznosci miedzy Component nie moze zawierac cykli (ADP).
