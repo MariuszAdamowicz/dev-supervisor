@@ -1,20 +1,22 @@
 import Foundation
 
 final class IdeaRegistryPersistentFileSystem: IdeaRegistryContract {
+    private let storageProfile: StorageProfile
+    private let storageRootURL: URL
     private let storageURL: URL
     private let memoryRegistry = IdeaRegistryInMemory()
 
     nonisolated deinit {}
 
     init(storageProfile: StorageProfile, storageRootPath: String? = nil) {
+        self.storageProfile = storageProfile
         if let storageRootPath {
-            let root = URL(fileURLWithPath: storageRootPath)
-            storageURL = root.appendingPathComponent(Self.fileName(for: storageProfile))
+            storageRootURL = URL(fileURLWithPath: storageRootPath)
         } else {
-            let root = FileManager.default.homeDirectoryForCurrentUser
+            storageRootURL = FileManager.default.homeDirectoryForCurrentUser
                 .appendingPathComponent(".dev-supervisor/registry", isDirectory: true)
-            storageURL = root.appendingPathComponent(Self.fileName(for: storageProfile))
         }
+        storageURL = storageRootURL.appendingPathComponent(Self.fileName(for: storageProfile))
 
         loadState()
     }
@@ -51,59 +53,38 @@ final class IdeaRegistryPersistentFileSystem: IdeaRegistryContract {
     }
 
     private func loadState() {
-        guard let data = try? Data(contentsOf: storageURL),
-              let snapshot = try? JSONDecoder().decode(PersistentIdeaSnapshot.self, from: data)
-        else {
-            return
-        }
-
-        let restoredIdeas = snapshot.ideas.compactMap { record -> IdeaRecord? in
-            guard let status = IdeaStatus(rawValue: record.status) else {
-                return nil
+        switch storageProfile {
+        case .fileAI:
+            guard let data = try? Data(contentsOf: storageURL),
+                  let snapshot = try? JSONDecoder().decode(PersistentIdeaSnapshot.self, from: data)
+            else {
+                return
             }
 
-            return IdeaRecord(
-                id: IdeaID(rawValue: record.id),
-                projectID: ProjectID(rawValue: record.projectID),
-                title: record.title,
-                description: record.description,
-                status: status
-            )
+            memoryRegistry.restoreState(snapshot.ideaRegistrySnapshot)
+        case .sqlbase:
+            if let snapshot = try? sqlRegistryStore.loadIdeaSnapshot(storageRoot: storageRootURL) {
+                memoryRegistry.restoreState(snapshot)
+            }
         }
-
-        memoryRegistry.restoreState(
-            IdeaRegistryStateSnapshot(
-                selectedProjectID: snapshot.selectedProjectID.map { ProjectID(rawValue: $0) },
-                ideas: restoredIdeas,
-                nextIdeaNumber: snapshot.nextIdeaNumber
-            )
-        )
     }
 
     private func persistState() {
         let state = memoryRegistry.snapshotState()
-        let snapshot = PersistentIdeaSnapshot(
-            selectedProjectID: state.selectedProjectID?.rawValue,
-            ideas: state.ideas.map {
-                PersistentIdeaRecord(
-                    id: $0.id.rawValue,
-                    projectID: $0.projectID.rawValue,
-                    title: $0.title,
-                    description: $0.description,
-                    status: $0.status.rawValue
-                )
-            },
-            nextIdeaNumber: state.nextIdeaNumber
-        )
 
         do {
-            try FileManager.default.createDirectory(
-                at: storageURL.deletingLastPathComponent(),
-                withIntermediateDirectories: true
-            )
+            switch storageProfile {
+            case .fileAI:
+                try FileManager.default.createDirectory(
+                    at: storageURL.deletingLastPathComponent(),
+                    withIntermediateDirectories: true
+                )
 
-            let encoded = try JSONEncoder().encode(snapshot)
-            try encoded.write(to: storageURL, options: .atomic)
+                let encoded = try JSONEncoder().encode(PersistentIdeaSnapshot(snapshot: state))
+                try encoded.write(to: storageURL, options: .atomic)
+            case .sqlbase:
+                try sqlRegistryStore.persistIdeaSnapshot(state, storageRoot: storageRootURL)
+            }
         } catch {
             // Persistence failure should not break deterministic in-memory behavior.
         }
@@ -117,12 +98,52 @@ final class IdeaRegistryPersistentFileSystem: IdeaRegistryContract {
             return "idea-registry-sqlbase.json"
         }
     }
+
+    var sqlRegistryStore: SQLRegistryStore {
+        SQLRegistryStore()
+    }
 }
 
 private struct PersistentIdeaSnapshot: Codable {
     let selectedProjectID: String?
     let ideas: [PersistentIdeaRecord]
     let nextIdeaNumber: Int
+
+    init(snapshot: IdeaRegistryStateSnapshot) {
+        selectedProjectID = snapshot.selectedProjectID?.rawValue
+        ideas = snapshot.ideas.map {
+            PersistentIdeaRecord(
+                id: $0.id.rawValue,
+                projectID: $0.projectID.rawValue,
+                title: $0.title,
+                description: $0.description,
+                status: $0.status.rawValue
+            )
+        }
+        nextIdeaNumber = snapshot.nextIdeaNumber
+    }
+
+    var ideaRegistrySnapshot: IdeaRegistryStateSnapshot {
+        let restoredIdeas = ideas.compactMap { record -> IdeaRecord? in
+            guard let status = IdeaStatus(rawValue: record.status) else {
+                return nil
+            }
+
+            return IdeaRecord(
+                id: IdeaID(rawValue: record.id),
+                projectID: ProjectID(rawValue: record.projectID),
+                title: record.title,
+                description: record.description,
+                status: status
+            )
+        }
+
+        return IdeaRegistryStateSnapshot(
+            selectedProjectID: selectedProjectID.map(ProjectID.init(rawValue:)),
+            ideas: restoredIdeas,
+            nextIdeaNumber: nextIdeaNumber
+        )
+    }
 }
 
 private struct PersistentIdeaRecord: Codable {

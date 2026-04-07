@@ -179,6 +179,33 @@ final class ProjectRegistryInMemory: ProjectRegistryContract {
         pathAvailabilityByProjectID[id] = isAvailable
     }
 
+    func snapshotState() -> ProjectRegistryStateSnapshot {
+        ProjectRegistryStateSnapshot(
+            selectedProjectID: selectedProjectID,
+            projects: orderedProjectIDs.compactMap { projectsByID[$0] },
+            scopedDataByProjectID: dataByProjectID,
+            pathAvailabilityByProjectID: pathAvailabilityByProjectID,
+            nextProjectNumber: nextProjectNumber
+        )
+    }
+
+    func restoreState(_ snapshot: ProjectRegistryStateSnapshot) {
+        projectsByID = [:]
+        orderedProjectIDs = []
+        dataByProjectID = snapshot.scopedDataByProjectID
+        pathAvailabilityByProjectID = snapshot.pathAvailabilityByProjectID
+        selectedProjectID = snapshot.selectedProjectID
+        nextProjectNumber = snapshot.nextProjectNumber
+
+        for project in snapshot.projects {
+            projectsByID[project.id] = project
+            orderedProjectIDs.append(project.id)
+            if pathAvailabilityByProjectID[project.id] == nil {
+                pathAvailabilityByProjectID[project.id] = true
+            }
+        }
+    }
+
     private func activeProjectPathExists(_ localPath: String, excluding excludedID: ProjectID?) -> Bool {
         projectsByID.values.contains { project in
             project.status == .active &&
@@ -186,4 +213,12 @@ final class ProjectRegistryInMemory: ProjectRegistryContract {
                 project.id != excludedID
         }
     }
+}
+
+struct ProjectRegistryStateSnapshot {
+    let selectedProjectID: ProjectID?
+    let projects: [ProjectRecord]
+    let scopedDataByProjectID: [ProjectID: ProjectScopedData]
+    let pathAvailabilityByProjectID: [ProjectID: Bool]
+    let nextProjectNumber: Int
 }

@@ -1,20 +1,22 @@
 import Foundation
 
 final class ProjectRegistryPersistentFileSystem: ProjectRegistryContract {
+    private let storageProfile: StorageProfile
+    private let storageRootURL: URL
     private let storageURL: URL
     private let memoryRegistry = ProjectRegistryInMemory()
 
     nonisolated deinit {}
 
     init(storageProfile: StorageProfile, storageRootPath: String? = nil) {
+        self.storageProfile = storageProfile
         if let storageRootPath {
-            let root = URL(fileURLWithPath: storageRootPath)
-            storageURL = root.appendingPathComponent(Self.fileName(for: storageProfile))
+            storageRootURL = URL(fileURLWithPath: storageRootPath)
         } else {
-            let root = FileManager.default.homeDirectoryForCurrentUser
+            storageRootURL = FileManager.default.homeDirectoryForCurrentUser
                 .appendingPathComponent(".dev-supervisor/registry", isDirectory: true)
-            storageURL = root.appendingPathComponent(Self.fileName(for: storageProfile))
         }
+        storageURL = storageRootURL.appendingPathComponent(Self.fileName(for: storageProfile))
 
         loadState()
     }
@@ -84,84 +86,38 @@ final class ProjectRegistryPersistentFileSystem: ProjectRegistryContract {
     }
 
     private func loadState() {
-        guard let data = try? Data(contentsOf: storageURL),
-              let snapshot = try? JSONDecoder().decode(PersistentSnapshot.self, from: data)
-        else {
-            return
-        }
-
-        var idMapping: [String: ProjectID] = [:]
-
-        for record in snapshot.projects {
-            let registration = memoryRegistry.registerProject(name: record.name, localPath: record.localPath)
-            guard let newID = registration.createdProjectID else {
-                continue
+        switch storageProfile {
+        case .fileAI:
+            guard let data = try? Data(contentsOf: storageURL),
+                  let snapshot = try? JSONDecoder().decode(PersistentSnapshot.self, from: data)
+            else {
+                return
             }
 
-            idMapping[record.id] = newID
-
-            if record.status == .archived {
-                _ = memoryRegistry.archiveProject(id: newID)
+            memoryRegistry.restoreState(snapshot.projectRegistrySnapshot)
+        case .sqlbase:
+            if let snapshot = try? sqlRegistryStore.loadProjectSnapshot(storageRoot: storageRootURL) {
+                memoryRegistry.restoreState(snapshot)
             }
-        }
-
-        for scoped in snapshot.scopedData {
-            guard let mappedID = idMapping[scoped.id] else {
-                continue
-            }
-
-            memoryRegistry.seedScopedData(
-                for: mappedID,
-                data: ProjectScopedData(
-                    ideas: scoped.ideas,
-                    features: scoped.features,
-                    progress: scoped.progress,
-                    metadata: scoped.metadata
-                )
-            )
-        }
-
-        if let activeID = snapshot.activeProjectID,
-           let mappedActiveID = idMapping[activeID]
-        {
-            _ = memoryRegistry.selectActiveWorkingProject(id: mappedActiveID)
         }
     }
 
     private func persistState() {
-        let snapshot = PersistentSnapshot(
-            activeProjectID: memoryRegistry.activeWorkingProjectID()?.rawValue,
-            projects: memoryRegistry.listProjects().map {
-                PersistentProjectRecord(
-                    id: $0.id.rawValue,
-                    name: $0.name,
-                    localPath: $0.localPath,
-                    status: PersistentProjectStatus(from: $0.status)
-                )
-            },
-            scopedData: memoryRegistry.listProjects().compactMap { project in
-                guard let scopedData = memoryRegistry.scopedData(for: project.id) else {
-                    return nil
-                }
-
-                return PersistentScopedData(
-                    id: project.id.rawValue,
-                    ideas: scopedData.ideas,
-                    features: scopedData.features,
-                    progress: scopedData.progress,
-                    metadata: scopedData.metadata
-                )
-            }
-        )
+        let snapshot = memoryRegistry.snapshotState()
 
         do {
-            try FileManager.default.createDirectory(
-                at: storageURL.deletingLastPathComponent(),
-                withIntermediateDirectories: true
-            )
+            switch storageProfile {
+            case .fileAI:
+                try FileManager.default.createDirectory(
+                    at: storageURL.deletingLastPathComponent(),
+                    withIntermediateDirectories: true
+                )
 
-            let encoded = try JSONEncoder().encode(snapshot)
-            try encoded.write(to: storageURL, options: .atomic)
+                let encoded = try JSONEncoder().encode(PersistentSnapshot(snapshot: snapshot))
+                try encoded.write(to: storageURL, options: .atomic)
+            case .sqlbase:
+                try sqlRegistryStore.persistProjectSnapshot(snapshot, storageRoot: storageRootURL)
+            }
         } catch {
             // Persistence failure should not break deterministic in-memory behavior.
         }
@@ -175,12 +131,83 @@ final class ProjectRegistryPersistentFileSystem: ProjectRegistryContract {
             return "project-registry-sqlbase.json"
         }
     }
+
+    var sqlRegistryStore: SQLRegistryStore {
+        SQLRegistryStore()
+    }
 }
 
 private struct PersistentSnapshot: Codable {
     let activeProjectID: String?
     let projects: [PersistentProjectRecord]
     let scopedData: [PersistentScopedData]
+    let nextProjectNumber: Int
+
+    init(snapshot: ProjectRegistryStateSnapshot) {
+        activeProjectID = snapshot.selectedProjectID?.rawValue
+        projects = snapshot.projects.map {
+            PersistentProjectRecord(
+                id: $0.id.rawValue,
+                name: $0.name,
+                localPath: $0.localPath,
+                status: PersistentProjectStatus(from: $0.status),
+                history: $0.history,
+                pathAvailable: snapshot.pathAvailabilityByProjectID[$0.id] ?? true
+            )
+        }
+        scopedData = snapshot.projects.compactMap { project in
+            guard let scopedData = snapshot.scopedDataByProjectID[project.id] else {
+                return nil
+            }
+
+            return PersistentScopedData(
+                id: project.id.rawValue,
+                ideas: scopedData.ideas,
+                features: scopedData.features,
+                progress: scopedData.progress,
+                metadata: scopedData.metadata
+            )
+        }
+        nextProjectNumber = snapshot.nextProjectNumber
+    }
+
+    var projectRegistrySnapshot: ProjectRegistryStateSnapshot {
+        let scopedDataByProjectID = Dictionary(
+            uniqueKeysWithValues: scopedData.map {
+                (
+                    ProjectID(rawValue: $0.id),
+                    ProjectScopedData(
+                        ideas: $0.ideas,
+                        features: $0.features,
+                        progress: $0.progress,
+                        metadata: $0.metadata
+                    )
+                )
+            }
+        )
+        let projects = self.projects.map {
+            ProjectRecord(
+                id: ProjectID(rawValue: $0.id),
+                name: $0.name,
+                localPath: $0.localPath,
+                status: $0.status.projectStatus,
+                history: $0.history
+            )
+        }
+        let pathAvailability = Dictionary(
+            uniqueKeysWithValues: self.projects.map {
+                (ProjectID(rawValue: $0.id), $0.pathAvailable)
+            }
+        )
+
+        return ProjectRegistryStateSnapshot(
+            selectedProjectID: activeProjectID.map(ProjectID.init(rawValue:)),
+            projects: projects,
+            scopedDataByProjectID: scopedDataByProjectID,
+            pathAvailabilityByProjectID: pathAvailability,
+            nextProjectNumber: nextProjectNumber
+        )
+    }
 }
 
 private struct PersistentProjectRecord: Codable {
@@ -188,6 +215,8 @@ private struct PersistentProjectRecord: Codable {
     let name: String
     let localPath: String
     let status: PersistentProjectStatus
+    let history: [String]
+    let pathAvailable: Bool
 }
 
 private struct PersistentScopedData: Codable {
@@ -208,6 +237,15 @@ private enum PersistentProjectStatus: String, Codable {
             self = .active
         case .archived:
             self = .archived
+        }
+    }
+
+    var projectStatus: ProjectStatus {
+        switch self {
+        case .active:
+            return .active
+        case .archived:
+            return .archived
         }
     }
 }
