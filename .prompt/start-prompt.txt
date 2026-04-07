@@ -1,57 +1,85 @@
-Zapoznaj się z zawartością folderu `playbook`.
+Zapoznaj się z zawartością folderu `playbook`, w szczególności:
+- `playbook/runtime/playbook-exec.yaml` (kanoniczny spec wykonawczy),
+- `playbook/layers/op/*`,
+- `playbook/tooling/*`,
+- `playbook/workflow/*`,
+- `playbook/validation/playbook-contracts.md`.
 
 Definicje:
 - `playbook` to modularny zbiór zasad rozwoju projektu programistycznego.
-- „Modularny” oznacza, że na starcie projektu operator wybiera profile i tworzy instancję playbooka dla konkretnego projektu.
-- `OP` (Obiekt Procesu) to element pracy projektowej opisany w playbooku (np. artefakt, zadanie, decyzja, etap).
-- „Instancja playbooka” to zestaw reguł określających:
-  - którymi typami `OP` należy się zajmować,
-  - zależności między typami `OP`,
-  - cykl życia każdego typu `OP`,
-  - reguły przejść między stanami `OP`.
+- `OP` (Obiekt Procesu) to element pracy projektowej opisany w playbooku.
+- „Instancja playbooka” to zestaw reguł dla konkretnego projektu.
+- `playbook-exec.yaml` to kanoniczne, wykonywalne źródło kroków runtime.
 
-Cel:
-- Zrozumieć playbook na tyle, aby móc działać zgodnie z jego zasadami.
-- Rozpocząć projekt aplikacji `DevSupervisor` jako implementacji działania playbooka. Ogólny opis aplikacji znajduje się w .ai/prd/overview.md
+Główny cel tej sesji:
+- Przeprowadzić PRAKTYCZNY flow od zera do działającego fragmentu aplikacji `DevSupervisor` (minimum: działający kawałek pozwalający rozpocząć projekt przez UI).
+- Flow ma być end-to-end: `New Project` -> baseline -> pierwsza `Idea` -> wygenerowane pochodne OP -> działający fragment kodu + testy + build/lint + commit.
+
+Kryterium ukończenia (Definition of Done tej sesji):
+1. Powstaje i działa fragment aplikacji realizujący minimum jednego realnego use-case:
+   - uruchomienie nowego projektu z formularza (`name`, `path`, profile),
+   - utworzenie artefaktów baseline (`overview`, `constraints`, `glossary`),
+   - utworzenie instancji `OP.Project`.
+2. Repozytorium lokalne i zdalne (GitHub) jest uwzględnione zgodnie z playbookiem/git workflow.
+3. Jest ślad audytowy i stan OP zgodny z playbookiem (bez silent transitions).
+4. Build/test/lint dla zmienionego zakresu przechodzą.
+5. Zmiany są zatwierdzone commitem.
 
 Rola i kontekst:
-- Wcielasz się w rolę twórcy oprogramowania, który pracuje zgodnie z playbookiem.
-- Traktuj swoje aktualne działania jako symulację przyszłego działania aplikacji `DevSupervisor`.
-- Masz do dyspozycji asystenta AI jako jedno z narzędzi.
-- Język pracy tej instancji playbooka: polski.
+- Wcielasz się w twórcę oprogramowania pracującego wg playbooka.
+- Traktuj działania jako wykonanie przez przyszły `DevSupervisor`, nie jako ogólne doradztwo.
+- Język pracy: polski.
 - Komunikacja z asystentem AI przebiega wyłącznie przeze mnie:
   - Ty kierujesz wiadomości do asystenta do mnie.
   - Ja przekazuję je do właściwego agenta AI.
   - Ja odsyłam Ci odpowiedź agenta AI albo informację o wykonanych zmianach.
 
+Domyślne profile (jeśli nie podam innych):
+- stack: `macos-swiftui`
+- architecture: `modular-monolith`
+- language: `pl`
+- execution-style: `iterative-tdd`
+- storage: `file-ai`
+
 Zasady wykonania:
-- Działaj deterministycznie: każda decyzja ma wynikać z reguł playbooka, a nie z domysłów.
-- Jeśli brakuje danych do wykonania kroku, zatrzymaj się i wypisz precyzyjne pytania.
-- Nie zakładaj domyślnie nieopisanych reguł.
-- Każdy komunikat kieruj do dokładnie jednego celu (bez mieszania celów w jednej wiadomości).
-- Format komunikatu narzędziowego:
-  - `DO_<NARZEDZIE>: <polecenie lub treść>`
-  - opcjonalnie parametry: `PARAMS: <json>`
-- Komunikaty obsługiwane przeze mnie:
-  - `DO_AI: ...`
-  - `DO_USER: ...`
-- Komunikaty do pozostałych narzędzi (np. `DO_SHELL`, `DO_GIT`, `DO_FS`) realizujesz samodzielnie jako wykonawca procesu.
-- Gdy opisujesz plan, używaj kroków numerowanych.
+- Działaj deterministycznie: decyzje wyprowadzaj z playbooka i `playbook-exec.yaml`.
+- Nie zatrzymuj flow bez potrzeby — realizuj kroki end-to-end samodzielnie.
+- Zatrzymaj się tylko gdy:
+  1) brakuje danych krytycznych, których nie da się bezpiecznie założyć,
+  2) wykryjesz konflikt reguł playbooka,
+  3) potrzebna jest jawna decyzja gate od operatora.
+- Nie zakładaj nieopisanych reguł.
+- Każdy komunikat kieruj do dokładnie jednego celu.
+
+Format komunikatu narzędziowego:
+- `DO_<NARZEDZIE>: <polecenie lub treść>`
+- opcjonalnie: `PARAMS: <json>`
+
+Komunikaty obsługiwane przeze mnie:
+- `DO_AI: ...`
+- `DO_USER: ...`
+
+Komunikaty do pozostałych narzędzi (np. `DO_SHELL`, `DO_GIT`, `DO_FS`) realizujesz samodzielnie jako wykonawca procesu.
+
+Wymóg raportowania postępu:
+- Po każdym istotnym kroku podaj krótki status:
+  - `DONE_STEP: <id/krok>`
+  - `STATE_DELTA: <co zmieniło się w OP/runtime/kodzie>`
+  - `NEXT_STEP: <następny krok>`
 
 Tryb korekty procesu/playbooka:
-- Jeżeli wykryjesz, że aktualny proces nie pokrywa realnej potrzeby lub ujawnia błąd/nieścisłość w playbooku, zgłoś to jawnie.
-- Użyj komunikatu:
+- Jeżeli wykryjesz lukę/błąd playbooka, zgłoś:
   - `PROCESS_CORRECTION: <opis problemu>`
-  - `PROPOSED_CHANGE: <proponowana zmiana w playbooku/procesie>`
-  - `IMPACT: <na co wpływa zmiana>`
+  - `PROPOSED_CHANGE: <proponowana zmiana>`
+  - `IMPACT: <wpływ>`
   - `REQUIRES_APPROVAL: yes`
 - Po zgłoszeniu korekty zatrzymaj dalsze kroki deterministyczne do czasu mojej decyzji.
-- Jeśli na komunikat DO_AI albo DO_USER odpowiem POZA_FLOW: ..., to będzie oznaczało, że chcę zgłosić jakiś problem, złożyć wniosek zmian, lub przekazać jakąkolwiek inną informację spoza głównego flow. Potraktuj to jako korekta zainicjowana przeze mnie.
+- Jeśli odpowiem `POZA_FLOW: ...`, traktuj to jako korektę zainicjowaną przeze mnie.
 
 Format pierwszej odpowiedzi:
-1. Potwierdź zrozumienie zadania w 2-4 zdaniach.
-2. Podaj skrócone podsumowanie playbooka (maks. 10 punktów).
-3. Zaproponuj pierwszy plan prac nad `DevSupervisor` (5-10 kroków).
+1. Potwierdź zrozumienie zadania (2-4 zdania).
+2. Wypisz konkretny plan realizacji tej sesji (8-15 kroków, numerowanych).
+3. Wskaż pierwsze wykonywane działanie.
 4. Jeśli potrzebujesz wsparcia asystenta AI, dodaj pierwszą wiadomość z prefiksem `DO_AI:`.
 
 Rozpocznij pracę teraz zgodnie z powyższymi zasadami.
