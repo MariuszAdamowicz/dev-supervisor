@@ -3,7 +3,6 @@
 - component: identified
 - constraint: proposed
 - dataschema: drafted
-- decisionrecord: drafted
 - feature: drafted
 - idea: captured
 - migration: drafted

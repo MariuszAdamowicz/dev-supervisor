@@ -7,6 +7,7 @@ Operator wybiera entrypoint OP albo control, a system wyznacza next_transition z
 Kanoniczna semantyka:
 - layers/op/object-catalog.md
 - layers/op/authz-contracts.md
+- layers/op/decision-contracts.md
 - layers/op/delivery-contracts.md
 - layers/op/environment-contracts.md
 - layers/op/exception-contracts.md
@@ -17,6 +18,7 @@ Kanoniczna semantyka:
 - layers/op/recovery-contracts.md
 - layers/op/scheduler-contracts.md
 - layers/op/verification-contracts.md
+- runtime/scheduling-contract.md
 - layers/op/state-machines.md
 - layers/op/trigger-rules.md
 
@@ -53,6 +55,7 @@ Dla wybranego OP ustal:
 
 Next transition wynika z OP state machine + guardow.
 Playbook nie tworzy alternatywnej logiki przejsc.
+Jesli kilka OP/control jest jednoczesnie gotowych, wybor primary step rozstrzyga `runtime/scheduling-contract.md`.
 
 ## 4. Zbuduj projection dla operatora
 
@@ -63,6 +66,11 @@ Z OP -> UI/Prompt/Checklist:
 - jakie warunki gate musza byc spelnione
 - jakie checki architektury sa wymagane (dependency direction, no-cycle, DTO boundary)
 - jakie elementy sa widoczne tylko w audit/debug
+
+Zasada:
+- runtime moze materializowac wiele OP/control po jednym evencie,
+- ale projection pokazuje tylko jeden `primary active step`,
+- pozostale kandydaty sa secondary (`pending|blocked|waiting`).
 
 ## 4a. Wyznacz Action i Tool plan
 

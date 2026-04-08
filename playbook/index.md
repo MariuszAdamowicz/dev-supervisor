@@ -56,6 +56,7 @@ Warstwa wykonawcza Playbook Layer:
 ### runtime
 Kanoniczny spec wykonawczy DS (machine-readable):
 - runtime/playbook-exec.yaml
+- runtime/scheduling-contract.md
 - runtime/README.md
 
 ### validation
@@ -88,6 +89,7 @@ Kanoniczna warstwa OP (event-driven):
 Pliki kanoniczne:
 - layers/op/object-catalog.md
 - layers/op/authz-contracts.md
+- layers/op/decision-contracts.md
 - layers/op/delivery-contracts.md
 - layers/op/environment-contracts.md
 - layers/op/exception-contracts.md

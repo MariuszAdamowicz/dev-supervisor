@@ -6,6 +6,7 @@ Kanoniczne zrodlo wykonania DS:
 Plik opisuje deterministycznie:
 - entrypointy,
 - entrypoint contracts (task-first UX + baseline/authz/CRUD/evidence),
+- runtime scheduling contract (materializacja, candidate set, primary active step, scope locks),
 - kroki wykonawcze,
 - narzedzie per krok,
 - request/response contracts,
@@ -15,6 +16,7 @@ Plik opisuje deterministycznie:
 
 Wymaganie:
 - bootstrap `new_project` obejmuje lokalny git oraz utworzenie/podpiecie repozytorium zdalnego (GitHub adapter).
+- scheduler runtime wybiera jeden `primary active step` dla operatora i nie uruchamia automatycznie dalszych transition po samym create.
 
 ## Dry-run simulation (bez zapisow)
 

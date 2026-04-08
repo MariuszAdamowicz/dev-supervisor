@@ -42,6 +42,7 @@ Linki:
 
 - `work-object`: obiekt pracy projektowej lub produktowej. Operator tworzy go, czyta, aktualizuje i deprecjonuje.
 - `control-object`: obiekt sterujacy polityka, uprawnieniami, jakością albo decyzja.
+- `decision-control`: mutowalny rekord decyzji architektonicznej lub produktowej, niebedacy OP.
 - `execution-object`: obiekt wykonawczy zwiazany z uruchomieniem pracy, zmian lub wdrozen.
 - `environment-object`: obiekt opisujacy repo, schemat danych lub srodowisko uruchomieniowe.
 - `verification-control`: mutowalna polityka lane, evidence i gate dla scope formalnej walidacji, niebedaca OP.
@@ -85,13 +86,6 @@ Linki:
 - znaczenie: ograniczenia architektoniczne, prawne, operacyjne i NFR nie moga byc tylko tekstem w overview.
 - lifecycle: constraint jest walidowany, egzekwowany, rewidowany i dopiero potem wycofywany.
 - CRUD: create gdy pojawia sie nowe ograniczenie; update przez revise/enforce; remove = retire tylko po analizie skutkow downstream.
-
-### DecisionRecord
-- class: `control-object`
-- applies_when: `always`
-- znaczenie: jeden rekord = jedna decyzja, z kontekstem i konsekwencjami; nowe decyzje supersedują stare zamiast je nadpisywac.
-- lifecycle: drafted -> reviewed -> approved, a zmiana decyzji tworzy superseding path.
-- CRUD: create dla pojedynczej decyzji; update tylko do chwili approval; remove = superseded, nie rewrite history.
 
 ### Idea
 - class: `work-object`
@@ -217,6 +211,15 @@ Linki:
 - znaczenie: PromptTask materializuje runtime job AI albo review task operatora. To jednostka wykonania i retry, ale nie samodzielny obiekt projektu.
 - lifecycle: control nie ma pelnego FSM OP; ma mutowalny `status` opisany w `job-contracts.md`.
 - CRUD: create przy triggerze procesu; update przez retry/context changes/validation; remove = `closed` albo `cancelled`, nigdy hard delete po audycie.
+
+## Decision Controls
+
+### DecisionRecord
+- class: `decision-control`
+- applies_when: `always`
+- znaczenie: jeden rekord = jedna decyzja z kontekstem, opcjami i konsekwencjami; nowe decyzje supersedują stare zamiast je nadpisywac, ale sam rekord nie jest obiektem pracy produktu.
+- lifecycle: control nie ma pelnego FSM OP; ma mutowalny `status` opisany w `decision-contracts.md`.
+- CRUD: create dla pojedynczej decyzji; update do chwili approval albo supersede; remove = `superseded`, nigdy rewrite history.
 
 ## Verification Controls
 

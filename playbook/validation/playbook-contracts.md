@@ -48,6 +48,12 @@ formalnie walidowac kompletnosc i spojnosc Playbook Layer wzgledem OP Layer.
 - kazdy entrypoint wymieniony w `workflow/daily-workflow.md` musi miec runtime definition albo template coverage w `runtime/playbook-exec.yaml`.
 - brak runtime coverage dla Feature, UX alignment, ReleaseBundle albo ExceptionCase/recovery/timer escalation = playbook invalid.
 
+5d. Runtime scheduling contract
+- kanoniczny wybor `primary active step` MUST byc opisany w `runtime/scheduling-contract.md` i referencjonowany z `runtime/playbook-exec.yaml`.
+- create wymagany przez trigger rule MUST byc zmaterializowany w tym samym atomowym commicie stanu, ale nie moze auto-progressowac bez jawnego kroku exec spec albo wyboru schedulera.
+- dla jednego scope operatora moze istniec dokladnie jeden `primary active step`.
+- rownolegle state-changing transitions na tym samym `scope_lock` = playbook invalid.
+
 6. Architecture alignment contract
 - kazda kluczowa zmiana Feature z zachowaniem biznesowym ma powiazany UseCase (co najmniej drafted, docelowo approved przed Feature.implemented).
 - kazda granica rdzen <-> swiat zewnetrzny ma PortContract.
@@ -211,6 +217,7 @@ formalnie walidowac kompletnosc i spojnosc Playbook Layer wzgledem OP Layer.
 
 2. Scheduler contract
 - decyzje czasowe (zapytaj za 5 min, timeout, backoff) sa wykonywane przez DS scheduler, nie przez domyslna petle agenta.
+- DS scheduler deterministycznie wybiera tez `primary active step` i egzekwuje `scope_lock` dla konfliktowych transition.
 
 3. Session contract
 - reset kontekstu oznacza nowa sesje ai-runner i nowy context_revision.

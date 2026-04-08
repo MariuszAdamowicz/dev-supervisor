@@ -15,6 +15,7 @@ potwierdzic, ze dokumenty playbooka sa formalnie spojne (bez uruchamiania projek
 - layers/op/risk-contracts.md
 - layers/op/recovery-contracts.md
 - layers/op/scheduler-contracts.md
+- runtime/scheduling-contract.md
 - layers/op/state-machines.md
 - layers/op/trigger-rules.md
 - tooling/action-catalog.md
@@ -35,6 +36,7 @@ potwierdzic, ze dokumenty playbooka sa formalnie spojne (bez uruchamiania projek
 10. Sprawdz presence `policy-engine` i authz precheck coverage.
 11. Sprawdz CRUD integrity contract.
 12. Sprawdz evidence provenance labeling.
+13. Sprawdz runtime scheduling contract i jednoznacznosc `primary active step`.
 
 ## Wynik
 - PASS: brak naruszen krytycznych kontraktow.

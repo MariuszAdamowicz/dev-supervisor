@@ -3,7 +3,6 @@
 - component: refactor-required
 - constraint: retired
 - dataschema: deprecated
-- decisionrecord: superseded
 - feature: specified
 - idea: dropped
 - migration: rolled-back

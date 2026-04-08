@@ -7,6 +7,7 @@ Semantyka procesu jest kanoniczna w OP Layer.
 Kanoniczne definicje OP:
 - layers/op/object-catalog.md
 - layers/op/authz-contracts.md
+- layers/op/decision-contracts.md
 - layers/op/delivery-contracts.md
 - layers/op/environment-contracts.md
 - layers/op/exception-contracts.md
@@ -41,7 +42,8 @@ Kanoniczne definicje OP:
 - utworz `.ai/architecture/component-map.md`
 - utworz `.ai/ux/new-project.md`
 - utworz `.ai/verification/plan.md`
-- utworz Requirement/Constraint/DecisionRecord/Repository OP dla baseline
+- utworz Requirement/Constraint/Repository OP dla baseline
+- utworz DecisionRecord dla baseline architektonicznego i produktowego
 - utworz VerificationPolicy dla baseline formalnej walidacji
 - zdefiniuj poczatkowe UseCase i granice PortContract dla kluczowych przeplywow
 - zdefiniuj poczatkowa mape Component dla krytycznych modulow

@@ -15,6 +15,7 @@ Ponizsze scenariusze sa nadal przydatne do szybkich testow lokalnych, ale nie st
 - `scenario-feature-happy.csv`
 - `scenario-feature-rework.csv`
 - `scenario-access-grant.csv`
+- `scenario-decision-record.csv`
 - `scenario-environment-target.csv`
 - `scenario-exception-case.csv`
 - `scenario-glossary-entry.csv`

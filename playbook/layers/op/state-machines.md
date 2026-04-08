@@ -69,19 +69,6 @@ Transitions:
 8. revised --constraint.retire-requested (gate=approve)--> retired
 9. revised --constraint.retire-requested (gate=request_changes|defer)--> revised
 
-### DecisionRecord
-States:
-drafted, reviewed, approved, superseded
-
-Transitions:
-1. drafted --decision.review-requested--> reviewed
-2. reviewed --decision.approve-requested (gate=approve)--> approved
-3. reviewed --decision.approve-requested (gate=request_changes)--> drafted
-4. reviewed --decision.approve-requested (gate=defer)--> reviewed
-5. reviewed --decision.approve-requested (gate=reject)--> superseded
-6. approved --decision.supersede-requested (gate=approve)--> superseded
-7. approved --decision.supersede-requested (gate=request_changes|defer)--> approved
-
 ### Idea
 States:
 captured, scoped, converted, dropped
@@ -343,6 +330,24 @@ Te byty nie sa OP i nie maja niezaleznego FSM, ale sa kanonicznie wymagane:
 - append-only
 - zapisuje wynik konkretnej lane/check
 - `pass/fail` jest ocena dowodowa dla subject_ref, a nie osobny OP lifecycle
+
+## Decision control contracts
+
+### DecisionRecord
+- nie jest OP
+- statusy: `drafted`, `reviewed`, `approved`, `superseded`
+- `drafted` powstaje przy nowej decyzji baseline albo zmianie architektonicznej
+- `reviewed` oznacza gotowy review package opcji i konsekwencji
+- `approved` oznacza decyzje obowiazujaca dla downstream scope
+- `superseded` oznacza decyzje zastapiona nowa albo jawnie odrzucona
+- legalne przejscia:
+  - `drafted --decision.review-requested--> reviewed`
+  - `reviewed --decision.approve-requested (gate=approve)--> approved`
+  - `reviewed --decision.approve-requested (gate=request_changes)--> drafted`
+  - `reviewed --decision.approve-requested (gate=defer)--> reviewed`
+  - `reviewed --decision.approve-requested (gate=reject)--> superseded`
+  - `approved --decision.supersede-requested (gate=approve)--> superseded`
+  - `approved --decision.supersede-requested (gate=request_changes|defer)--> approved`
 
 ## Verification control contracts
 

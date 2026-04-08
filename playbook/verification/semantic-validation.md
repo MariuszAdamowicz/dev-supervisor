@@ -42,6 +42,11 @@ zweryfikowac nie tylko obecnosc nazw i artefaktow, ale tez prawdziwa semantyke p
 9. Data and environment semantics
 - `DataSchema`, `Migration` i `EnvironmentTarget` musza byc sprawdzane tam, gdzie aktywne sa `persistent-data` lub `deployable-runtime`.
 
+10. Runtime scheduling semantics
+- po jednym evencie moze powstac wiele OP/control, ale scheduler musi deterministycznie wybrac jeden `primary active step`.
+- create wymagany przez trigger jest obowiazkowy, ale create nie daje auto-transition bez jawnego scheduler selection albo explicit exec step.
+- kroki state-changing na tym samym scope nie moga biec wspolbieznie.
+
 ## 2. Minimalne metody walidacji
 
 - structural checks,
@@ -49,6 +54,7 @@ zweryfikowac nie tylko obecnosc nazw i artefaktow, ale tez prawdziwa semantyke p
 - contract tests dla request/response/tool contracts,
 - semantic assertions na runtime evidence,
 - negative tests dla authz, invalidation, reject/defer, retry, recovery controls,
+- scheduling assertions dla `primary active step`, `pending/blocked/waiting` i scope lock conflict,
 - traceability assertions dla Repository/ChangeSet i VerificationPolicy,
 - compatibility assertions dla DataSchema/Migration/EnvironmentTarget,
 - provenance verification.

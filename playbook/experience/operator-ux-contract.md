@@ -12,6 +12,7 @@ zamienic projection OP -> UI w twardy kontrakt wykonawczy i walidacyjny dla apli
 2. One primary job
 - kazdy ekran ma jeden glowny cel i jedna domyslna akcje.
 - pozostale akcje sa secondary, tertiary albo ukryte do czasu spelnienia guardow.
+- jesli runtime ma wiele kandydatow do pracy, primary job wybiera scheduler zgodnie z `runtime/scheduling-contract.md`, a nie dowolna logika UI.
 
 3. Progressive disclosure
 - operator widzi najpierw tylko dane potrzebne do nastepnej decyzji.

@@ -43,6 +43,13 @@ ustalic jednoznaczny kontrakt tworzenia, odczytu, modyfikacji i usuwania OP oraz
 - job control musi byc queryable po `target_ref`, `status`, `task_type` i `assignee_mode`.
 - job control po `closed|cancelled` musi zachowac reason i evidence_refs.
 
+## 2da. Decision control contract
+
+- runtime musi utrzymywac mutowalne decision controls zgodnie z `layers/op/decision-contracts.md`.
+- `DecisionRecord` nie jest OP i nie bierze udzialu w OP coverage audit.
+- decision control musi byc queryable po `scope_refs`, `status` i `supersedes_ref`.
+- decision control po `superseded` musi zachowac reason i replacement_ref.
+
 ## 2e. Recovery control contract
 
 - runtime musi utrzymywac mutowalne recovery controls zgodnie z `layers/op/recovery-contracts.md`.
@@ -71,6 +78,7 @@ ustalic jednoznaczny kontrakt tworzenia, odczytu, modyfikacji i usuwania OP oraz
 
 - `work-object`: update moze zmieniac payload, linki i stan, ale tylko w legalnych oknach lifecycle.
 - `control-object`: update wymaga jawnego reason i ponownej walidacji guardow OP zaleznych.
+- `decision-control`: update wymaga odswiezenia konsekwencji downstream i traceability supersede.
 - `execution-object`: update jest zwiazany z postepem wykonania, retry, timeout lub recovery; nie wolno nadpisywac wyniku bez nowego ProcessEventRecord.
 - `environment-object`: update wymaga sprawdzenia skutkow dla ChangeSet, ReleaseBundle, DeploymentRun lub Feature zaleznych od danego srodowiska/kontraktu.
 - `verification-control`: update wymaga odswiezenia lane matrix, provenance rules i invalidation downstream dla target scope.
@@ -105,6 +113,7 @@ ustalic jednoznaczny kontrakt tworzenia, odczytu, modyfikacji i usuwania OP oraz
 
 - `work-object`: remove = deprecate, supersede, archive albo obsolete.
 - `control-object`: remove = retire, revoke, close albo supersede z jawna polityka skutkow.
+- `decision-control`: remove = supersede; nie moze wymazac historii wyboru ani konsekwencji dla scope.
 - `execution-object`: remove = close, cancel, fail, rolled-back albo supersede; usuniecie nie moze wymazac historii wykonania.
 - `environment-object`: remove = archive, retire albo decommission; runtime musi zachowac reference integrity dla historycznych ChangeSet/ReleaseBundle/Migration.
 - `verification-control`: remove = retire; nie moze ukryc historii wymagan lane ani evidence provenance dla dawnego scope.
@@ -117,6 +126,7 @@ ustalic jednoznaczny kontrakt tworzenia, odczytu, modyfikacji i usuwania OP oraz
 - `Component` i `DependencyRelation` wymagaja kontroli kierunku zaleznosci i no-cycle.
 - `UseCase` / `PortContract` / `Component` musza byc wyszukiwalne z `Feature`.
 - `Repository` i `ChangeSet` musza byc wyszukiwalne z `Feature`, `Requirement` i `Scenario`, gdy istnieje traceability.
+- `DecisionRecord` musi miec reverse lookup do scope, ktore uzasadnia albo superseduje.
 - `VerificationPolicy` musi byc wyszukiwalna z `Feature`, `ChangeSet` i `ReleaseBundle`, gdy `formal-validation` jest aktywne.
 - `DeploymentRun` musi miec reverse lookup do `ReleaseBundle` i `EnvironmentTarget`.
 - `DataSchema` / `Migration` / `EnvironmentTarget` musza miec reverse lookup do OP, ktore zalezne sa od danych lub deploymentu.

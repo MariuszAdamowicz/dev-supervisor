@@ -14,8 +14,6 @@ Requirement,approved,requirement.link-requested,linked
 Constraint,proposed,constraint.validate-requested,validated
 Constraint,validated,constraint.enforce-requested (gate=approve),enforced
 Constraint,enforced,constraint.revise-requested,revised
-DecisionRecord,drafted,decision.review-requested,reviewed
-DecisionRecord,reviewed,decision.approve-requested (gate=approve),approved
 UseCase,drafted,usecase.review-requested,reviewed
 UseCase,reviewed,usecase.approve-requested (gate=approve),approved
 UseCase,approved,usecase.implement-requested,implemented

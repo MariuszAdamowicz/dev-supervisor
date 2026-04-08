@@ -3,7 +3,6 @@ Project,configured,project.baseline-approve-requested (gate=reject),archived
 Repository,remote-attached,repo.align-policy-requested (gate=reject),archived
 Requirement,clarified,requirement.approve-requested (gate=reject),deprecated
 Constraint,validated,constraint.enforce-requested (gate=reject),retired
-DecisionRecord,reviewed,decision.approve-requested (gate=reject),superseded
 Idea,scoped,idea.convert-requested (gate=reject),dropped
 Feature,implemented,feature.stabilize-requested (gate=request_changes),test-ready
 Feature,implemented,feature.stabilize-requested (gate=reject),specified

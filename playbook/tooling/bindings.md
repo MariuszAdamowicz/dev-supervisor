@@ -145,7 +145,7 @@ Kazdy binding ma:
   - storage-adapter: persist Constraint state
 - required: true
 
-### A2. DecisionRecord
+### A2. Decision Controls
 
 4i. DecisionRecord.drafted -> DecisionRecord.reviewed
 - event_ref: decision.review-requested
@@ -935,7 +935,7 @@ zapewnic 100% pokrycia transition z `layers/op/state-machines.md`
 dla OP, ktore nie maja jeszcze jawnych wpisow per kazdy wariant.
 
 Zakres OP objetych tym mechanizmem:
-- Project, Requirement, Constraint, DecisionRecord, Idea, Feature, Scenario
+- Project, Requirement, Constraint, Idea, Feature, Scenario
 - UIComponent, UIScreen
 - UseCase, PortContract, Component
 - Repository, ChangeSet, DataSchema, Migration

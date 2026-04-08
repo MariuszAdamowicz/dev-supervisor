@@ -35,6 +35,7 @@ Semantyka operacyjna i stosowalnosc OP:
 
 - `work-object`: obiekt pracy projektowej lub produktowej.
 - `control-object`: obiekt sterujacy polityka, jakoscia, uprawnieniami albo decyzja.
+- `decision-control`: mutowalny rekord decyzji architektonicznej lub produktowej; nie jest OP.
 - `execution-object`: obiekt wykonania pracy, wdrozenia albo ograniczonego pakietu zmian.
 - `environment-object`: obiekt opisujacy repo, schemat danych lub srodowisko uruchomieniowe.
 - `verification-control`: mutowalna polityka lane, evidence i gate dla scope formalnej walidacji; nie jest OP.
@@ -78,79 +79,73 @@ Semantyka operacyjna i stosowalnosc OP:
 - Stosowalnosc: `always`
 - Kluczowe pola: constraint_id, class, rationale, enforce_level.
 
-### 4. DecisionRecord
-- Rola: decyzja architektoniczna/produktowa (ADR).
-- Klasa: `control-object`
-- Stosowalnosc: `always`
-- Kluczowe pola: decision_id, options_considered, selected_option, consequence.
-
-### 5. Idea
+### 4. Idea
 - Rola: luzna koncepcja biznesowa.
 - Klasa: `work-object`
 - Stosowalnosc: `always`
 - Kluczowe pola: idea_id, title, description.
 
-### 6. Feature
+### 5. Feature
 - Rola: jednostka implementacyjna wynikajaca z idei.
 - Klasa: `work-object`
 - Stosowalnosc: `always`
 - Kluczowe pola: feature_id, scope, deferred_items.
 
-### 7. Scenario
+### 6. Scenario
 - Rola: scenariusz BDD i slad testowy.
 - Klasa: `work-object`
 - Stosowalnosc: `formal-validation`
 - Kluczowe pola: scenario_id, feature_id, test_links.
 
-### 8. UIComponent
+### 7. UIComponent
 - Rola: komponent interfejsu.
 - Klasa: `work-object`
 - Stosowalnosc: `interactive-ui`
 - Kluczowe pola: component_id, purpose, visibility_rules, gate_rules.
 
-### 9. UIScreen
+### 8. UIScreen
 - Rola: ekran/widok agregujacy komponenty.
 - Klasa: `work-object`
 - Stosowalnosc: `interactive-ui`
 - Kluczowe pola: screen_id, state_binding, components.
 
-### 10. UseCase
+### 9. UseCase
 - Rola: przypadek uzycia opisujacy zachowanie aplikacyjne niezalezne od frameworka.
 - Klasa: `work-object`
 - Stosowalnosc: `always` dla zachowania biznesowego
 - Kluczowe pola: use_case_id, actor, goal, input_dto, output_dto, business_rules_refs.
 
-### 11. PortContract
+### 10. PortContract
 - Rola: kontrakt granicy (wejscie/wyjscie) miedzy rdzeniem a adapterem.
 - Klasa: `work-object`
 - Stosowalnosc: `always` przy granicy rdzen <-> zewnetrze
 - Kluczowe pola: port_id, direction(inbound|outbound), contract_schema_ref, dto_set, owner_use_case.
 
-### 12. Component
+### 11. Component
 - Rola: komponent/modul architektoniczny do kontroli spojnosci i zaleznosci.
 - Klasa: `work-object`
 - Stosowalnosc: `always`
 - Kluczowe pola: component_id, responsibility, stability_index, abstraction_level, dependencies.
 
-### 13. Repository
+### 12. Repository
 - Rola: stan repozytorium projektu i polityk VCS.
 - Klasa: `environment-object`
 - Stosowalnosc: `version-controlled`
 - Kluczowe pola: repo_id, vcs, local_root, remote_origin, default_branch, branch_policy, cleanliness.
 
-### 14. ChangeSet
+### 13. ChangeSet
 - Rola: ograniczony pakiet zmian powiazany z OP, plikami i commitami.
 - Klasa: `execution-object`
 - Stosowalnosc: `version-controlled`
 - Kluczowe pola: changeset_id, repository_ref, branch_ref, file_scope, op_refs, commit_refs, validation_refs.
 
-### 15. DataSchema
+### 14. DataSchema
 - Rola: kanoniczny kontrakt modelu danych i kompatybilnosci.
 - Klasa: `environment-object`
 - Stosowalnosc: `persistent-data`
 - Kluczowe pola: schema_id, storage_engine, compatibility_policy, owned_structures, migration_refs.
 
-### 16. Migration
+### 15. Migration
 - Rola: wykonanie zmiany schematu lub danych z jawna gotowoscia rollback.
 - Klasa: `execution-object`
 - Stosowalnosc: `persistent-data`
@@ -177,6 +172,14 @@ Semantyka operacyjna i stosowalnosc OP:
 - Klasa: `job-control`
 - Stosowalnosc: `always`
 - Kluczowe pola: task_id, task_type, context_set, target_ref, status, retry_budget, assignee_mode.
+
+## Decision Controls (nie sa OP, ale sa kanoniczne i mutowalne)
+
+### DecisionRecord
+- Rola: mutowalny rekord decyzji architektonicznej/produktowej (ADR) z supersedowaniem zamiast nadpisywania.
+- Klasa: `decision-control`
+- Stosowalnosc: `always`
+- Kluczowe pola: decision_id, options_considered, selected_option, consequence, status, supersedes_ref.
 
 ## Verification Controls (nie sa OP, ale sa kanoniczne i mutowalne)
 
@@ -279,6 +282,7 @@ Semantyka operacyjna i stosowalnosc OP:
 ## Minimalny graf relacji
 - Project -> Repository -> ChangeSet
 - Project -(AccessGrant)-> operator|scope
+- Project -(DecisionRecord)-> baseline i kolejne decyzje
 - Project -(VerificationPolicy)-> scope formal-validation
 - Project -> Requirement -> Feature -> Scenario -> Testy
 - Project -> Constraint -> DecisionRecord -> Feature

@@ -3,7 +3,6 @@
 - component: compliant
 - constraint: revised
 - dataschema: applied
-- decisionrecord: approved
 - feature: done
 - idea: converted
 - migration: applied

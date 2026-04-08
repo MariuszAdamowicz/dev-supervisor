@@ -3,6 +3,7 @@ source_of_truth:
   op_layer:
     object_catalog: playbook/layers/op/object-catalog.md
     authz_contracts: playbook/layers/op/authz-contracts.md
+    decision_contracts: playbook/layers/op/decision-contracts.md
     delivery_contracts: playbook/layers/op/delivery-contracts.md
     environment_contracts: playbook/layers/op/environment-contracts.md
     exception_contracts: playbook/layers/op/exception-contracts.md
@@ -21,6 +22,7 @@ source_of_truth:
     bindings: playbook/tooling/bindings.md
     operator_ux_contract: playbook/experience/operator-ux-contract.md
     op_crud_contract: playbook/workflow/op-crud-contract.md
+    runtime_scheduling_contract: playbook/runtime/scheduling-contract.md
   verification:
     full_op_report: playbook/verification/reports/2026-04-07-full-op-verification-report.md
     semantic_validation: playbook/verification/semantic-validation.md
@@ -33,9 +35,34 @@ determinism_contract:
   one_tool_invocation_per_step: true
   disallow_hidden_logic_outside_exec_spec: true
   task_first_operator_projection_required: true
+  one_primary_active_step_per_scope_required: true
   authz_precheck_required_before_state_write: true
   semantic_guard_precheck_required_before_state_write: true
   evidence_classification_required_for_validation_outputs: true
+
+scheduling_contract:
+  mandatory_create_when_triggered: true
+  auto_progress_after_create: forbidden_unless_explicit_exec_step
+  state_commit_granularity: one_event_one_atomic_commit
+  primary_step_cardinality_per_scope: 1
+  candidate_statuses:
+    - eligible
+    - blocked
+    - pending-input
+    - waiting
+    - running-background
+  priority_order:
+    - safety-integrity
+    - blocker-removal
+    - primary-journey
+    - secondary-maintenance
+  tie_breakers:
+    - priority_class
+    - scope_lock
+    - created_at
+    - lexical_subject_transition
+  concurrency_policy: disjoint_scope_only
+  scheduler_recompute_after_each_state_write: required
 
 profile_selection:
   required_fields:
@@ -221,12 +248,12 @@ persistence_map:
     - Repository
     - Requirement
     - Constraint
-    - DecisionRecord
     - UseCase
     - PortContract
     - Component
   required_control_types_after_new_project:
     - AccessGrant
+    - DecisionRecord
     - VerificationPolicy
   op_instance_path: ".ai/runtime/v1/ops/<op_id>/versions/<op_version>.json"
   op_events_path: ".ai/runtime/v1/ops/<op_id>/events.ndjson"
@@ -252,12 +279,12 @@ baseline_contract:
     - Repository
     - Requirement
     - Constraint
-    - DecisionRecord
     - UseCase
     - PortContract
     - Component
   required_control_types:
     - AccessGrant
+    - DecisionRecord
     - VerificationPolicy
   conditional_required_artifacts:
     deployable-runtime:

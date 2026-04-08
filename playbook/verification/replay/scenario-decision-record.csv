@@ -1,0 +1,4 @@
+op_type,from_state,event,to_state
+DecisionRecord,drafted,decision.review-requested,reviewed
+DecisionRecord,reviewed,decision.approve-requested (gate=approve),approved
+DecisionRecord,approved,decision.supersede-requested (gate=approve),superseded

@@ -3,7 +3,6 @@
 - component: mapped
 - constraint: validated
 - dataschema: reviewed
-- decisionrecord: reviewed
 - feature: implemented
 - idea: scoped
 - migration: reviewed
