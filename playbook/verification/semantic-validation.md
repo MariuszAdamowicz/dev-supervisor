@@ -9,7 +9,7 @@ zweryfikowac nie tylko obecnosc nazw i artefaktow, ale tez prawdziwa semantyke p
 - `workflow/*` i `runtime/playbook-exec.yaml` nie moga opisywac roznych baseline, entrypointow ani gate rules.
 
 2. Authz semantics
-- kazdy state-changing flow ma authz precheck, deny-by-default i sciezke `Exception(authz)`.
+- kazdy state-changing flow ma authz precheck, deny-by-default i sciezke `ExceptionCase(authz)`.
 
 3. Guard semantics
 - guardy z OP sa egzekwowane przed zapisem stanu, a nie tylko opisywane w dokumentacji.
@@ -17,11 +17,16 @@ zweryfikowac nie tylko obecnosc nazw i artefaktow, ale tez prawdziwa semantyke p
 4. Invariant semantics
 - parent linkage, no-cycle, dependency relation status, dependency direction, open critical task rules i terminal path rules sa sprawdzane na dowodach runtime.
 - `SchedulerTimer` ma poprawny lifecycle `scheduled -> fired -> consumed|cancelled`.
+- `DeploymentRun` ma poprawny lifecycle `planned -> running -> succeeded|failed|cancelled`.
+- `PromptTask` ma poprawny lifecycle `created -> ready -> executed -> validated|cancelled -> closed|cancelled`.
 - `RollbackAction` ma poprawny lifecycle `planned -> running -> completed|failed|cancelled`.
 - `CompensationAction` ma poprawny lifecycle `planned -> running -> completed|failed|cancelled`.
 
 5. CRUD semantics
 - create/read/update/remove dla OP, relacji grafu i artefaktow jest deterministyczne i audytowalne.
+- create/read/update/remove dla delivery controls jest deterministyczne i audytowalne.
+- create/read/update/remove dla job controls jest deterministyczne i audytowalne.
+- create/read/update/remove dla risk controls jest deterministyczne i audytowalne.
 - create/read/update/remove dla scheduler controls jest deterministyczne i audytowalne.
 - create/read/update/remove dla recovery controls jest deterministyczne i audytowalne.
 
@@ -32,10 +37,10 @@ zweryfikowac nie tylko obecnosc nazw i artefaktow, ale tez prawdziwa semantyke p
 - `Repository` i `ChangeSet` sa sprawdzane pod katem traceability, policy alignment i integrity commit scope.
 
 8. Verification planning semantics
-- `VerificationPlan` musi mapowac lane do Feature/ChangeSet/Release zgodnie z profilem projektu.
+- `VerificationPolicy` musi mapowac lane do Feature/ChangeSet/ReleaseBundle zgodnie z profilem projektu.
 
 9. Data and environment semantics
-- `DataSchema`, `Migration` i `RuntimeEnvironment` musza byc sprawdzane tam, gdzie aktywne sa `persistent-data` lub `deployable-runtime`.
+- `DataSchema`, `Migration` i `EnvironmentTarget` musza byc sprawdzane tam, gdzie aktywne sa `persistent-data` lub `deployable-runtime`.
 
 ## 2. Minimalne metody walidacji
 
@@ -44,8 +49,8 @@ zweryfikowac nie tylko obecnosc nazw i artefaktow, ale tez prawdziwa semantyke p
 - contract tests dla request/response/tool contracts,
 - semantic assertions na runtime evidence,
 - negative tests dla authz, invalidation, reject/defer, retry, recovery controls,
-- traceability assertions dla Repository/ChangeSet i VerificationPlan,
-- compatibility assertions dla DataSchema/Migration/RuntimeEnvironment,
+- traceability assertions dla Repository/ChangeSet i VerificationPolicy,
+- compatibility assertions dla DataSchema/Migration/EnvironmentTarget,
 - provenance verification.
 
 ## 3. Kryterium PASS

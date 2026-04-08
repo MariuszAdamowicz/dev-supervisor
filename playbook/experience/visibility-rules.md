@@ -4,7 +4,7 @@
 Widocznosc i dostepnosc sa wyliczane z OP:
 - current_state
 - guards
-- pending PromptTask
+- pending PromptTask controls
 - latest GateDecisionRecord
 
 ## Reguly widocznosci
@@ -18,13 +18,13 @@ Akcja jest aktywna tylko gdy:
 - target OP istnieje,
 - przejscie jest dozwolone przez state machine,
 - wszystkie guardy sa spelnione,
-- actor ma uprawnienia (ActorRolePermission).
+- actor ma uprawnienia (`AccessGrant.active`).
 
 ## Komunikaty blokad
 Dla kazdej blokady UI zwraca reason pochodzacy z OP:
 - missing target OP
 - guard not satisfied
 - permission denied
-- pending critical PromptTask
+- pending critical PromptTask control
 - gate decision required
 - invalidated by upstream transition

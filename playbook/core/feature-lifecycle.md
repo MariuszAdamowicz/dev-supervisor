@@ -31,7 +31,7 @@ idea -> feature(s) -> feature PRD -> UX contract -> BDD -> testy -> implementacj
 - implementacja: dopasowanie kodu do testow
 - walidacja: build + test + lint
 - stabilizacja: cleanup + sync dokumentacji
-- release-ready: gotowosc do OP Release
+- release-ready: gotowosc do control `ReleaseBundle`
 
 ## Kroki
 
@@ -45,7 +45,7 @@ Podejmij decyzje operatorska o zakresie i odroczeniach.
 Przed specyfikacja wykonaj mapowanie OP i triggerow:
 - jakie OP beda modyfikowane
 - jakie eventy zajda
-- jakie PromptTask musza powstac
+- jakie PromptTask controls musza powstac
 
 Szczegoly:
 - layers/op/object-catalog.md
@@ -85,8 +85,8 @@ Porownaj kod z prd i bdd, usun dead code, zaktualizuj notes i traceability.
 9. Integration hardening
 Sprawdz duplikacje, dryf dokumentacji i gotowosc UI.
 
-10. Release handoff
-Przekaz feature do OP Release/Deployment zgodnie z guardami OP.
+10. Delivery handoff
+Przekaz feature do control `ReleaseBundle` oraz Delivery Controls zgodnie z guardami OP.
 
 ## Lifecycle projektu
 

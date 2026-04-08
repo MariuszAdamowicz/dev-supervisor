@@ -22,7 +22,7 @@ Kazda regula ma:
 
 - Event: Feature.specified
 - Action: utworz PromptTask(ux-contract-check) + PromptTask(term-extract)
-- Gate effect: blokuje przejscie dalej do czasu domkniecia UX/Term
+- Gate effect: blokuje przejscie dalej do czasu domkniecia UX/GlossaryEntry
 
 - Event: Feature.ux-aligned
 - Action: utworz PromptTask(prd-to-bdd)
@@ -69,35 +69,35 @@ Kazda regula ma:
 - Action: utworz PromptTask(decision-supersede-review)
 
 ### 1b. Risk baseline
-- Event: Risk.identified
+- Event: RiskEntry.identified
 - Action: utworz PromptTask(risk-assessment-review)
 
-- Event: Risk.assessed
+- Event: RiskEntry.assessed
 - Action: utworz PromptTask(risk-resolution-review)
 - Gate effect: odblokowuje `mitigated|accepted|escalated`
 
-- Event: Risk.escalated
+- Event: RiskEntry.escalated
 - Action: utworz GateDecisionRecord(defer|request_changes) candidate dla delivery
-- Gate effect: blokuje `Release.approved` do czasu decyzji
+- Gate effect: blokuje `ReleaseBundle.approved` do czasu decyzji
 
-- Event: Risk.mitigated
+- Event: RiskEntry.mitigated
 - Action: utworz PromptTask(risk-close-review)
 
-- Event: Risk.accepted
+- Event: RiskEntry.accepted
 - Action: utworz PromptTask(risk-acceptance-audit)
 
-### 1c. ActorRolePermission baseline
-- Event: ActorRolePermission.defined
+### 1c. AccessGrant baseline
+- Event: AccessGrant.defined
 - Action: utworz PromptTask(permission-activation-review)
 
-- Event: ActorRolePermission.active
+- Event: AccessGrant.active
 - Action: utworz PromptTask(permission-revision-review)
 
-- Event: ActorRolePermission.revised
+- Event: AccessGrant.revised
 - Action: utworz PromptTask(permission-revoke-review)
 
 - Event: authz.denied
-- Action: utworz Exception(authz) + blokuj transition
+- Action: utworz ExceptionCase(authz) + blokuj transition
 
 ### 1d. UseCase / PortContract / Component baseline
 - Event: Feature.specified
@@ -136,7 +136,7 @@ Kazda regula ma:
 
 ### 1e. Repository / ChangeSet / Verification / Data / Environment
 - Event: Project.configured
-- Action: utworz Repository.detected + VerificationPlan.drafted
+- Action: utworz Repository.detected + VerificationPolicy.drafted
 
 - Event: Repository.detected
 - Action: utworz PromptTask(repo-bootstrap-review)
@@ -155,12 +155,12 @@ Kazda regula ma:
 - Action: utworz PromptTask(changeset-validation-review)
 - Gate effect: odblokowuje ChangeSet.validated
 
-- Event: VerificationPlan.drafted
+- Event: VerificationPolicy.drafted
 - Action: utworz PromptTask(verification-review)
 
-- Event: VerificationPlan.reviewed
+- Event: VerificationPolicy.reviewed
 - Action: utworz PromptTask(verification-approval-review)
-- Gate effect: odblokowuje VerificationPlan.approved
+- Gate effect: odblokowuje VerificationPolicy.approved
 
 - Event: Feature.scenario-ready
 - Action: utworz PromptTask(verification-plan-sync)
@@ -178,15 +178,15 @@ Kazda regula ma:
 - Event: Migration.approved
 - Action: utworz PromptTask(migration-readiness-check)
 
-- Event: RuntimeEnvironment.defined
+- Event: EnvironmentTarget.defined
 - Action: utworz PromptTask(environment-validation)
 
-- Event: RuntimeEnvironment.validated
+- Event: EnvironmentTarget.validated
 - Action: utworz PromptTask(environment-readiness-review)
-- Gate effect: odblokowuje RuntimeEnvironment.ready
+- Gate effect: odblokowuje EnvironmentTarget.ready
 
 ### 2. Terminologia i UI
-- Event: Term.proposed
+- Event: GlossaryEntry.proposed
 - Action: utworz PromptTask(term-impact-check)
   - czy potrzebny nowy UIComponent
   - czy potrzebna zmiana copy
@@ -201,7 +201,7 @@ Kazda regula ma:
 - Event: UIComponent.implemented
 - Action: utworz PromptTask(ux-validation)
 
-- Event: Term.approved
+- Event: GlossaryEntry.approved
 - Action: utworz PromptTask(term-deprecation-review)
 
 - Event: UIComponent.verified
@@ -231,13 +231,13 @@ Kazda regula ma:
 - Action: pozostaw PromptTask w executed + zaplanuj SchedulerTimer
 
 - Event: prompt.validation-requested (gate=reject)
-- Action: anuluj PromptTask (state=cancelled) + utworz Exception(rejected-output)
+- Action: anuluj PromptTask (state=cancelled) + utworz ExceptionCase(rejected-output)
 
 - Event: quality.evidence.pass
 - Action: odblokuj kolejne legalne transition OP
 
 - Event: quality.evidence.fail
-- Action: utworz Exception + PromptTask(debug-fix)
+- Action: utworz ExceptionCase + PromptTask(debug-fix)
 - Gate effect: wymusza GateDecisionRecord=request_changes lub defer
 
 - Event: gate.recorded(approve)
@@ -248,8 +248,8 @@ Kazda regula ma:
 
 ### 4. Delivery
 - Event: Feature.stabilized
-- Guard: brak krytycznych Exception i brak DependencyRelation.status=blocked dla scope delivery
-- Action: utworz Release.candidate
+- Guard: brak krytycznych ExceptionCase i brak DependencyRelation.status=blocked dla scope delivery
+- Action: utworz ReleaseBundle.candidate
 
 - Event: Feature.implemented
 - Guard: co najmniej jeden UseCase.approved i brak PortContract!=approved dla tych UseCase
@@ -264,33 +264,33 @@ Kazda regula ma:
 - Event: feature.stabilize-requested (gate=reject)
 - Action: cofniecie Feature do specified + utworz PromptTask(respec)
 
-- Event: Release.approved
-- Action: utworz Deployment.prepared
+- Event: ReleaseBundle.approved
+- Action: utworz DeploymentRun.planned
 
 - Event: release.approve-requested (gate=request_changes)
-- Action: cofniecie Release do planned + utworz PromptTask(release-rework)
+- Action: cofniecie ReleaseBundle do planned + utworz PromptTask(release-rework)
 
 - Event: release.approve-requested (gate=defer)
-- Action: pozostaw Release w candidate + zaplanuj SchedulerTimer
+- Action: pozostaw ReleaseBundle w candidate + zaplanuj SchedulerTimer
 
 - Event: release.approve-requested (gate=reject)
-- Action: zamknij Release (state=closed) + utworz DecisionRecord(release-rejection)
+- Action: zamknij ReleaseBundle (state=closed) + utworz DecisionRecord(release-rejection)
 
-- Event: Deployment.succeeded
-- Action: oznacz Release.published + odblokuj Feature.released
-- Gate effect: otwiera zamkniecie Release i Feature
+- Event: deployment.succeeded
+- Action: oznacz ReleaseBundle.published + odblokuj Feature.released
+- Gate effect: otwiera zamkniecie ReleaseBundle i Feature
 
-- Event: Release.published
+- Event: ReleaseBundle.published
 - Action: utworz PromptTask(release-close-review) + PromptTask(feature-close-review)
 
-- Event: Deployment.failed
+- Event: deployment.failed
 - Action: utworz RollbackAction.planned; jesli side-effect cleanup jest wymagany, utworz CompensationAction.planned
 
 - Event: deployment.retry-requested (gate=approve)
-- Action: przejdz Deployment.failed -> Deployment.prepared
+- Action: przejdz DeploymentRun.failed -> DeploymentRun.planned
 
 - Event: deployment.retry-requested (gate=request_changes|defer)
-- Action: pozostaw Deployment w failed + eskaluj do operatora
+- Action: pozostaw DeploymentRun w failed + eskaluj do operatora
 
 - Event: rollback.start-requested
 - Action: oznacz RollbackAction.running
@@ -303,7 +303,7 @@ Kazda regula ma:
 
 ### 5. Timery i eskalacje
 - Event: timeout.fired
-- Action: utworz Exception(timeout) + GateDecisionRecord(defer) candidate
+- Action: utworz ExceptionCase(timeout) + GateDecisionRecord(defer) candidate
 - Failure policy: escalation do operatora
 
 ### 6. Lifecycle housekeeping
@@ -318,8 +318,8 @@ Kazda regula ma:
 
 ## Reguly bezpieczenstwa i uprawnien
 
-- Action mozliwa tylko gdy ActorRolePermission pozwala na dana operacje.
-- Brak uprawnien generuje Exception(authz) i blokuje transition.
+- Action mozliwa tylko gdy aktywny AccessGrant pozwala na dana operacje.
+- Brak uprawnien generuje ExceptionCase(authz) i blokuje transition.
 
 ## Audit
 
@@ -353,7 +353,7 @@ Reguly:
 - `check=fail` prowadzi do stanu remediacji (`refactor-required`/analogiczny).
 
 5. Dla zdarzen authz:
-- `authz.denied` zawsze generuje `Exception(authz)` i blokuje zmiane stanu docelowego OP.
+- `authz.denied` zawsze generuje `ExceptionCase(authz)` i blokuje zmiane stanu docelowego OP.
 
 6. Rozstrzyganie konfliktow:
 - jesli istnieje regula jawna i regula rozszerzajaca, pierwszenstwo ma regula jawna.

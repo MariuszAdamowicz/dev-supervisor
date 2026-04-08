@@ -4,10 +4,10 @@ Cel:
 sprawdzic odpornosc procesu na bledy i niepewnosc operacyjna.
 
 ## Wstrzykiwane zaklocenia
-1. `timeout.fired` dla PromptTask i SchedulerTimer.
+1. `timeout.fired` dla PromptTask control i SchedulerTimer.
 2. `authz.denied` przed transition krytycznym.
 3. `QualityEvidenceRecord.fail` po implementacji.
-4. `deployment.failed` w Release flow.
+4. `deployment.failed` w delivery flow `ReleaseBundle/DeploymentRun`.
 5. `rollback.failed` po deployment fail (materializowane jako `RollbackAction.failed`).
 6. gate `reject` dla transition gate-required.
 

@@ -1,0 +1,7 @@
+op_type,from_state,event,to_state
+RiskEntry,identified,risk.assess-requested,assessed
+RiskEntry,assessed,risk.mitigate-requested (gate=approve),mitigated
+RiskEntry,mitigated,risk.close-requested,closed
+RiskEntry,identified,risk.assess-requested,assessed
+RiskEntry,assessed,risk.escalate-requested (gate=approve),escalated
+RiskEntry,escalated,risk.resolve-requested (gate=approve),closed

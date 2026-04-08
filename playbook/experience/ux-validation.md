@@ -15,8 +15,8 @@
 2. Guard visibility tests (CTA aktywne tylko przy spelnionych guardach)
 3. Gate decision tests (approve/request_changes/defer/reject)
 4. Invalidation propagation tests (upstream -> downstream)
-5. Permission tests (ActorRolePermission)
-6. Exception/timeout handling tests
+5. Permission tests (AccessGrant)
+6. ExceptionCase/timeout handling tests
 7. Audit continuity tests (ProcessEventRecord completeness)
 8. Task-first copy tests (operator nie musi rozumiec OP labels)
 9. Empty/loading/error/blocked state tests

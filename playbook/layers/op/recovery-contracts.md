@@ -28,7 +28,7 @@ Kazdy recovery control ma pola:
 - `action_plan`
 
 Pola opcjonalne:
-- `source_exception_ref`
+- `source_exception_case_ref`
 - `source_deployment_ref`
 - `source_migration_ref`
 - `retry_budget`
@@ -64,7 +64,7 @@ Przyklady:
 ### CRUD semantics
 
 Create:
-- tworz `CompensationAction`, gdy `Exception.compensation_required=true`
+- tworz `CompensationAction`, gdy `ExceptionCase.compensation_required=true`
   albo failure policy wskazuje jawne undo/cleanup,
 - create wymaga `target_ref`, `reason`, `action_plan`
   i przynajmniej jednego `source_*_ref` albo jawnego `external_ref` w evidence.
@@ -72,7 +72,7 @@ Create:
 Read:
 - runtime musi umiec pytac:
   - `jakie recovery controls sa aktywne dla X`,
-  - `czy Exception lub RollbackAction maja otwarte compensation`,
+  - `czy ExceptionCase lub RollbackAction maja otwarte compensation`,
   - `jakie failed compensation blokuja closure target scope`.
 
 Update:
@@ -96,25 +96,25 @@ Remove:
 - `running`:
   - utrzymuje blocker do czasu `completed` albo `failed`.
 - `completed`:
-  - odblokowuje closure `Exception`, `RollbackAction`, `Migration` albo innego target scope,
+  - odblokowuje closure `ExceptionCase`, `RollbackAction`, `Migration` albo innego target scope,
   - nie usuwa audytu ani dowodu przyczyny.
 - `failed`:
   - wymaga eskalacji operatora albo nowej decyzji gate,
-  - moze utrzymac Exception w stanie `escalated`.
+  - moze utrzymac ExceptionCase w stanie `escalated`.
 - `cancelled`:
   - nie odblokowuje scope automatycznie; wymaga osobnej legalnej sciezki closure.
 
 ## Dodatkowe invarianty RollbackAction
 
 - `RollbackAction` musi wskazywac `target_ref`, `reason` i `target_revision`,
-- `Deployment.failed` albo `Migration.rollback-requested` bez aktywnego lub completed `RollbackAction` jest invalid,
+- `DeploymentRun.failed` albo `Migration.rollback-requested` bez aktywnego lub completed `RollbackAction` jest invalid,
 - `failed` albo `cancelled` bez `ProcessEventRecord` i jawnego reason jest invalid,
 - rollback control nie moze zniknac z indeksu po pojawieniu sie audytu.
 
 ## Invariants
 
 - `CompensationAction` musi wskazywac `target_ref` i `reason`,
-- `Exception.compensation_required=true` bez aktywnego lub completed `CompensationAction` jest invalid,
+- `ExceptionCase.compensation_required=true` bez aktywnego lub completed `CompensationAction` jest invalid,
 - `failed` albo `cancelled` bez `ProcessEventRecord` i jawnego reason jest invalid,
 - recovery control nie moze zniknac z indeksu po pojawieniu sie audytu.
 
@@ -140,14 +140,14 @@ Przyklady:
 ### CRUD semantics
 
 Create:
-- tworz `RollbackAction`, gdy `Deployment.failed`
+- tworz `RollbackAction`, gdy `DeploymentRun.failed`
   albo migration policy wymaga revert,
 - create wymaga `target_ref`, `reason`, `target_revision`
   i `source_deployment_ref` albo `source_migration_ref`.
 
 Read:
 - runtime musi umiec pytac:
-  - `czy Deployment lub Migration ma otwarty rollback`,
+  - `czy DeploymentRun lub Migration ma otwarty rollback`,
   - `jaki jest target revision i status rollback`,
   - `jakie failed rollbacki blokuja release closure`.
 
@@ -168,15 +168,15 @@ Remove:
 
 - `planned`:
   - utrzymuje target scope jako `rollback-pending`,
-  - blokuje closure Release/Deployment/Migration, jesli policy tego wymaga.
+  - blokuje closure ReleaseBundle/DeploymentRun/Migration, jesli policy tego wymaga.
 - `running`:
   - utrzymuje blocker do czasu `completed` albo `failed`.
 - `completed`:
-  - odblokowuje closure `Deployment` albo `Migration`,
+  - odblokowuje closure `DeploymentRun` albo `Migration`,
   - zachowuje trace do target revision i eventow wykonania.
 - `failed`:
   - wymaga eskalacji operatora albo nowej decyzji gate,
-  - moze utrzymac `Deployment` lub `Migration` w stanie zablokowanym.
+  - moze utrzymac `DeploymentRun` lub `Migration` w stanie zablokowanym.
 - `cancelled`:
   - nie odblokowuje scope automatycznie; wymaga osobnej legalnej sciezki closure.
 

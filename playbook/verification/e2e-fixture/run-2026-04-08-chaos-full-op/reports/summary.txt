@@ -1,6 +1,6 @@
 E2E_FIXTURE_RUN=pass
 SCENARIO=playbook/verification/replay/scenario-chaos-full-op.csv
-EVENTS_COUNT=87
-GATES_COUNT=27
+EVENTS_COUNT=56
+GATES_COUNT=18
 EVIDENCE_CLASS=fixture-simulation
 APP_QUALITY_LANE=pass

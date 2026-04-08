@@ -40,13 +40,13 @@ formalnie walidowac kompletnosc i spojnosc Playbook Layer wzgledem OP Layer.
 
 5b. Baseline completeness contract
 - `workflow/setup.md` i `runtime/playbook-exec.yaml` musza definiowac ten sam minimalny baseline.
-- baseline MUST obejmowac: overview, constraints, glossary, Repository, Requirement, Constraint, DecisionRecord, UseCase, PortContract, Component, ActorRolePermission, VerificationPlan i artefakt UX entrypointu.
-- `RuntimeEnvironment` jest wymagany w baseline tylko gdy profil aktywuje `deployable-runtime`.
+- baseline MUST obejmowac: overview, constraints, glossary, Repository, Requirement, Constraint, DecisionRecord, UseCase, PortContract, Component, AccessGrant, VerificationPolicy i artefakt UX entrypointu.
+- `EnvironmentTarget` jest wymagany w baseline tylko gdy profil aktywuje `deployable-runtime`.
 - brak zgodnosci workflow/exec dla baseline = playbook invalid.
 
 5c. Runtime lifecycle coverage contract
 - kazdy entrypoint wymieniony w `workflow/daily-workflow.md` musi miec runtime definition albo template coverage w `runtime/playbook-exec.yaml`.
-- brak runtime coverage dla Feature, UX alignment, Release lub Exception/recovery/timer escalation = playbook invalid.
+- brak runtime coverage dla Feature, UX alignment, ReleaseBundle albo ExceptionCase/recovery/timer escalation = playbook invalid.
 
 6. Architecture alignment contract
 - kazda kluczowa zmiana Feature z zachowaniem biznesowym ma powiazany UseCase (co najmniej drafted, docelowo approved przed Feature.implemented).
@@ -104,12 +104,13 @@ formalnie walidowac kompletnosc i spojnosc Playbook Layer wzgledem OP Layer.
 - QualityEvidenceRecord.fail wymusza request_changes lub defer, nigdy auto-approve.
 
 3. Recovery contract
-- dla Deployment.failed musi istniec binding rollback action + recovery control.
+- dla DeploymentRun.failed musi istniec binding rollback action + recovery control.
 
 4. Permission contract
-- action moze byc wykonana tylko przy aktywnym ActorRolePermission.
+- mutowalne authz controls musza byc opisane w `layers/op/authz-contracts.md`.
+- action moze byc wykonana tylko przy aktywnym `AccessGrant`.
 - kazdy binding transition musi zawierac operacyjny authz precheck.
-- brak authz precheck albo brak sciezki `Exception(authz)` = transition invalid.
+- brak authz precheck albo brak sciezki `ExceptionCase(authz)` = transition invalid.
 - authz jest deny-by-default; brak jawnego allow = invalid.
 
 5. Gate classifier contract
@@ -131,12 +132,28 @@ formalnie walidowac kompletnosc i spojnosc Playbook Layer wzgledem OP Layer.
 - `timeout.fired` bez odpowiadajacego `SchedulerTimer` = invalid.
 - defer/retry bez zaplanowania albo anulowania/consumingu timera = invalid.
 
-6c. Recovery control contract
+6c. Delivery control contract
+- mutowalne delivery controls musza byc opisane w `layers/op/delivery-contracts.md`.
+- `ReleaseBundle.approved` bez odpowiadajacego `DeploymentRun` = invalid.
+- `deployment.started|completed|failed` bez odpowiadajacego `DeploymentRun` = invalid.
+- `DeploymentRun.failed` bez eskalacji albo recovery path = invalid.
+
+6d. Job control contract
+- mutowalne job controls musza byc opisane w `layers/op/job-contracts.md`.
+- `prompt.sent` albo `prompt.validation-requested` bez odpowiadajacego `PromptTask` = invalid.
+- `PromptTask.cancelled` albo `PromptTask.closed` bez `ProcessEventRecord` = invalid.
+
+6e. Recovery control contract
 - mutowalne recovery controls musza byc opisane w `layers/op/recovery-contracts.md`.
-- `Deployment.failed` bez odpowiadajacego `RollbackAction` = invalid.
-- `Exception.compensation_required=true` bez odpowiadajacego `CompensationAction` = invalid.
+- `DeploymentRun.failed` bez odpowiadajacego `RollbackAction` = invalid.
+- `ExceptionCase.compensation_required=true` bez odpowiadajacego `CompensationAction` = invalid.
 - `RollbackAction.failed` bez eskalacji albo nowej decyzji gate = invalid.
 - `CompensationAction.failed` bez eskalacji albo nowej decyzji gate = invalid.
+
+6f. Exception control contract
+- mutowalne exception controls musza byc opisane w `layers/op/exception-contracts.md`.
+- authz deny, quality fail albo timeout escalation bez odpowiadajacego `ExceptionCase` = invalid.
+- `ExceptionCase.escalated` bez projection blocker albo bez sciezki reassessment = invalid.
 
 7. No-cycle contract
 - graf zaleznosci miedzy Component nie moze zawierac cykli (ADP).
@@ -155,16 +172,21 @@ formalnie walidowac kompletnosc i spojnosc Playbook Layer wzgledem OP Layer.
 - commit bez traceability do ChangeSet albo ChangeSet bez powiazania z OP pracy = invalid.
 
 9b. Verification planning contract
-- projekt z `formal-validation` musi miec VerificationPlan dla baseline oraz dla scope, ktory zmienia ryzyko, delivery albo zakres testow.
-- brak mapowania lane -> Feature/ChangeSet/Release = playbook invalid.
+- projekt z `formal-validation` musi miec VerificationPolicy dla baseline oraz dla scope, ktory zmienia ryzyko, delivery albo zakres testow.
+- brak mapowania lane -> Feature/ChangeSet/ReleaseBundle = playbook invalid.
 
 9c. Data evolution contract
 - projekt z `persistent-data` musi utrzymywac DataSchema, a zmiana niekompatybilna lub operacyjnie istotna musi miec Migration.
 - zmiana danych bez rollback/compatibility policy = playbook invalid.
 
 9d. Environment readiness contract
-- projekt z `deployable-runtime` musi miec RuntimeEnvironment dla lokalnej walidacji oraz dla kazdego srodowiska delivery.
-- Release.approved i Deployment.prepared bez RuntimeEnvironment w stanie co najmniej `ready` = invalid.
+- projekt z `deployable-runtime` musi miec `EnvironmentTarget` dla lokalnej walidacji oraz dla kazdego srodowiska delivery.
+- ReleaseBundle.approved i DeploymentRun.planned bez `EnvironmentTarget` w stanie co najmniej `ready` = invalid.
+
+9e. Environment control contract
+- mutowalne environment controls musza byc opisane w `layers/op/environment-contracts.md`.
+- delivery albo schema apply bez odpowiadajacego `EnvironmentTarget` = invalid.
+- `EnvironmentTarget.degraded` bez projection blocker i recovery path = invalid.
 
 10. Non-happy path contract
 - dla kazdego OP musi istniec co najmniej jedna sciezka alternatywna do happy path:

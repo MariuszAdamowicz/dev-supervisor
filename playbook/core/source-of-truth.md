@@ -5,9 +5,17 @@ Playbook Layer nie definiuje semantyki procesu. Semantyka procesu jest kanoniczn
 
 Kanoniczne definicje OP:
 - layers/op/object-catalog.md
+- layers/op/authz-contracts.md
+- layers/op/delivery-contracts.md
+- layers/op/environment-contracts.md
+- layers/op/exception-contracts.md
+- layers/op/glossary-contracts.md
+- layers/op/job-contracts.md
 - layers/op/relation-contracts.md
+- layers/op/risk-contracts.md
 - layers/op/recovery-contracts.md
 - layers/op/scheduler-contracts.md
+- layers/op/verification-contracts.md
 - layers/op/state-machines.md
 - layers/op/trigger-rules.md
 
@@ -24,7 +32,7 @@ Feature:
 - testy (wykonywalna specyfikacja)
 
 Delivery:
-- release/deployment/rollback status (w stanie OP, nie w notatkach)
+- release/deployment run status + recovery controls (w stanie runtime, nie w notatkach)
 
 Quality and Audit:
 - quality evidence records (pass/fail) i decyzje gate
@@ -36,7 +44,7 @@ Dla implementacji zachowania:
 PRD < BDD < TESTY
 
 Dla procesu:
-relation contracts + recovery contracts + scheduler contracts + state machine + trigger rules + gate decisions z OP Layer wygrywaja nad opisami operacyjnymi.
+authz contracts + delivery contracts + environment contracts + exception contracts + glossary contracts + job contracts + relation contracts + risk contracts + recovery contracts + scheduler contracts + verification contracts + state machine + trigger rules + gate decisions z OP Layer wygrywaja nad opisami operacyjnymi.
 
 ## Czego nie traktowac jako source of truth
 

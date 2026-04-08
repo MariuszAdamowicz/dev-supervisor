@@ -1,0 +1,6 @@
+op_type,from_state,event,to_state
+VerificationPolicy,drafted,verification.review-requested,reviewed
+VerificationPolicy,reviewed,verification.approve-requested (gate=approve),approved
+VerificationPolicy,approved,verification.activate-requested,active
+VerificationPolicy,active,verification.revise-requested,revised
+VerificationPolicy,revised,verification.approve-requested (gate=approve),approved

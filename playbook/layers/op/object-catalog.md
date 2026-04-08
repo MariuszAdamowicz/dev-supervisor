@@ -37,6 +37,14 @@ Semantyka operacyjna i stosowalnosc OP:
 - `control-object`: obiekt sterujacy polityka, jakoscia, uprawnieniami albo decyzja.
 - `execution-object`: obiekt wykonania pracy, wdrozenia albo ograniczonego pakietu zmian.
 - `environment-object`: obiekt opisujacy repo, schemat danych lub srodowisko uruchomieniowe.
+- `verification-control`: mutowalna polityka lane, evidence i gate dla scope formalnej walidacji; nie jest OP.
+- `environment-control`: mutowalny target srodowiska i gotowosci runtime; nie jest OP.
+- `authz-control`: mutowalny control autoryzacji i ownership; nie jest OP.
+- `glossary-control`: mutowalny wpis slownika domenowego i UX; nie jest OP.
+- `exception-control`: mutowalny przypadek bledu procesu lub runtime; nie jest OP.
+- `risk-control`: mutowalny wpis rejestru ryzyka; nie jest OP.
+- `delivery-control`: mutowalny runtime handle rollout/deploy; nie jest OP.
+- `job-control`: mutowalny runtime handle dla pracy AI albo operatora; nie jest OP.
 - `recovery-control`: mutowalny runtime handle undo/compensation; nie jest OP.
 - `scheduler-control`: mutowalny runtime handle czasu i retry; nie jest OP.
 - `system-record`: append-only record audytowy lub dowodowy; nie jest OP.
@@ -94,113 +102,129 @@ Semantyka operacyjna i stosowalnosc OP:
 - Stosowalnosc: `formal-validation`
 - Kluczowe pola: scenario_id, feature_id, test_links.
 
-### 8. Term
-- Rola: pojecie domenowe i UX.
-- Klasa: `work-object`
-- Stosowalnosc: `always`
-- Kluczowe pola: term, definition, status, source, aliases.
-
-### 9. UIComponent
+### 8. UIComponent
 - Rola: komponent interfejsu.
 - Klasa: `work-object`
 - Stosowalnosc: `interactive-ui`
 - Kluczowe pola: component_id, purpose, visibility_rules, gate_rules.
 
-### 10. UIScreen
+### 9. UIScreen
 - Rola: ekran/widok agregujacy komponenty.
 - Klasa: `work-object`
 - Stosowalnosc: `interactive-ui`
 - Kluczowe pola: screen_id, state_binding, components.
 
-### 11. PromptTask
-- Rola: zadanie promptowe uruchamiane przez operatora/AI.
-- Klasa: `execution-object`
-- Stosowalnosc: `always`
-- Kluczowe pola: task_id, task_type, context_set, target_op.
-
-### 12. ActorRolePermission
-- Rola: ownership, role i uprawnienia do operacji.
-- Klasa: `control-object`
-- Stosowalnosc: `always`
-- Kluczowe pola: actor_id, role, allowed_actions, scope.
-
-### 13. UseCase
+### 10. UseCase
 - Rola: przypadek uzycia opisujacy zachowanie aplikacyjne niezalezne od frameworka.
 - Klasa: `work-object`
 - Stosowalnosc: `always` dla zachowania biznesowego
 - Kluczowe pola: use_case_id, actor, goal, input_dto, output_dto, business_rules_refs.
 
-### 14. PortContract
+### 11. PortContract
 - Rola: kontrakt granicy (wejscie/wyjscie) miedzy rdzeniem a adapterem.
 - Klasa: `work-object`
 - Stosowalnosc: `always` przy granicy rdzen <-> zewnetrze
 - Kluczowe pola: port_id, direction(inbound|outbound), contract_schema_ref, dto_set, owner_use_case.
 
-### 15. Component
+### 12. Component
 - Rola: komponent/modul architektoniczny do kontroli spojnosci i zaleznosci.
 - Klasa: `work-object`
 - Stosowalnosc: `always`
 - Kluczowe pola: component_id, responsibility, stability_index, abstraction_level, dependencies.
 
-### 16. Risk
-- Rola: ryzyko produktu/procesu.
-- Klasa: `control-object`
-- Stosowalnosc: `formal-validation`
-- Kluczowe pola: risk_id, probability, impact, mitigation_plan.
-
-### 17. Release
-- Rola: pakiet zmian gotowy do wydania.
-- Klasa: `execution-object`
-- Stosowalnosc: `formal-validation`
-- Kluczowe pola: release_id, included_features, release_gate_status.
-
-### 18. Deployment
-- Rola: wykonanie wdrozenia.
-- Klasa: `execution-object`
-- Stosowalnosc: `deployable-runtime`
-- Kluczowe pola: deployment_id, environment, result, rollback_action_ref.
-
-### 19. Exception
-- Rola: blad procesu lub biznesowy exception case.
-- Klasa: `execution-object`
-- Stosowalnosc: `always`
-- Kluczowe pola: exception_id, class, severity, compensation_required.
-
-### 20. Repository
+### 13. Repository
 - Rola: stan repozytorium projektu i polityk VCS.
 - Klasa: `environment-object`
 - Stosowalnosc: `version-controlled`
 - Kluczowe pola: repo_id, vcs, local_root, remote_origin, default_branch, branch_policy, cleanliness.
 
-### 21. ChangeSet
+### 14. ChangeSet
 - Rola: ograniczony pakiet zmian powiazany z OP, plikami i commitami.
 - Klasa: `execution-object`
 - Stosowalnosc: `version-controlled`
 - Kluczowe pola: changeset_id, repository_ref, branch_ref, file_scope, op_refs, commit_refs, validation_refs.
 
-### 22. VerificationPlan
-- Rola: plan warstw testow i evidence dla Feature, ChangeSet lub Release.
-- Klasa: `control-object`
-- Stosowalnosc: `formal-validation`
-- Kluczowe pola: verification_id, target_scope, required_lanes, pass_criteria, evidence_rules.
-
-### 23. DataSchema
+### 15. DataSchema
 - Rola: kanoniczny kontrakt modelu danych i kompatybilnosci.
 - Klasa: `environment-object`
 - Stosowalnosc: `persistent-data`
 - Kluczowe pola: schema_id, storage_engine, compatibility_policy, owned_structures, migration_refs.
 
-### 24. Migration
+### 16. Migration
 - Rola: wykonanie zmiany schematu lub danych z jawna gotowoscia rollback.
 - Klasa: `execution-object`
 - Stosowalnosc: `persistent-data`
 - Kluczowe pola: migration_id, schema_ref, direction, compatibility_window, execution_lane, rollback_action_ref.
 
-### 25. RuntimeEnvironment
-- Rola: srodowisko lokalne, CI, staging lub prod wraz z capability i config policy.
-- Klasa: `environment-object`
+## Delivery Controls (nie sa OP, ale sa kanoniczne i mutowalne)
+
+### ReleaseBundle
+- Rola: mutowalny bundle delivery grupujacy scope wydania, approval i publish state.
+- Klasa: `delivery-control`
+- Stosowalnosc: `formal-validation`
+- Kluczowe pola: release_ref, delivery_scope_ref, status, included_features, gate_status, environment_ref.
+
+### DeploymentRun
+- Rola: mutowalne wykonanie rolloutu/wdrozenia dla ReleaseBundle i EnvironmentTarget.
+- Klasa: `delivery-control`
 - Stosowalnosc: `deployable-runtime`
-- Kluczowe pola: environment_id, class, capabilities, secret_policy, deploy_constraints, release_refs.
+- Kluczowe pola: run_id, release_ref, environment_ref, status, strategy, target_revision, rollback_action_ref.
+
+## Job Controls (nie sa OP, ale sa kanoniczne i mutowalne)
+
+### PromptTask
+- Rola: mutowalne zadanie runtime uruchamiane przez ai-runner albo operator review.
+- Klasa: `job-control`
+- Stosowalnosc: `always`
+- Kluczowe pola: task_id, task_type, context_set, target_ref, status, retry_budget, assignee_mode.
+
+## Verification Controls (nie sa OP, ale sa kanoniczne i mutowalne)
+
+### VerificationPolicy
+- Rola: mutowalna polityka lane testowych, evidence i pass criteria dla Feature, ChangeSet albo ReleaseBundle.
+- Klasa: `verification-control`
+- Stosowalnosc: `formal-validation`
+- Kluczowe pola: policy_id, target_scope, required_lanes, pass_criteria, evidence_rules, status.
+
+## Authz Controls (nie sa OP, ale sa kanoniczne i mutowalne)
+
+### AccessGrant
+- Rola: mutowalny grant autoryzacji i ownership dla operatora albo roli w danym scope.
+- Klasa: `authz-control`
+- Stosowalnosc: `always`
+- Kluczowe pola: grant_id, principal_ref, role_ref, scope_ref, allowed_actions, status.
+
+## Glossary Controls (nie sa OP, ale sa kanoniczne i mutowalne)
+
+### GlossaryEntry
+- Rola: mutowalny wpis slownika domenowego dla copy, UX i scenariuszy.
+- Klasa: `glossary-control`
+- Stosowalnosc: `always`
+- Kluczowe pola: entry_id, term, definition, status, aliases, replacement_ref, impacted_scope_refs.
+
+## Risk Controls (nie sa OP, ale sa kanoniczne i mutowalne)
+
+### RiskEntry
+- Rola: mutowalny wpis rejestru ryzyka dla produktu, procesu albo delivery scope.
+- Klasa: `risk-control`
+- Stosowalnosc: `formal-validation`
+- Kluczowe pola: risk_id, subject_ref, risk_class, probability, impact, criticality, status.
+
+## Exception Controls (nie sa OP, ale sa kanoniczne i mutowalne)
+
+### ExceptionCase
+- Rola: mutowalny przypadek bledu procesu albo runtime wymagajacy klasyfikacji i resolution path.
+- Klasa: `exception-control`
+- Stosowalnosc: `always`
+- Kluczowe pola: exception_id, subject_ref, exception_class, severity, status, compensation_required.
+
+## Environment Controls (nie sa OP, ale sa kanoniczne i mutowalne)
+
+### EnvironmentTarget
+- Rola: mutowalny target srodowiska dla local/ci/stage/prod z jawna gotowoscia i capability.
+- Klasa: `environment-control`
+- Stosowalnosc: `deployable-runtime`
+- Kluczowe pola: environment_id, environment_name, environment_class, capabilities, config_policy, status.
 
 ## Graph Relations (nie sa OP, ale sa kanoniczne i mutowalne)
 
@@ -230,7 +254,7 @@ Semantyka operacyjna i stosowalnosc OP:
 - Rola: mutowalny plan undo/cleanup po awarii, rollbacku albo nieudanym kroku z side effect.
 - Klasa: `recovery-control`
 - Stosowalnosc: `always` gdy failure_policy wymaga recovery
-- Kluczowe pola: recovery_id, target_ref, source_exception_ref|source_deployment_ref, status, action_plan, retry_budget, reason.
+- Kluczowe pola: recovery_id, target_ref, source_exception_case_ref|source_deployment_ref, status, action_plan, retry_budget, reason.
 
 ## System Records (nie sa OP, ale sa kanoniczne i wymagane)
 
@@ -254,23 +278,25 @@ Semantyka operacyjna i stosowalnosc OP:
 
 ## Minimalny graf relacji
 - Project -> Repository -> ChangeSet
-- Project -> VerificationPlan
+- Project -(AccessGrant)-> operator|scope
+- Project -(VerificationPolicy)-> scope formal-validation
 - Project -> Requirement -> Feature -> Scenario -> Testy
 - Project -> Constraint -> DecisionRecord -> Feature
 - Feature -> UseCase -> PortContract
-- Feature -> Term -> UIComponent -> UIScreen
+- Feature -> GlossaryEntry -> UIComponent -> UIScreen
 - Feature -> Component
-- Feature -> PromptTask
+- Feature -(PromptTask)-> runtime work item
 - Feature -> ChangeSet
-- Feature -> VerificationPlan
-- Feature -(DependencyRelation)-> external_ref|Component|RuntimeEnvironment
-- Feature -> Risk
+- Feature -(VerificationPolicy)-> lane scope
+- Feature -(DependencyRelation)-> external_ref|Component|EnvironmentTarget
+- Feature -(RiskEntry)-> scope
 - Feature -> DataSchema -> Migration
-- Feature -> Release -> Deployment
-- Release -> RuntimeEnvironment
-- Deployment -(RollbackAction)-> target_ref
+- Feature -(ReleaseBundle)-> delivery scope
+- ReleaseBundle -(DeploymentRun)-> EnvironmentTarget
+- ReleaseBundle -> EnvironmentTarget
+- DeploymentRun -(RollbackAction)-> target_ref
 - Migration -(RollbackAction)-> target_ref
-- Exception -(CompensationAction)-> target_ref
+- ExceptionCase -(CompensationAction)-> target_ref
 - target_ref -(SchedulerTimer)-> timeout.fired
 - Wszystko emituje ProcessEventRecord i moze miec GateDecisionRecord / QualityEvidenceRecord
 
@@ -278,15 +304,19 @@ Semantyka operacyjna i stosowalnosc OP:
 - Brak osieroconych OP (kazdy OP poza Project ma parent linkage).
 - Kazdy state transition ma event + guard + actor.
 - Kazda decyzja gate ma GateDecisionRecord i audytowalny ProcessEventRecord.
+- Brak aktywnego `AccessGrant` dla akcji objetej authz uniewaznia transition.
+- `GlossaryEntry.deprecated` wymaga replacement albo cleanup dla impacted UI/scenario scope.
 - Kazdy krytyczny blad ma policy: retry albo recovery control.
 - Zamkniecie Feature wymaga braku krytycznych otwartych PromptTask.
 - Repository i ChangeSet musza zachowac traceability do powiazanych Feature/Requirement/Scenario.
-- VerificationPlan musi byc przypisany do Feature, ChangeSet albo Release wymagajacego formalnej walidacji.
+- VerificationPolicy musi byc przypisana do Feature, ChangeSet albo ReleaseBundle wymagajacego formalnej walidacji.
 - DataSchema i Migration sa wymagane, gdy zmiana obejmuje trwale dane lub niekompatybilna ewolucje schematu.
-- Deployment i Release nie moga byc wykonane bez RuntimeEnvironment w stanie co najmniej `ready`.
-- Deployment.failed musi utworzyc jawny `RollbackAction` albo miec jawny waiver z reason.
+- ReleaseBundle nie moze byc opublikowany bez `EnvironmentTarget` w stanie co najmniej `ready`.
+- DeploymentRun.failed musi utworzyc jawny `RollbackAction` albo miec jawny waiver z reason.
 - DependencyRelation z `status=blocked` musi byc widoczna w reverse lookup i projection operatora.
-- Exception z `compensation_required=true` musi miec jawny `CompensationAction` zanim zamknie downstream scope.
+- `RiskEntry.escalated` musi blokowac delivery scope do czasu jawnej closure albo override.
+- `ExceptionCase.escalated` musi byc widoczny w projection operatora dla impacted scope.
+- ExceptionCase z `compensation_required=true` musi miec jawny `CompensationAction` zanim zamknie downstream scope.
 - RollbackAction musi byc domkniety jako `completed` albo `cancelled` z audytowalnym reason.
 - SchedulerTimer musi byc consumowany albo anulowany po domknieciu target scope.
 - CompensationAction musi byc domkniety jako `completed` albo `cancelled` z audytowalnym reason.

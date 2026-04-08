@@ -49,7 +49,7 @@ i ze ta zaleznosc moze blokowac lub zmieniac downstream runtime.
 
 Przyklady:
 - `Feature` zalezy od zewnetrznego API,
-- `Release` zalezy od gotowosci `RuntimeEnvironment`,
+- `ReleaseBundle` zalezy od gotowosci `EnvironmentTarget`,
 - `Component` zalezy od innego `Component`,
 - `ChangeSet` zalezy od migracji danych lub approval policy.
 
@@ -105,7 +105,7 @@ Remove:
 
 - brak duplikatow `active|blocked` dla tego samego `(source_ref, target_ref|external_ref, scope)`,
 - dependency relations komponentow nie moga obchodzic `dependency direction` i `no-cycle`,
-- `blocked` relation o `criticality=high|critical` musi byc widoczna w guardach Release/Deployment,
+- `blocked` relation o `criticality=high|critical` musi byc widoczna w guardach ReleaseBundle/DeploymentRun,
 - relacja `waived` bez `waiver_ref` jest invalid.
 
 ## Zrodla praktyk

@@ -1,0 +1,6 @@
+op_type,from_state,event,to_state
+AccessGrant,defined,permission.activate-requested (gate=approve),active
+AccessGrant,active,permission.revise-requested (gate=approve),revised
+AccessGrant,revised,permission.activate-requested (gate=approve),active
+AccessGrant,active,permission.revise-requested (gate=approve),revised
+AccessGrant,revised,permission.revoke-requested (gate=approve),revoked

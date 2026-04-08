@@ -10,7 +10,7 @@ zweryfikowac playbook na realnym mini-projekcie (niewielki zakres, pelny proces)
 - 2-3 Scenario
 - co najmniej 1 Requirement, 1 Constraint, 1 DecisionRecord
 - co najmniej 1 UseCase, 1 PortContract, 1 Component
-- co najmniej 1 ActorRolePermission
+- co najmniej 1 AccessGrant
 - co najmniej 1 artefakt `.ai/ux/*` powstaly z runtime
 
 ## Procedura

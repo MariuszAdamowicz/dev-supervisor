@@ -1,7 +1,6 @@
 op_type,from_state,event,to_state
 Project,configured,project.baseline-approve-requested (gate=reject),archived
 Repository,remote-attached,repo.align-policy-requested (gate=reject),archived
-VerificationPlan,reviewed,verification.approve-requested (gate=reject),retired
 Requirement,clarified,requirement.approve-requested (gate=reject),deprecated
 Constraint,validated,constraint.enforce-requested (gate=reject),retired
 DecisionRecord,reviewed,decision.approve-requested (gate=reject),superseded
@@ -9,13 +8,9 @@ Idea,scoped,idea.convert-requested (gate=reject),dropped
 Feature,implemented,feature.stabilize-requested (gate=request_changes),test-ready
 Feature,implemented,feature.stabilize-requested (gate=reject),specified
 Scenario,reviewed,scenario.approve-requested (gate=reject),obsolete
-Term,proposed,term.approve-requested (gate=reject),deprecated
 UIComponent,implemented,ui.verify-requested (gate=reject),deprecated
 UIScreen,mapped,screen.verify-requested (gate=reject),deprecated
-PromptTask,ready,timeout.fired (retry_budget=0),cancelled
-PromptTask,executed,prompt.validation-requested (gate=reject),cancelled
 ChangeSet,staged,changeset.validate-requested (gate=reject),superseded
-ActorRolePermission,defined,permission.activate-requested (gate=reject),revoked
 UseCase,reviewed,usecase.approve-requested (gate=reject),deprecated
 PortContract,reviewed,port-contract.approve-requested (gate=reject),deprecated
 Component,mapped,component.check-requested (check=fail),refactor-required
@@ -23,9 +18,3 @@ Component,checked,component.compliance-requested (gate=reject),refactor-required
 DataSchema,reviewed,schema.approve-requested (gate=reject),deprecated
 Migration,reviewed,migration.approve-requested (gate=reject),superseded
 Migration,applied,migration.rollback-requested (gate=approve),rolled-back
-RuntimeEnvironment,validated,environment.readiness-requested (gate=reject),retired
-Risk,assessed,risk.escalate-requested (gate=approve),escalated
-Release,candidate,release.approve-requested (gate=reject),closed
-Deployment,running,deployment.failed,failed
-Deployment,failed,deployment.retry-requested (gate=request_changes|defer),failed
-Exception,classified,exception.handle-requested (gate=defer),escalated

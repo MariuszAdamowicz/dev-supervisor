@@ -20,10 +20,10 @@ Nie moze samodzielnie dawac globalnego PASS.
 ## Scenariusze referencyjne
 1. Feature happy path: `drafted -> done`.
 2. Feature rework path: `implemented -> test-ready -> implemented -> stabilized`.
-3. PromptTask defer + timeout + retry.
-4. Release approve -> deployment fail -> rollback succeed -> release re-approve.
-5. Risk escalated blokuje release do czasu resolution.
-6. Authz denied blokuje transition i tworzy Exception(authz).
+3. PromptTask job control defer + timeout + retry.
+4. ReleaseBundle approve -> deployment fail -> rollback succeed -> release re-approve.
+5. RiskEntry escalated blokuje release do czasu resolution.
+6. Authz denied blokuje transition i tworzy ExceptionCase(authz).
 7. CRUD tombstone po deprecacji/revoke/drop bez utraty linkow parent/child.
 
 ## Procedura

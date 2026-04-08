@@ -5,8 +5,6 @@ Project,baseline-approved,project.activate-requested,active
 Repository,detected,repo.initialize-requested,initialized
 Repository,initialized,repo.attach-remote-requested,remote-attached
 Repository,remote-attached,repo.align-policy-requested (gate=approve),policy-aligned
-VerificationPlan,drafted,verification.review-requested,reviewed
-VerificationPlan,reviewed,verification.approve-requested (gate=approve),approved
 Idea,captured,idea.scope-requested,scoped
 Idea,scoped,idea.convert-requested (gate=approve),converted
 Requirement,proposed,requirement.clarify-requested,clarified
@@ -40,16 +38,10 @@ ChangeSet,staged,changeset.validate-requested (gate=approve),validated
 Feature,implemented,feature.stabilize-requested (gate=request_changes),test-ready
 Feature,test-ready,feature.implement-requested,implemented
 Feature,implemented,feature.stabilize-requested (gate=approve),stabilized
-RuntimeEnvironment,defined,environment.validate-requested,validated
-RuntimeEnvironment,validated,environment.readiness-requested (gate=approve),ready
-Release,planned,release.candidate-requested,candidate
-Release,candidate,release.approve-requested (gate=approve),approved
-Deployment,prepared,deployment.start-requested,running
-Deployment,running,deployment.failed,failed
-Deployment,failed,deployment.retry-requested (gate=approve),prepared
-Deployment,prepared,deployment.start-requested,running
-Deployment,running,deployment.completed,succeeded
-Release,approved,deployment.succeeded,published
+DeploymentRun,planned,deployment.started,running
+DeploymentRun,running,deployment.failed,failed
+DeploymentRun,failed,deployment.retry-requested (gate=approve),planned
+DeploymentRun,planned,deployment.started,running
+DeploymentRun,running,deployment.completed,succeeded
 Feature,stabilized,feature.release-requested,released
 Feature,released,feature.done-requested (gate=approve),done
-Release,published,release.close-requested (gate=approve),closed

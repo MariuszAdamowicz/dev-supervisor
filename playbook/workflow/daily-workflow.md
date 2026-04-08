@@ -2,17 +2,25 @@
 
 Zasada nadrzedna:
 Operator nie wybiera "kroku pipeline" recznie.
-Operator wybiera entrypoint OP, a system wyznacza next_transition z OP Layer.
+Operator wybiera entrypoint OP albo control, a system wyznacza next_transition z OP Layer.
 
 Kanoniczna semantyka:
 - layers/op/object-catalog.md
+- layers/op/authz-contracts.md
+- layers/op/delivery-contracts.md
+- layers/op/environment-contracts.md
+- layers/op/exception-contracts.md
+- layers/op/glossary-contracts.md
+- layers/op/job-contracts.md
 - layers/op/relation-contracts.md
+- layers/op/risk-contracts.md
 - layers/op/recovery-contracts.md
 - layers/op/scheduler-contracts.md
+- layers/op/verification-contracts.md
 - layers/op/state-machines.md
 - layers/op/trigger-rules.md
 
-## 1. Wybierz entrypoint OP
+## 1. Wybierz entrypoint procesu
 
 Dopuszczalne entrypointy (zalezne od kontekstu):
 - Project (nowy projekt / re-konfiguracja)
@@ -20,15 +28,15 @@ Dopuszczalne entrypointy (zalezne od kontekstu):
 - Repository/ChangeSet (VCS i scope zmiany)
 - Idea (intake i scoping)
 - Feature (spec/test/implement)
-- VerificationPlan (polityka unit/integration/acceptance/e2e)
+- VerificationPolicy (polityka unit/integration/acceptance/e2e)
 - UseCase/PortContract (granice i kontrakty aplikacyjne)
 - Component / relation graph (reguly zaleznosci i spojnosci)
 - DataSchema/Migration (ewolucja danych)
-- Term/UIComponent (UX alignment)
-- ActorRolePermission (authz i ownership)
-- RuntimeEnvironment (gotowosc lane i deploymentu)
-- Release (delivery)
-- Exception / recovery controls / scheduler timer escalation (obsluga awarii)
+- GlossaryEntry/UIComponent (UX alignment)
+- AccessGrant / authz controls
+- EnvironmentTarget (gotowosc lane i deploymentu)
+- ReleaseBundle (delivery)
+- ExceptionCase / recovery controls / scheduler timer escalation (obsluga awarii)
 
 ## 2. Odczytaj stan instancji OP
 
@@ -36,7 +44,7 @@ Dla wybranego OP ustal:
 - current_state
 - legalne przejscia
 - guardy blokujace
-- pending PromptTask
+- pending PromptTask control
 - latest GateDecisionRecord
 - parent linkage i impacted children
 - evidence class ostatnich kluczowych dowodow
@@ -116,8 +124,8 @@ Jesli transition nie jest domkniety:
 - odswiez stan OP,
 - wyznacz nowe next_transition.
 
-## 9. Release handoff
+## 9. Delivery handoff
 
 Gdy Feature OP osiagnie gotowosc release:
-- przekaz do Release OP,
-- przejdz przez Deployment/recovery controls wg guardow OP.
+- przekaz do ReleaseBundle control,
+- przejdz przez DeploymentRun/recovery controls wg guardow OP.

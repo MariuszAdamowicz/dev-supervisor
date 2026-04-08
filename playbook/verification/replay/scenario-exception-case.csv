@@ -1,4 +1,5 @@
 op_type,from_state,event,to_state
-Feature,implemented,feature.stabilize-requested (gate=request_changes),test-ready
 ExceptionCase,detected,exception.classify-requested,classified
 ExceptionCase,classified,exception.handle-requested (gate=approve),handled
+ExceptionCase,classified,exception.handle-requested (gate=defer),escalated
+ExceptionCase,escalated,exception.reassess-requested,classified

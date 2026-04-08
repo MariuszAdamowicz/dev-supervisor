@@ -19,22 +19,22 @@ Primary copy nie opisuje:
 - `Feature.specified -> Feature.ux-aligned`.
 
 ## Glowny przebieg (nowy projekt)
-1. Project setup (Project + Repository + ActorRolePermission)
-2. Product baseline (Requirement + Constraint + DecisionRecord + UseCase + PortContract + Component + VerificationPlan + UX contract)
+1. Project setup (Project + Repository + AccessGrant)
+2. Product baseline (Requirement + Constraint + DecisionRecord + UseCase + PortContract + Component + VerificationPolicy + UX contract)
 3. Idea intake (Idea)
 4. Idea scoping (Idea -> Feature)
-5. Feature spec/test loop (Feature + Scenario + ChangeSet + PromptTask + GateDecisionRecord)
-6. UX alignment (Term + UIComponent + UIScreen)
-7. Quality and hardening (VerificationPlan + QualityEvidenceRecord + Risk + dependency relations)
-8. Data and environment readiness (DataSchema + Migration + RuntimeEnvironment, gdy dotyczy)
-9. Delivery (Release -> Deployment -> RollbackAction/CompensationAction)
+5. Feature spec/test loop (Feature + Scenario + ChangeSet + PromptTask control + GateDecisionRecord)
+6. UX alignment (GlossaryEntry + UIComponent + UIScreen)
+7. Quality and hardening (VerificationPolicy + QualityEvidenceRecord + RiskEntry + dependency relations)
+8. Data and environment readiness (DataSchema + Migration + EnvironmentTarget, gdy dotyczy)
+9. Delivery (ReleaseBundle -> DeploymentRun -> RollbackAction/CompensationAction)
 10. Audit closure (ProcessEventRecord + final GateDecisionRecord)
 
 ## Decyzje operatora
 Operator podejmuje decyzje:
 - wybór aktywnej idei/feature,
 - GateDecisionRecord (approve/request_changes/defer/reject),
-- acceptance lub escalation dla Risk/Exception,
+- acceptance lub escalation dla RiskEntry/ExceptionCase,
 - publikacja release i ewentualny recovery action.
 
 ## Cofanie i regeneracja

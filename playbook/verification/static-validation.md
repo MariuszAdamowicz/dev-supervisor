@@ -5,7 +5,14 @@ potwierdzic, ze dokumenty playbooka sa formalnie spojne (bez uruchamiania projek
 
 ## Wejscie
 - layers/op/object-catalog.md
+- layers/op/authz-contracts.md
+- layers/op/delivery-contracts.md
+- layers/op/environment-contracts.md
+- layers/op/exception-contracts.md
+- layers/op/glossary-contracts.md
+- layers/op/job-contracts.md
 - layers/op/relation-contracts.md
+- layers/op/risk-contracts.md
 - layers/op/recovery-contracts.md
 - layers/op/scheduler-contracts.md
 - layers/op/state-machines.md

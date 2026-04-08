@@ -116,10 +116,10 @@ Kazda akcja ma:
   - intent: cofniecie do poprawy po gate
   - required_capabilities: choose_action, write_state
 
-### Release i operacje
+### Delivery i operacje
 
 - start_release
-  - intent: utworzenie Release candidate
+- intent: utworzenie ReleaseBundle candidate
   - required_capabilities: write_state, append_audit
 
 - deploy_release

@@ -18,7 +18,7 @@ UI odzwierciedla stany OP z layers/op/state-machines.md.
 - current_state: aktualny stan OP
 - next_transition: oczekiwane przejscie
 - blocking_guards: lista guardow blokujacych przejscie
-- pending_tasks: otwarte PromptTask dla current_op
+- pending_tasks: otwarte PromptTask controls dla current_op
 - latest_gate: ostatnia GateDecisionRecord dla current_op
 
 ## Regula invalidation

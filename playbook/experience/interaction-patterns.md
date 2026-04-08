@@ -36,7 +36,7 @@ Kazda akcja operatora zapisuje ProcessEventRecord:
 - payload fingerprint
 
 ## Pattern 6: Exception First
-Dla Exception i timeout scheduler'a UI pokazuje najpierw:
+Dla ExceptionCase i timeout scheduler'a UI pokazuje najpierw:
 - severity
 - impact
 - failure policy (retry/compensation/escalation)

@@ -48,33 +48,33 @@ Lista bazowa:
 10. `DecisionRecord.approved -> DecisionRecord.superseded`
 11. `Scenario.reviewed -> Scenario.approved`
 12. `Feature.implemented -> Feature.stabilized`
-13. `Term.proposed -> Term.approved`
-14. `Term.approved -> Term.deprecated`
+13. `GlossaryEntry.proposed -> GlossaryEntry.approved`
+14. `GlossaryEntry.approved -> GlossaryEntry.deprecated`
 15. `UIComponent.implemented -> UIComponent.verified`
 16. `UIComponent.verified -> UIComponent.deprecated`
 17. `UIScreen.mapped -> UIScreen.verified`
 18. `UIScreen.verified -> UIScreen.deprecated`
 19. `PromptTask.executed -> PromptTask.validated`
-20. `ActorRolePermission.defined -> ActorRolePermission.active`
-21. `ActorRolePermission.active -> ActorRolePermission.revised`
-22. `ActorRolePermission.revised -> ActorRolePermission.revoked`
-23. `Risk.assessed -> Risk.mitigated`
-24. `Risk.assessed -> Risk.accepted`
-25. `Risk.assessed -> Risk.escalated`
-26. `Risk.escalated -> Risk.closed`
+20. `AccessGrant.defined -> AccessGrant.active`
+21. `AccessGrant.active -> AccessGrant.revised`
+22. `AccessGrant.revised -> AccessGrant.revoked`
+23. `RiskEntry.assessed -> RiskEntry.mitigated`
+24. `RiskEntry.assessed -> RiskEntry.accepted`
+25. `RiskEntry.assessed -> RiskEntry.escalated`
+26. `RiskEntry.escalated -> RiskEntry.closed`
 27. `Repository.remote-attached -> Repository.policy-aligned`
 28. `ChangeSet.staged -> ChangeSet.validated`
-29. `VerificationPlan.reviewed -> VerificationPlan.approved`
+29. `VerificationPolicy.reviewed -> VerificationPolicy.approved`
 30. `DataSchema.reviewed -> DataSchema.approved`
 31. `Migration.reviewed -> Migration.approved`
 32. `Migration.applied -> Migration.rolled-back`
-33. `RuntimeEnvironment.validated -> RuntimeEnvironment.ready`
+33. `EnvironmentTarget.validated -> EnvironmentTarget.ready`
 34. `Scenario.passing -> Scenario.obsolete`
-35. `Exception.classified -> Exception.handled`
-36. `Release.candidate -> Release.approved`
-37. `Deployment.failed -> RollbackAction.completed` (gate zamkniecia recovery)
+35. `ExceptionCase.classified -> ExceptionCase.handled`
+36. `ReleaseBundle.candidate -> ReleaseBundle.approved`
+37. `DeploymentRun.failed -> RollbackAction.completed` (gate zamkniecia recovery)
 38. `Feature.released -> Feature.done`
-39. `Release.published -> Release.closed`
+39. `ReleaseBundle.published -> ReleaseBundle.closed`
 
 ## Zasada wykonania
 

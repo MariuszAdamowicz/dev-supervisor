@@ -44,6 +44,11 @@ Linki:
 - `control-object`: obiekt sterujacy polityka, uprawnieniami, jakością albo decyzja.
 - `execution-object`: obiekt wykonawczy zwiazany z uruchomieniem pracy, zmian lub wdrozen.
 - `environment-object`: obiekt opisujacy repo, schemat danych lub srodowisko uruchomieniowe.
+- `verification-control`: mutowalna polityka lane, evidence i gate dla scope formalnej walidacji, niebedaca OP.
+- `environment-control`: mutowalny target srodowiska i gotowosci runtime, niebedacy OP.
+- `exception-control`: mutowalny przypadek bledu procesu lub runtime, niebedacy OP.
+- `delivery-control`: mutowalny runtime handle rollout/deploy, niebedacy OP.
+- `job-control`: mutowalny runtime handle dla pracy AI albo operatora review, niebedacy OP.
 - `graph-relation`: mutowalna relacja w grafie OP, niebedaca osobnym OP.
 - `recovery-control`: mutowalny runtime handle undo/cleanup, niebedacy OP.
 - `scheduler-control`: mutowalny runtime handle czasu i retry, niebedacy OP.
@@ -109,13 +114,6 @@ Linki:
 - lifecycle: scenariusz powstaje, przechodzi review, approval, powiazanie z testami, stan passing i eventual obsolescence.
 - CRUD: create dla nowej reguly/przykladu; update przy zmianie zachowania; remove = obsolete gdy regula przestaje byc aktualna.
 
-### Term
-- class: `work-object`
-- applies_when: `always`
-- znaczenie: terminy buduja wspolny jezyk domeny i UX; musza ewoluowac wraz ze zrozumieniem domeny.
-- lifecycle: proposed -> approved -> deprecated, z mozliwoscia zastapienia nowszym terminem.
-- CRUD: create gdy pojawia sie nowe pojecie; update przez redefinicje i aliasy; remove = deprecate z replacement_ref.
-
 ### UIComponent
 - class: `work-object`
 - applies_when: `interactive-ui`
@@ -129,20 +127,6 @@ Linki:
 - znaczenie: projekcja jednego primary task i zestawu legalnych akcji dla danego stanu OP.
 - lifecycle: proposed -> mapped -> verified -> deprecated.
 - CRUD: create dla nowego entrypointu/trybu; update przy zmianie projekcji; remove = deprecate lub replace przez nowy ekran.
-
-### PromptTask
-- class: `execution-object`
-- applies_when: `always`
-- znaczenie: materializuje prace delegowana do AI lub operatora review; jest jednostka retry, timeout i walidacji.
-- lifecycle: created -> ready -> executed -> validated -> closed lub cancelled.
-- CRUD: create przy triggerze procesu; update przez retry/context changes; remove = cancel/close.
-
-### ActorRolePermission
-- class: `control-object`
-- applies_when: `always`
-- znaczenie: ownership i authz musza byc stanem projektu, a nie domyslem runtime.
-- lifecycle: defined -> active -> revised -> revoked.
-- CRUD: create przy onboarding/new scope; update przez revise; remove = revoke.
 
 ### UseCase
 - class: `work-object`
@@ -165,34 +149,6 @@ Linki:
 - lifecycle: identified -> mapped -> checked -> compliant albo refactor-required -> deprecated.
 - CRUD: create dla istotnej jednostki architektonicznej; update przy refaktorze i zmianie odpowiedzialnosci; remove = deprecate po merge/replacement.
 
-### Risk
-- class: `control-object`
-- applies_when: `formal-validation`
-- znaczenie: ryzyka musza miec jawny status i resolution path; inaczej release jest slepy.
-- lifecycle: identified -> assessed -> mitigated/accepted/escalated -> closed.
-- CRUD: create przy identyfikacji ryzyka; update przy ocenie i rezolucji; remove = close, nie skasowanie.
-
-### Release
-- class: `execution-object`
-- applies_when: `formal-validation`
-- znaczenie: release grupuje gotowe zmiany do publikacji i gate delivery.
-- lifecycle: planned -> candidate -> approved -> published -> closed.
-- CRUD: create przy gotowosci delivery; update przy rework; remove = close/reject z audit trail.
-
-### Deployment
-- class: `execution-object`
-- applies_when: `deployable-runtime`
-- znaczenie: deployment jest osobnym przebiegiem wykonawczym wobec release.
-- lifecycle: prepared -> running -> succeeded albo failed; przy fail uruchamia recovery controls, a nie nowy OP delivery.
-- CRUD: create po approval release; update podczas retry; remove = terminal success/fail.
-
-### Exception
-- class: `execution-object`
-- applies_when: `always`
-- znaczenie: blad procesu lub biznesu musi miec classification i resolution path.
-- lifecycle: detected -> classified -> handled albo escalated.
-- CRUD: create przy authz/quality/runtime fail; update przez classify/handle; remove = handled/closed by lifecycle, nie delete.
-
 ### Repository
 - class: `environment-object`
 - applies_when: `version-controlled`
@@ -207,13 +163,6 @@ Linki:
 - lifecycle: drafted -> staged -> validated -> committed -> superseded.
 - CRUD: create dla kazdego pakietu pracy nadajacego sie do review; update podczas staging/rework; remove = supersede lub abandon z reason.
 
-### VerificationPlan
-- class: `control-object`
-- applies_when: `formal-validation`
-- znaczenie: opisuje, jakie warstwy testow i evidence sa wymagane dla Feature, ChangeSet lub Release.
-- lifecycle: drafted -> reviewed -> approved -> active -> revised -> retired.
-- CRUD: create przy baseline i dla nowych klas zmian; update przy zmianie ryzyka/stacku; remove = retire po supersede.
-
 ### DataSchema
 - class: `environment-object`
 - applies_when: `persistent-data`
@@ -227,13 +176,6 @@ Linki:
 - znaczenie: migracja jest wykonaniem zmiany schematu/danych z wlasnym review, retry i rollback planem.
 - lifecycle: drafted -> reviewed -> approved -> ready -> applied -> rolled-back albo superseded.
 - CRUD: create przy kazdej niekompatybilnej lub operacyjnie istotnej zmianie schematu; update przy rehearsal/rework; remove = supersede po zastosowaniu.
-
-### RuntimeEnvironment
-- class: `environment-object`
-- applies_when: `deployable-runtime`
-- znaczenie: srodowisko lokalne, CI, staging, prod ma wlasne capability, config i readiness. Nie powinno byc ukryte w wiki.
-- lifecycle: defined -> validated -> ready -> active -> degraded -> retired.
-- CRUD: create dla kazdego srodowiska operacyjnego; update przy zmianie config/capabilities; remove = retire po decommission.
 
 ## Graph Relations
 
@@ -251,6 +193,85 @@ Linki:
 - lifecycle: timer nie ma pelnego FSM OP; ma mutowalny `status` opisany w `scheduler-contracts.md`.
 - CRUD: create przy defer/retry/deadline; update przez `scheduled -> fired|cancelled -> consumed`; remove = `cancelled` albo `consumed`.
 
+## Delivery Controls
+
+### ReleaseBundle
+- class: `delivery-control`
+- applies_when: `formal-validation`
+- znaczenie: bundle delivery jest mutowalnym zakresem wydania i gate approval, ale nie samodzielnym obiektem pracy produktu.
+- lifecycle: control nie ma pelnego FSM OP; ma mutowalny `status` opisany w `delivery-contracts.md`.
+- CRUD: create przy gotowosci delivery; update przez approval/publish/closure; remove = `closed`, nigdy hard delete po audycie.
+
+### DeploymentRun
+- class: `delivery-control`
+- applies_when: `deployable-runtime`
+- znaczenie: deployment run jest runtime wykonaniem rolloutu dla konkretnego `ReleaseBundle` i `EnvironmentTarget`. To nie jest samodzielny obiekt pracy projektu.
+- lifecycle: control nie ma pelnego FSM OP; ma mutowalny `status` opisany w `delivery-contracts.md`.
+- CRUD: create po `ReleaseBundle.approved`; update przez `planned -> running -> succeeded|failed|cancelled`; remove = `succeeded` albo `cancelled`.
+
+## Job Controls
+
+### PromptTask
+- class: `job-control`
+- applies_when: `always`
+- znaczenie: PromptTask materializuje runtime job AI albo review task operatora. To jednostka wykonania i retry, ale nie samodzielny obiekt projektu.
+- lifecycle: control nie ma pelnego FSM OP; ma mutowalny `status` opisany w `job-contracts.md`.
+- CRUD: create przy triggerze procesu; update przez retry/context changes/validation; remove = `closed` albo `cancelled`, nigdy hard delete po audycie.
+
+## Verification Controls
+
+### VerificationPolicy
+- class: `verification-control`
+- applies_when: `formal-validation`
+- znaczenie: polityka walidacji opisuje wymagane lane testowe, evidence i provenance dla Feature, ChangeSet albo ReleaseBundle, ale nie jest samodzielnym obiektem pracy projektu.
+- lifecycle: control nie ma pelnego FSM OP; ma mutowalny `status` opisany w `verification-contracts.md`.
+- CRUD: create przy baseline i dla nowych klas zmian; update przy zmianie ryzyka, stacku lub delivery lane; remove = `retired`, nigdy hard delete po audycie.
+
+## Risk Controls
+
+### RiskEntry
+- class: `risk-control`
+- applies_when: `formal-validation`
+- znaczenie: ryzyko jest jawna pozycja rejestru i blockerem governance, ale nie samodzielnym obiektem pracy projektowej.
+- lifecycle: control nie ma pelnego FSM OP; ma mutowalny `status` opisany w `risk-contracts.md`.
+- CRUD: create przy identyfikacji ryzyka; update przez ocene i resolution path; remove = `closed`, nigdy hard delete po audycie.
+
+## Exception Controls
+
+### ExceptionCase
+- class: `exception-control`
+- applies_when: `always`
+- znaczenie: exception case jest jawna kontrola bledu procesu lub runtime. Wymaga klasyfikacji, resolution path i blocker projection, ale nie jest samodzielnym obiektem pracy projektu.
+- lifecycle: control nie ma pelnego FSM OP; ma mutowalny `status` opisany w `exception-contracts.md`.
+- CRUD: create przy authz/quality/runtime fail; update przez classify/handle/escalate; remove = `handled`, nigdy hard delete po audycie.
+
+## Environment Controls
+
+### EnvironmentTarget
+- class: `environment-control`
+- applies_when: `deployable-runtime`
+- znaczenie: target srodowiska jest kontrola gotowosci runtime i capability dla delivery oraz walidacji. To nie jest samodzielny obiekt pracy projektu.
+- lifecycle: control nie ma pelnego FSM OP; ma mutowalny `status` opisany w `environment-contracts.md`.
+- CRUD: create dla local/ci/stage/prod; update przez readiness/recovery/decommission; remove = `retired`, nigdy hard delete po audycie.
+
+## Authz Controls
+
+### AccessGrant
+- class: `authz-control`
+- applies_when: `always`
+- znaczenie: authz i ownership sa jawna polityka procesu, ale nie samodzielnym obiektem pracy projektu. Grant musi byc queryable po principal/scope/action.
+- lifecycle: control nie ma pelnego FSM OP; ma mutowalny `status` opisany w `authz-contracts.md`.
+- CRUD: create przy bootstrapie projektu albo nowym scope; update przez revise/reactivate; remove = `revoked`, nigdy hard delete po audycie.
+
+## Glossary Controls
+
+### GlossaryEntry
+- class: `glossary-control`
+- applies_when: `always`
+- znaczenie: wpis slownika utrzymuje ubiquitous language dla copy, UX i scenariuszy, ale nie jest samodzielnym obiektem pracy projektu.
+- lifecycle: control nie ma pelnego FSM OP; ma mutowalny `status` opisany w `glossary-contracts.md`.
+- CRUD: create przy nowym pojeciu; update przez akceptacje, aliasy i replacement; remove = `deprecated`, nigdy hard delete po audycie.
+
 ## Recovery Controls
 
 ### RollbackAction
@@ -258,12 +279,12 @@ Linki:
 - applies_when: `deployable-runtime` albo `persistent-data`, gdy revert jest legalna sciezka recovery
 - znaczenie: rollback jest kontrola runtime cofajaca deployment lub migracje do poprzedniej stabilnej rewizji. To nie jest samodzielny obiekt pracy projektu.
 - lifecycle: control nie ma pelnego FSM OP; ma mutowalny `status` opisany w `recovery-contracts.md`.
-- CRUD: create po `Deployment.failed` albo `Migration.rollback-requested`; update przez `planned -> running -> completed|failed|cancelled`; remove = `completed` albo `cancelled`.
+- CRUD: create po `DeploymentRun.failed` albo `Migration.rollback-requested`; update przez `planned -> running -> completed|failed|cancelled`; remove = `completed` albo `cancelled`.
 
 ### CompensationAction
 - class: `recovery-control`
 - applies_when: `always` gdy failure_policy wymaga undo lub cleanup side effects
-- znaczenie: kompensacja jest mechanizmem odzyskiwania dla Exception, RollbackAction, Migration albo innych krokow z side effect. To runtime control, nie samodzielny obiekt pracy projektu.
+- znaczenie: kompensacja jest mechanizmem odzyskiwania dla ExceptionCase, RollbackAction, Migration albo innych krokow z side effect. To runtime control, nie samodzielny obiekt pracy projektu.
 - lifecycle: control nie ma pelnego FSM OP; ma mutowalny `status` opisany w `recovery-contracts.md`.
 - CRUD: create przy awarii/reject/decyzji recovery; update przez `planned -> running -> completed|failed|cancelled`; remove = `completed` albo `cancelled`, nigdy hard delete po audycie.
 
@@ -286,7 +307,7 @@ Linki:
 ### QualityEvidenceRecord
 - class: `system-record`
 - applies_when: `formal-validation`
-- znaczenie: wynik konkretnej lane walidacyjnej albo quality check dla `Feature`, `ChangeSet`, `VerificationPlan` lub `Release`.
+- znaczenie: wynik konkretnej lane walidacyjnej albo quality check dla `Feature`, `ChangeSet`, `VerificationPolicy` lub `ReleaseBundle`.
 - lifecycle: append-only per lane/run; nowe wykonanie tworzy nowy record, nie nadpisuje starego.
 - CRUD: create po lane/check; read dla gate i rollout; update/remove = forbidden.
 

@@ -14,12 +14,18 @@ Ponizsze scenariusze sa nadal przydatne do szybkich testow lokalnych, ale nie st
 - `scenario-e2e-reference.csv`
 - `scenario-feature-happy.csv`
 - `scenario-feature-rework.csv`
+- `scenario-access-grant.csv`
+- `scenario-environment-target.csv`
+- `scenario-exception-case.csv`
+- `scenario-glossary-entry.csv`
+- `scenario-risk-entry.csv`
+- `scenario-verification-policy.csv`
+- `scenario-release-bundle.csv`
 - `scenario-release-rollback.csv`
 - `scenario-chaos-timeout.csv`
 - `scenario-chaos-quality.csv`
 - `scenario-chaos-deploy-rollback-fail.csv`
 - `scenario-chaos-gate-reject.csv`
-- `scenario-term-coverage.csv`
 - `scenario-ui-component-coverage.csv`
 - `scenario-ui-screen-coverage.csv`
 

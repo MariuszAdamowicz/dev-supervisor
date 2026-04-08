@@ -12,9 +12,9 @@
 - Edycja kroku upstream pokazuje liste downstream invalidations z trigger rules.
 
 ## Widoki minimalne
-- Project Setup View (Project/Repository/Requirement/Constraint/DecisionRecord/VerificationPlan)
+- Project Setup View (Project/Repository/Requirement/Constraint/DecisionRecord/VerificationPolicy)
 - Idea & Feature View (Idea/Feature/Scenario/ChangeSet)
-- UX View (Term/UIComponent/UIScreen)
-- Data & Environment View (DataSchema/Migration/RuntimeEnvironment)
-- Delivery View (Release/Deployment/Recovery Controls)
-- Audit View (ProcessEventRecord/GateDecisionRecord/QualityEvidenceRecord/Exception)
+- UX View (GlossaryEntry/UIComponent/UIScreen)
+- Data & Environment View (DataSchema/Migration/EnvironmentTarget)
+- Delivery View (ReleaseBundle/DeploymentRun/Recovery Controls)
+- Audit View (ProcessEventRecord/GateDecisionRecord/QualityEvidenceRecord/ExceptionCase)

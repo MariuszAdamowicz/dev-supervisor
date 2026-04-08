@@ -81,8 +81,8 @@ cat > "$OUT_REPORTS/review-package-feature-stabilize.md" <<'PKG'
 PKG
 
 cat > "$OUT_REPORTS/review-package-release-approve.md" <<'PKG'
-# Review Package: Release Approve
-- transition: Release.candidate -> Release.approved
+# Review Package: ReleaseBundle Approve
+- transition: ReleaseBundle.candidate -> ReleaseBundle.approved
 - includes deployment.failed and rollback path
 PKG
 

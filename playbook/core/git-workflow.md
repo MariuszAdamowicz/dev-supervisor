@@ -35,7 +35,7 @@ Przed merge musza byc domkniete:
 - build/test/lint,
 - GateDecisionRecord,
 - QualityEvidenceRecord,
-- brak krytycznych otwartych PromptTask.
+- brak krytycznych otwartych PromptTask controls.
 
 ## OP alignment
 

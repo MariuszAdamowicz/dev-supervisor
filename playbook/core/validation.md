@@ -40,7 +40,7 @@ Kazdy failure path powinien miec:
 - log,
 - policy w OP (retry/recovery/escalation).
 
-Jesli wystapi Exception albo timeout scheduler'a:
-- zarejestruj Exception OP i SchedulerTimer event,
+Jesli wystapi ExceptionCase albo timeout scheduler'a:
+- zarejestruj ExceptionCase control i SchedulerTimer event,
 - wykonaj retry lub CompensationAction,
 - podejmij jawna decyzje gate.

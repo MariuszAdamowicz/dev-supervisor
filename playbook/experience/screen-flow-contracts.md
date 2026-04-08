@@ -13,7 +13,7 @@ UI renderuje projection z OP:
 - current_state
 - legal transitions
 - guards
-- pending PromptTask
+- pending PromptTask controls
 - gate requirements
 - tool_plan (w tym operator-ui)
 
@@ -33,7 +33,7 @@ Musi pokazac:
 - user goal: `utworz nowy projekt i przygotuj baseline`
 - formularz nazwa/opis projektu
 - wizard wyboru profili
-- status Repository i VerificationPlan
+- status Repository i VerificationPolicy
 - status baseline artifacts (overview/constraints/glossary/use-case/port-contract/component-map/adr/ux)
 - CTA: `approve baseline` tylko gdy guards spelnione
 
@@ -73,7 +73,7 @@ Zasada:
 ## 4. UX Alignment Screen
 
 Widoczne gdy:
-- Term.proposed
+- GlossaryEntry.proposed
 - UIComponent.proposed/mapped/implemented
 - UIScreen.proposed/mapped
 
@@ -103,7 +103,7 @@ Zakaz:
 Widoczne gdy:
 - DataSchema.drafted/reviewed/approved/applied
 - Migration.drafted/reviewed/ready/applied
-- RuntimeEnvironment.defined/validated/ready/degraded
+- EnvironmentTarget.defined/validated/ready/degraded
 
 Musi pokazac:
 - user goal: `utrzymaj gotowosc danych i srodowiska`
@@ -111,11 +111,11 @@ Musi pokazac:
 - status gotowosci local/ci/staging/prod
 - CTA: approve schema / apply migration / confirm environment readiness
 
-## 7. Release & Operations Screen
+## 7. ReleaseBundle & Operations Screen
 
 Widoczne gdy:
-- Release.candidate/approved/published
-- Deployment.prepared/running/failed
+- ReleaseBundle.candidate/approved/published
+- aktywny `DeploymentRun` (`planned|running|failed`)
 - aktywny `RollbackAction` (`planned|running|failed`)
 
 Musi pokazac:
@@ -124,10 +124,10 @@ Musi pokazac:
 - rollback status i compensation status
 - CTA: start deploy / confirm rollback
 
-## 8. Exception & Timer Screen
+## 8. ExceptionCase & Timer Screen
 
 Widoczne gdy:
-- Exception.detected/escalated
+- ExceptionCase.detected/escalated
 - aktywny `SchedulerTimer` po `timeout.fired`
 
 Musi pokazac:

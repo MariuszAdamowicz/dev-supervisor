@@ -28,6 +28,6 @@ Podczas rewrite musza byc zaktualizowane:
 - ProcessEventRecord.
 
 Jesli rewrite powoduje regression risk:
-- utworz Risk OP,
+- utworz RiskEntry control,
 - zweryfikuj dependency relations,
 - wykonaj dodatkowy gate przed release handoff.

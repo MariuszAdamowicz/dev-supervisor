@@ -6,9 +6,17 @@ Semantyka procesu jest kanoniczna w OP Layer.
 
 Kanoniczne definicje OP:
 - layers/op/object-catalog.md
+- layers/op/authz-contracts.md
+- layers/op/delivery-contracts.md
+- layers/op/environment-contracts.md
+- layers/op/exception-contracts.md
+- layers/op/glossary-contracts.md
+- layers/op/job-contracts.md
 - layers/op/relation-contracts.md
+- layers/op/risk-contracts.md
 - layers/op/recovery-contracts.md
 - layers/op/scheduler-contracts.md
+- layers/op/verification-contracts.md
 - layers/op/state-machines.md
 - layers/op/trigger-rules.md
 
@@ -33,11 +41,12 @@ Kanoniczne definicje OP:
 - utworz `.ai/architecture/component-map.md`
 - utworz `.ai/ux/new-project.md`
 - utworz `.ai/verification/plan.md`
-- utworz Requirement/Constraint/DecisionRecord/Repository/VerificationPlan OP dla baseline
+- utworz Requirement/Constraint/DecisionRecord/Repository OP dla baseline
+- utworz VerificationPolicy dla baseline formalnej walidacji
 - zdefiniuj poczatkowe UseCase i granice PortContract dla kluczowych przeplywow
 - zdefiniuj poczatkowa mape Component dla krytycznych modulow
-- utworz ActorRolePermission dla operatora inicjujacego projekt
-- jesli profil jest `deployable-runtime`, utworz RuntimeEnvironment dla local i docelowych lane
+- utworz AccessGrant dla operatora inicjujacego projekt
+- jesli profil jest `deployable-runtime`, utworz EnvironmentTarget dla local i docelowych lane
 - jesli profil jest `persistent-data`, utworz DataSchema dla baseline danych
 - zbuduj indeks OP i parent linkage dla baseline
 
@@ -45,7 +54,7 @@ Product Gate przechodzi tylko gdy:
 - baseline jest kompletny,
 - baseline jest niesprzeczny,
 - baseline ma komplet UX/architecture artifacts,
-- baseline ma Repository i VerificationPlan zgodne z profilem projektu,
+- baseline ma Repository i VerificationPolicy zgodne z profilem projektu,
 - authz i provenance sa zapisane,
 - operator zapisal jawna decyzje gate.
 

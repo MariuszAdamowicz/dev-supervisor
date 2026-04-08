@@ -9,7 +9,7 @@ Canonical prompt: `prompts/implementation-iterative.md`.
 
 Flow:
 - wybór scenariusza
-- potwierdzenie VerificationPlan dla scope
+- potwierdzenie VerificationPolicy dla scope
 - test failing
 - minimalna implementacja
 - refactor po scenariuszu

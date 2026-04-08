@@ -20,7 +20,7 @@ ustalic jednoznaczny kontrakt tworzenia, odczytu, modyfikacji i usuwania OP oraz
 - runtime musi utrzymywac mutowalne relacje grafu zgodnie z `layers/op/relation-contracts.md`.
 - relacja grafu nie jest OP; nie ma osobnego parent linkage i nie bierze udzialu w OP coverage audit.
 - relacja grafu musi byc queryable w przod i wstecz (`relation-index` + `reverse-relation-index`).
-- `DependencyRelation` musi byc widoczna dla scope Feature/Component/Release/Deployment, gdy ma status `blocked` albo `waived`.
+- `DependencyRelation` musi byc widoczna dla scope Feature/Component/ReleaseBundle/DeploymentRun, gdy ma status `blocked` albo `waived`.
 
 ## 2b. Scheduler control contract
 
@@ -29,12 +29,33 @@ ustalic jednoznaczny kontrakt tworzenia, odczytu, modyfikacji i usuwania OP oraz
 - scheduler control musi byc queryable po `target_ref`, `status` i `due_at`.
 - timer po `timeout.fired` musi zostac `consumed` albo `cancelled` w jawny sposob.
 
-## 2c. Recovery control contract
+## 2c. Delivery control contract
+
+- runtime musi utrzymywac mutowalne delivery controls zgodnie z `layers/op/delivery-contracts.md`.
+- `DeploymentRun` nie jest OP i nie bierze udzialu w OP coverage audit.
+- delivery control musi byc queryable po `release_ref`, `environment_ref`, `status` i `target_revision`.
+- delivery control po `succeeded|cancelled` musi zachowac reason i evidence_refs.
+
+## 2d. Job control contract
+
+- runtime musi utrzymywac mutowalne job controls zgodnie z `layers/op/job-contracts.md`.
+- `PromptTask` nie jest OP i nie bierze udzialu w OP coverage audit.
+- job control musi byc queryable po `target_ref`, `status`, `task_type` i `assignee_mode`.
+- job control po `closed|cancelled` musi zachowac reason i evidence_refs.
+
+## 2e. Recovery control contract
 
 - runtime musi utrzymywac mutowalne recovery controls zgodnie z `layers/op/recovery-contracts.md`.
 - `RollbackAction` i `CompensationAction` nie sa OP i nie biora udzialu w OP coverage audit.
-- recovery control musi byc queryable po `target_ref`, `status` i `source_exception_ref|source_deployment_ref|source_migration_ref`.
+- recovery control musi byc queryable po `target_ref`, `status` i `source_exception_case_ref|source_deployment_ref|source_migration_ref`.
 - recovery control po `completed|cancelled` musi zachowac reason i evidence_refs.
+
+## 2f. Verification control contract
+
+- runtime musi utrzymywac mutowalne verification controls zgodnie z `layers/op/verification-contracts.md`.
+- `VerificationPolicy` nie jest OP i nie bierze udzialu w OP coverage audit.
+- verification control musi byc queryable po `target_scope`, `status`, `required_lanes` i `evidence_rules`.
+- verification control po `retired` musi zachowac reason i replacement_ref.
 
 ## 3. Update
 
@@ -46,12 +67,13 @@ ustalic jednoznaczny kontrakt tworzenia, odczytu, modyfikacji i usuwania OP oraz
   - invalidation scope dla downstream OP.
 - kazda zmiana guardow lub linkow wymaga ponownej walidacji invariantow grafu.
 
-### 3a. Update semantics by OP class
+### 3a. Update semantics by OP/control class
 
 - `work-object`: update moze zmieniac payload, linki i stan, ale tylko w legalnych oknach lifecycle.
 - `control-object`: update wymaga jawnego reason i ponownej walidacji guardow OP zaleznych.
 - `execution-object`: update jest zwiazany z postepem wykonania, retry, timeout lub recovery; nie wolno nadpisywac wyniku bez nowego ProcessEventRecord.
-- `environment-object`: update wymaga sprawdzenia skutkow dla ChangeSet, Release, Deployment lub Feature zaleznych od danego srodowiska/kontraktu.
+- `environment-object`: update wymaga sprawdzenia skutkow dla ChangeSet, ReleaseBundle, DeploymentRun lub Feature zaleznych od danego srodowiska/kontraktu.
+- `verification-control`: update wymaga odswiezenia lane matrix, provenance rules i invalidation downstream dla target scope.
 
 ### 3b. Propagation contract
 
@@ -79,12 +101,13 @@ ustalic jednoznaczny kontrakt tworzenia, odczytu, modyfikacji i usuwania OP oraz
   - replacement_ref lub brak replacement z reason,
   - impacted_children.
 
-### 4a. Remove semantics by OP class
+### 4a. Remove semantics by OP/control class
 
 - `work-object`: remove = deprecate, supersede, archive albo obsolete.
 - `control-object`: remove = retire, revoke, close albo supersede z jawna polityka skutkow.
 - `execution-object`: remove = close, cancel, fail, rolled-back albo supersede; usuniecie nie moze wymazac historii wykonania.
-- `environment-object`: remove = archive, retire albo decommission; runtime musi zachowac reference integrity dla historycznych ChangeSet/Release/Migration.
+- `environment-object`: remove = archive, retire albo decommission; runtime musi zachowac reference integrity dla historycznych ChangeSet/ReleaseBundle/Migration.
+- `verification-control`: remove = retire; nie moze ukryc historii wymagan lane ani evidence provenance dla dawnego scope.
 
 ## 5. Graph integrity
 
@@ -94,8 +117,9 @@ ustalic jednoznaczny kontrakt tworzenia, odczytu, modyfikacji i usuwania OP oraz
 - `Component` i `DependencyRelation` wymagaja kontroli kierunku zaleznosci i no-cycle.
 - `UseCase` / `PortContract` / `Component` musza byc wyszukiwalne z `Feature`.
 - `Repository` i `ChangeSet` musza byc wyszukiwalne z `Feature`, `Requirement` i `Scenario`, gdy istnieje traceability.
-- `VerificationPlan` musi byc wyszukiwalny z `Feature`, `ChangeSet` i `Release`, gdy `formal-validation` jest aktywne.
-- `DataSchema` / `Migration` / `RuntimeEnvironment` musza miec reverse lookup do OP, ktore zalezne sa od danych lub deploymentu.
+- `VerificationPolicy` musi byc wyszukiwalna z `Feature`, `ChangeSet` i `ReleaseBundle`, gdy `formal-validation` jest aktywne.
+- `DeploymentRun` musi miec reverse lookup do `ReleaseBundle` i `EnvironmentTarget`.
+- `DataSchema` / `Migration` / `EnvironmentTarget` musza miec reverse lookup do OP, ktore zalezne sa od danych lub deploymentu.
 - `DependencyRelation` musi miec reverse lookup do impacted OP i jawny `status`.
 
 ## 6. Runtime artefakty

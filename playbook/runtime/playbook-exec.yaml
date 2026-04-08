@@ -2,9 +2,17 @@ schema_version: ds-playbook-exec/v1
 source_of_truth:
   op_layer:
     object_catalog: playbook/layers/op/object-catalog.md
+    authz_contracts: playbook/layers/op/authz-contracts.md
+    delivery_contracts: playbook/layers/op/delivery-contracts.md
+    environment_contracts: playbook/layers/op/environment-contracts.md
+    exception_contracts: playbook/layers/op/exception-contracts.md
+    glossary_contracts: playbook/layers/op/glossary-contracts.md
+    job_contracts: playbook/layers/op/job-contracts.md
     relation_contracts: playbook/layers/op/relation-contracts.md
+    risk_contracts: playbook/layers/op/risk-contracts.md
     recovery_contracts: playbook/layers/op/recovery-contracts.md
     scheduler_contracts: playbook/layers/op/scheduler-contracts.md
+    verification_contracts: playbook/layers/op/verification-contracts.md
     state_machines: playbook/layers/op/state-machines.md
     trigger_rules: playbook/layers/op/trigger-rules.md
   playbook_layer:
@@ -217,8 +225,9 @@ persistence_map:
     - UseCase
     - PortContract
     - Component
-    - ActorRolePermission
-    - VerificationPlan
+  required_control_types_after_new_project:
+    - AccessGrant
+    - VerificationPolicy
   op_instance_path: ".ai/runtime/v1/ops/<op_id>/versions/<op_version>.json"
   op_events_path: ".ai/runtime/v1/ops/<op_id>/events.ndjson"
   op_gates_path: ".ai/runtime/v1/ops/<op_id>/gates.ndjson"
@@ -236,7 +245,7 @@ baseline_contract:
     - use_case_map
     - port_contract_map
     - component_map
-    - verification_plan
+    - verification_policy
     - new_project_ux_projection
   required_op_types:
     - Project
@@ -247,23 +256,25 @@ baseline_contract:
     - UseCase
     - PortContract
     - Component
-    - ActorRolePermission
-    - VerificationPlan
+  required_control_types:
+    - AccessGrant
+    - VerificationPolicy
   conditional_required_artifacts:
     deployable-runtime:
-      - runtime_environment_map
+      - environment_target_map
     persistent-data:
       - data_schema_map
   conditional_required_op_types:
-    deployable-runtime:
-      - RuntimeEnvironment
     persistent-data:
       - DataSchema
+  conditional_required_control_types:
+    deployable-runtime:
+      - EnvironmentTarget
 
 authz_contract:
   default_mode: deny_by_default
   prewrite_engine: policy-engine
-  denied_transition_effect: Exception(authz)
+  denied_transition_effect: ExceptionCase(authz)
 
 crud_contract:
   hard_delete_after_audit_event: forbidden
@@ -537,7 +548,8 @@ entrypoints:
               - UseCase
               - PortContract
               - Component
-              - ActorRolePermission
+            create_controls:
+              - AccessGrant
         success_output:
           data_ref: session.new_project.baseline_ops_created
       - step_id: NP-11
@@ -719,9 +731,9 @@ entrypoints:
             source_ref: session.add_idea.ai_inference
             create_types:
               - Feature
-              - Term
               - Requirement
-              - PromptTask
+            create_controls:
+              - GlossaryEntry
         success_output:
           data_ref: session.add_idea.created_ops
       - step_id: AI-06
@@ -797,7 +809,7 @@ entrypoint_catalog:
       - Requirement.proposed -> Requirement.clarified
       - Constraint.proposed -> Constraint.validated
       - DecisionRecord.drafted -> DecisionRecord.reviewed
-      - VerificationPlan.drafted -> VerificationPlan.reviewed
+      - VerificationPolicy.drafted -> VerificationPolicy.reviewed
     required_artifacts:
       - ".ai/prd/overview.md"
       - ".ai/adr/0001-project-baseline.md"
@@ -819,9 +831,9 @@ entrypoint_catalog:
   plan_verification:
     template: verification_control
     transition_refs:
-      - VerificationPlan.drafted -> VerificationPlan.reviewed
-      - VerificationPlan.reviewed -> VerificationPlan.approved
-      - VerificationPlan.approved -> VerificationPlan.active
+      - VerificationPolicy.drafted -> VerificationPolicy.reviewed
+      - VerificationPolicy.reviewed -> VerificationPolicy.approved
+      - VerificationPolicy.approved -> VerificationPolicy.active
   refine_feature:
     template: feature_refinement
     transition_refs:
@@ -836,7 +848,7 @@ entrypoint_catalog:
     template: ux_alignment
     transition_refs:
       - Feature.specified -> Feature.ux-aligned
-      - Term.proposed -> Term.approved
+      - GlossaryEntry.proposed -> GlossaryEntry.approved
       - UIComponent.proposed -> UIComponent.mapped
       - UIComponent.implemented -> UIComponent.verified
       - UIScreen.proposed -> UIScreen.mapped
@@ -856,11 +868,11 @@ entrypoint_catalog:
   prepare_release:
     template: release_delivery
     transition_refs:
-      - Feature.stabilized -> Release.candidate
-      - Release.candidate -> Release.approved
-      - Release.approved -> Deployment.prepared
-      - Deployment.prepared -> Deployment.running
-      - Deployment.running -> Deployment.succeeded
+      - Feature.stabilized -> ReleaseBundle.candidate
+      - ReleaseBundle.candidate -> ReleaseBundle.approved
+      - ReleaseBundle.approved -> DeploymentRun.planned
+      - DeploymentRun.planned -> DeploymentRun.running
+      - DeploymentRun.running -> DeploymentRun.succeeded
       - Feature.stabilized -> Feature.released
   evolve_data_schema:
     template: data_evolution
@@ -872,17 +884,17 @@ entrypoint_catalog:
   manage_environment:
     template: environment_readiness
     transition_refs:
-      - RuntimeEnvironment.defined -> RuntimeEnvironment.validated
-      - RuntimeEnvironment.validated -> RuntimeEnvironment.ready
-      - RuntimeEnvironment.ready -> RuntimeEnvironment.active
+      - EnvironmentTarget.defined -> EnvironmentTarget.validated
+      - EnvironmentTarget.validated -> EnvironmentTarget.ready
+      - EnvironmentTarget.ready -> EnvironmentTarget.active
   handle_exception:
     template: exception_recovery
     transition_refs:
-      - Exception.detected -> Exception.classified
-      - Exception.classified -> Exception.escalated
-      - timeout.fired -> Exception.escalated
-      - Deployment.running -> Deployment.failed
-      - Deployment.failed -> RollbackAction.planned
+      - ExceptionCase.detected -> ExceptionCase.classified
+      - ExceptionCase.classified -> ExceptionCase.escalated
+      - timeout.fired -> ExceptionCase.escalated
+      - DeploymentRun.running -> DeploymentRun.failed
+      - DeploymentRun.failed -> RollbackAction.planned
 
 transition_execution:
   compiler_mode: template_compiled

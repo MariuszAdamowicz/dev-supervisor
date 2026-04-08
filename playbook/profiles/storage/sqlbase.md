@@ -10,7 +10,7 @@ Cel:
 
 ## Zakres danych w DB
 - projekty, feature, scenariusze, statusy
-- Repository, ChangeSet, VerificationPlan, DataSchema, Migration, RuntimeEnvironment
+- Repository, ChangeSet, VerificationPolicy, DataSchema, Migration, EnvironmentTarget
 - GateDecisionRecord, ProcessEventRecord i QualityEvidenceRecord
 - mapowania traceability
 - graph relacji OP i reverse lookup

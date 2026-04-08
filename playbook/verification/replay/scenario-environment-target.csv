@@ -1,0 +1,6 @@
+op_type,from_state,event,to_state
+EnvironmentTarget,defined,environment.validate-requested,validated
+EnvironmentTarget,validated,environment.readiness-requested (gate=approve),ready
+EnvironmentTarget,ready,environment.activate-requested,active
+EnvironmentTarget,active,environment.degraded-detected,degraded
+EnvironmentTarget,degraded,environment.recover-requested,ready

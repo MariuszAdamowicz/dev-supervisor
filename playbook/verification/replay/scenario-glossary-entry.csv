@@ -1,0 +1,4 @@
+op_type,from_state,event,to_state
+GlossaryEntry,proposed,term.approve-requested (gate=approve),approved
+GlossaryEntry,proposed,term.approve-requested (gate=reject),deprecated
+GlossaryEntry,approved,term.deprecate-requested (gate=approve),deprecated

@@ -4,7 +4,7 @@
 - odczytany current_state
 - wyznaczony next_transition
 - sprawdzone guardy transition
-- okreslone pending PromptTask
+- okreslone pending PromptTask controls
 - okreslony wymagany gate decision
 - znaleziony binding transition -> action -> tool
 
@@ -46,21 +46,21 @@
 - UseCase OP istnieja dla kluczowych zachowan Feature
 - PortContract OP sa zatwierdzone dla granic z adapterami
 - Component OP ma wynik check bez cykli zaleznosci
-- VerificationPlan wskazuje wymagane lane dla Feature
+- VerificationPolicy wskazuje wymagane lane dla Feature
 - krytyczne Requirement sa w stanie `linked` przed `Feature.done`
 - krytyczne Constraint sa w stanie `enforced` lub `revised` przed `Feature.done`
 - wymagane DecisionRecord sa w stanie `approved` przed `Feature.done`
 - Scenario OP powiazane z testami
-- dependency relations i Risk ocenione
-- brak krytycznych otwartych PromptTask
+- dependency relations i RiskEntry ocenione
+- brak krytycznych otwartych PromptTask controls
 
 ## Checklista release runtime
 
-- Release OP candidate utworzony
+- ReleaseBundle candidate utworzony
 - GateDecisionRecord approve dla release
 - QualityEvidenceRecord pass
-- RuntimeEnvironment jest w stanie co najmniej `ready`
-- Deployment OP przygotowany
+- EnvironmentTarget jest w stanie co najmniej `ready`
+- DeploymentRun planned albo running istnieje
 - rollback/compensation plan gotowy
 
 ## Checklista repository i changeset
@@ -74,7 +74,7 @@
 
 - DataSchema istnieje dla zmian dotykajacych trwale dane
 - Migration istnieje dla zmian niekompatybilnych lub operacyjnie istotnych
-- RuntimeEnvironment ma capability, config i constraints jawne dla lane
+- EnvironmentTarget ma capability, config i constraints jawne dla lane
 - rollback lub compatibility plan jest jawny dla danych i deploymentu
 
 ## Checklista audytu OP
@@ -93,7 +93,7 @@
 - kazda akcja z action_plan ma capability w tool-registry.md
 - profile nie zmieniaja intent akcji, tylko mapowanie tool_plan
 - brak uruchomien narzedzi poza zadeklarowanym bindingiem
-- kazdy binding ma jawny authz precheck (ActorRolePermission)
+- kazdy binding ma jawny authz precheck (AccessGrant)
 
 ## Checklista audytu playbook contracts
 

@@ -50,7 +50,7 @@ Kazdy binding ma:
 - guards:
   - overview/constraints/glossary istnieja
   - adr/use-case/port-contract/component-map/ux istnieja
-  - ActorRolePermission istnieje
+  - AccessGrant istnieje
 - required: true
 
 3. Project.baseline-approved -> Project.active
@@ -175,95 +175,95 @@ Kazdy binding ma:
   - storage-adapter: persist DecisionRecord state + link replacement
 - required: true
 
-### A3. Risk
+### A3. Risk Controls
 
-4l. Risk.identified -> Risk.assessed
+4l. RiskEntry.identified -> RiskEntry.assessed
 - event_ref: risk.assessment-requested
 - action_plan: create_ai_job, poll_ai_job, accept_ai_result
 - tool_plan:
   - ai-runner: submit_job (risk-assessment-review)
   - ai-runner: poll_job
   - operator-ui: confirm risk assessment
-  - storage-adapter: persist Risk
+  - storage-adapter: persist RiskEntry
 - required: true
 
-4m. Risk.assessed -> Risk.mitigated
+4m. RiskEntry.assessed -> RiskEntry.mitigated
 - event_ref: risk.mitigate-requested
 - action_plan: produce_review_package, decide_gate
 - tool_plan:
   - shell: review package generator (mitigation plan + impact)
   - operator-ui: risk mitigate approve/request_changes/defer/reject
-  - storage-adapter: persist Risk state
+  - storage-adapter: persist RiskEntry status
 - required: true
 
-4n. Risk.assessed -> Risk.accepted
+4n. RiskEntry.assessed -> RiskEntry.accepted
 - event_ref: risk.accept-requested
 - action_plan: produce_review_package, decide_gate
 - tool_plan:
   - shell: review package generator (acceptance rationale + residual risk)
   - operator-ui: risk accept approve/request_changes/defer/reject
-  - storage-adapter: persist Risk state
+  - storage-adapter: persist RiskEntry status
 - required: true
 
-4o. Risk.assessed -> Risk.escalated
+4o. RiskEntry.assessed -> RiskEntry.escalated
 - event_ref: risk.escalate-requested
 - action_plan: produce_review_package, decide_gate
 - tool_plan:
   - shell: review package generator (escalation reasons + options)
   - operator-ui: risk escalate approve/request_changes/defer/reject
-  - storage-adapter: persist Risk state + emit delivery block
+  - storage-adapter: persist RiskEntry status + emit delivery block
 - required: true
 
-4p. Risk.mitigated -> Risk.closed
+4p. RiskEntry.mitigated -> RiskEntry.closed
 - event_ref: risk.close-requested
 - action_plan: accept_ai_result
 - tool_plan:
-  - storage-adapter: persist Risk state
+  - storage-adapter: persist RiskEntry status
 - required: true
 
-4q. Risk.accepted -> Risk.closed
+4q. RiskEntry.accepted -> RiskEntry.closed
 - event_ref: risk.close-requested
 - action_plan: accept_ai_result
 - tool_plan:
-  - storage-adapter: persist Risk state
+  - storage-adapter: persist RiskEntry status
 - required: true
 
-4r. Risk.escalated -> Risk.closed
+4r. RiskEntry.escalated -> RiskEntry.closed
 - event_ref: risk.close-after-escalation-requested
 - action_plan: produce_review_package, decide_gate
 - tool_plan:
   - shell: review package generator (escalation resolution)
   - operator-ui: risk close approve/request_changes/defer/reject
-  - storage-adapter: persist Risk state + clear delivery block
+  - storage-adapter: persist RiskEntry status + clear delivery block
 - required: true
 
-### A4. ActorRolePermission
+### A4. Authz Controls
 
-4s. ActorRolePermission.defined -> ActorRolePermission.active
+4s. AccessGrant.defined -> AccessGrant.active
 - event_ref: permission.activate-requested
 - action_plan: produce_review_package, decide_gate
 - tool_plan:
   - shell: review package generator (role scope + allowed_actions)
   - operator-ui: permission activate approve/request_changes/defer/reject
-  - storage-adapter: persist ActorRolePermission state
+  - storage-adapter: persist AccessGrant status
 - required: true
 
-4t. ActorRolePermission.active -> ActorRolePermission.revised
+4t. AccessGrant.active -> AccessGrant.revised
 - event_ref: permission.revise-requested
 - action_plan: produce_review_package, decide_gate
 - tool_plan:
   - shell: review package generator (permission diff + impact)
   - operator-ui: permission revise approve/request_changes/defer/reject
-  - storage-adapter: persist ActorRolePermission state
+  - storage-adapter: persist AccessGrant status
 - required: true
 
-4u. ActorRolePermission.revised -> ActorRolePermission.revoked
+4u. AccessGrant.revised -> AccessGrant.revoked
 - event_ref: permission.revoke-requested
 - action_plan: produce_review_package, decide_gate
 - tool_plan:
   - shell: review package generator (revoke impact)
   - operator-ui: permission revoke approve/request_changes/defer/reject
-  - storage-adapter: persist ActorRolePermission state
+  - storage-adapter: persist AccessGrant status
 - required: true
 
 ### A5. UseCase / PortContract / Component
@@ -364,7 +364,7 @@ Kazdy binding ma:
   - operator-ui: confirm remediation scope
 - required: true
 
-### A6. Repository / ChangeSet / VerificationPlan / Data / Environment
+### A6. Repository / ChangeSet / VerificationPolicy / Data / Environment
 
 4ag. Repository.detected -> Repository.initialized
 - event_ref: repo.initialize-requested
@@ -397,7 +397,7 @@ Kazdy binding ma:
 - event_ref: changeset.validate-requested
 - action_plan: plan_verification_scope, run_validation_suite, decide_gate
 - tool_plan:
-  - quality-runner: unit/integration/acceptance/e2e wg VerificationPlan
+  - quality-runner: unit/integration/acceptance/e2e wg VerificationPolicy
   - operator-ui: approve request_changes/defer/reject dla ChangeSet
   - storage-adapter: persist validation refs + gate
 - required: true
@@ -410,22 +410,22 @@ Kazdy binding ma:
   - storage-adapter: persist commit_refs
 - required: true
 
-4al. VerificationPlan.drafted -> VerificationPlan.reviewed
+4al. VerificationPolicy.drafted -> VerificationPolicy.reviewed
 - event_ref: verification.review-requested
 - action_plan: plan_verification_scope
 - tool_plan:
   - quality-runner: compute required lanes
   - operator-ui: confirm lane selection and `not_applicable`
-  - storage-adapter: persist VerificationPlan
+  - storage-adapter: persist VerificationPolicy
 - required: true
 
-4am. VerificationPlan.reviewed -> VerificationPlan.approved
+4am. VerificationPolicy.reviewed -> VerificationPolicy.approved
 - event_ref: verification.approve-requested
 - action_plan: produce_review_package, decide_gate
 - tool_plan:
   - shell: review package generator (lane matrix + provenance rules)
   - operator-ui: approve/request_changes/defer/reject verification policy
-  - storage-adapter: persist VerificationPlan state
+  - storage-adapter: persist VerificationPolicy state
 - required: true
 
 4an. DataSchema.drafted -> DataSchema.reviewed
@@ -446,13 +446,13 @@ Kazdy binding ma:
   - storage-adapter: persist Migration result
 - required: true
 
-4ap. RuntimeEnvironment.defined -> RuntimeEnvironment.validated
+4ap. EnvironmentTarget.defined -> EnvironmentTarget.validated
 - event_ref: environment.validate-requested
 - action_plan: validate_runtime_environment
 - tool_plan:
   - deployment-adapter: verify_environment
   - operator-ui: confirm capabilities, secrets policy and constraints
-  - storage-adapter: persist RuntimeEnvironment check
+  - storage-adapter: persist EnvironmentTarget check
 - required: true
 
 ### B. Idea -> Feature
@@ -502,7 +502,7 @@ Kazdy binding ma:
   - ai-runner: submit_job (ux-contract-check + term-extract)
   - ai-runner: poll_job
   - operator-ui: approve term/ui deltas
-  - storage-adapter: update Term/UIComponent/UIScreen
+  - storage-adapter: update GlossaryEntry/UIComponent/UIScreen
 - required: true
 
 9. Feature.ux-aligned -> Feature.scenario-ready
@@ -571,25 +571,25 @@ Kazdy binding ma:
   - storage-adapter: create PromptTask(respec)
 - required: true
 
-### D. Term / UIComponent / UIScreen
+### D. GlossaryEntry / UIComponent / UIScreen
 
-13. Term.proposed -> Term.approved
-- event_ref: Term.proposed
+13. GlossaryEntry.proposed -> GlossaryEntry.approved
+- event_ref: GlossaryEntry.proposed
 - action_plan: create_ai_job, poll_ai_job, decide_gate
 - tool_plan:
   - ai-runner: submit_job (term-impact-check)
   - ai-runner: poll_job
   - operator-ui: approve term scope
-  - storage-adapter: persist term + impacts
+  - storage-adapter: persist GlossaryEntry + impacts
 - required: true
 
-13a. Term.approved -> Term.deprecated
+13a. GlossaryEntry.approved -> GlossaryEntry.deprecated
 - event_ref: term.deprecate-requested
 - action_plan: produce_review_package, decide_gate
 - tool_plan:
   - shell: review package generator (term usage impact)
   - operator-ui: term deprecate approve/request_changes/defer/reject
-  - storage-adapter: persist Term state
+  - storage-adapter: persist GlossaryEntry status
 - required: true
 
 14. UIComponent.proposed -> UIComponent.mapped
@@ -665,7 +665,7 @@ Kazdy binding ma:
   - storage-adapter: persist Scenario state
 - required: true
 
-### E. PromptTask / Quality / Exception
+### E. Job Controls / Quality / Exception Controls
 
 19. PromptTask.created -> PromptTask.ready
 - event_ref: prompt.context-ready
@@ -743,7 +743,7 @@ Kazdy binding ma:
   - storage-adapter: persist PromptTask state
 - required: true
 
-24. Exception.detected -> Exception.handled
+24. ExceptionCase.detected -> ExceptionCase.handled
 - event_ref: exception.fix-applied
 - action_plan: run_validation_suite, decide_gate
 - tool_plan:
@@ -751,40 +751,40 @@ Kazdy binding ma:
   - operator-ui: close/escalate exception
 - required: true
 
-### F. Release / Deployment / Recovery
+### F. Delivery / Recovery
 
-25. Feature.stabilized -> Release.candidate
+25. Feature.stabilized -> ReleaseBundle.candidate
 - event_ref: Feature.stabilized
 - action_plan: start_release
 - tool_plan:
   - storage-adapter: utworz release candidate
   - operator-ui: confirm release scope
 - guards:
-  - brak critical Exception
+  - brak critical ExceptionCase
   - brak DependencyRelation.status=blocked dla scope delivery
-  - brak otwartych Risk.escalated o criticality=high
+  - brak otwartych RiskEntry.escalated o criticality=high
 - required: true
 
-26. Release.candidate -> Release.approved
+26. ReleaseBundle.candidate -> ReleaseBundle.approved
 - event_ref: release.gate-requested
 - action_plan: decide_gate
 - tool_plan:
   - operator-ui: release approve/request_changes/defer/reject
   - storage-adapter: persist gate
 - guards:
-  - brak otwartych Risk.escalated o criticality=high
+  - brak otwartych RiskEntry.escalated o criticality=high
 - required: true
 
-26a. Release.candidate -> Release.planned
+26a. ReleaseBundle.candidate -> ReleaseBundle.planned
 - event_ref: release.gate-requested
 - action_plan: decide_gate, request_rework
 - tool_plan:
   - operator-ui: gate=request_changes
-  - storage-adapter: update Release state to planned
+  - storage-adapter: update ReleaseBundle state to planned
   - storage-adapter: create PromptTask(release-rework)
 - required: true
 
-26b. Release.candidate -> Release.candidate
+26b. ReleaseBundle.candidate -> ReleaseBundle.candidate
 - event_ref: release.gate-requested
 - action_plan: decide_gate
 - tool_plan:
@@ -792,41 +792,41 @@ Kazdy binding ma:
   - storage-adapter: persist defer reason + schedule SchedulerTimer
 - required: true
 
-26c. Release.candidate -> Release.closed
+26c. ReleaseBundle.candidate -> ReleaseBundle.closed
 - event_ref: release.gate-requested
 - action_plan: decide_gate
 - tool_plan:
   - operator-ui: gate=reject
-  - storage-adapter: update Release state to closed
+  - storage-adapter: update ReleaseBundle state to closed
   - storage-adapter: create DecisionRecord(release-rejection)
 - required: true
 
-27. Release.approved -> Deployment.prepared
-- event_ref: Release.approved
+27. ReleaseBundle.approved -> DeploymentRun.planned
+- event_ref: ReleaseBundle.approved
 - action_plan: deploy_release
 - tool_plan:
   - deployment-adapter: deploy prepare
   - operator-ui: confirm deploy start
 - required: true
 
-28. Deployment.prepared -> Deployment.running
+28. DeploymentRun.planned -> DeploymentRun.running
 - event_ref: deployment.started
 - action_plan: deploy_release
 - tool_plan:
   - deployment-adapter: start deploy
-  - storage-adapter: persist deployment status
+  - storage-adapter: persist DeploymentRun status
 - required: true
 
-29. Deployment.running -> Deployment.succeeded
+29. DeploymentRun.running -> DeploymentRun.succeeded
 - event_ref: deployment.completed
 - action_plan: deploy_release, accept_ai_result
 - tool_plan:
   - deployment-adapter: capture deploy result
-  - storage-adapter: persist deployment status
-  - storage-adapter: mark Release.published + Feature.released
+  - storage-adapter: persist DeploymentRun status
+  - storage-adapter: mark ReleaseBundle.published + Feature.released
 - required: true
 
-30. Deployment.running -> Deployment.failed
+30. DeploymentRun.running -> DeploymentRun.failed
 - event_ref: deployment.failed
 - action_plan: run_rollback
 - tool_plan:
@@ -834,8 +834,8 @@ Kazdy binding ma:
   - storage-adapter: create RollbackAction (+ CompensationAction gdy policy wymaga cleanup)
 - required: true
 
-31. Deployment.failed -> RollbackAction.planned -> RollbackAction.running -> RollbackAction.completed
-- event_ref: Deployment.failed
+31. DeploymentRun.failed -> RollbackAction.planned -> RollbackAction.running -> RollbackAction.completed
+- event_ref: deployment.failed
 - action_plan: run_rollback, decide_gate
 - tool_plan:
   - deployment-adapter: rollback
@@ -843,16 +843,16 @@ Kazdy binding ma:
   - storage-adapter: persist rollback outcome
 - required: true
 
-31a. Deployment.failed -> Deployment.prepared
+31a. DeploymentRun.failed -> DeploymentRun.planned
 - event_ref: deployment.retry-requested
 - action_plan: decide_gate, deploy_release
 - tool_plan:
   - operator-ui: retry deploy approve/request_changes/defer/reject
   - deployment-adapter: prepare deploy retry
-  - storage-adapter: update Deployment state to prepared
+  - storage-adapter: update DeploymentRun status to planned
 - required: true
 
-31b. Deployment.failed -> Deployment.failed
+31b. DeploymentRun.failed -> DeploymentRun.failed
 - event_ref: deployment.retry-requested
 - action_plan: decide_gate
 - tool_plan:
@@ -887,13 +887,13 @@ Kazdy binding ma:
 - required: true
 
 32. Feature.stabilized -> Feature.released
-- event_ref: Deployment.succeeded
+- event_ref: deployment.succeeded
 - action_plan: accept_ai_result
 - tool_plan:
   - storage-adapter: update Feature state to released
 - guards:
-  - Deployment.state = succeeded
-  - Release.state = published
+  - DeploymentRun.status = succeeded
+  - ReleaseBundle.status = published
 - required: true
 
 33. Feature.released -> Feature.done
@@ -910,22 +910,22 @@ Kazdy binding ma:
   - wszystkie wymagane decyzje architektoniczne sa DecisionRecord.approved
 - required: true
 
-34. Release.approved -> Release.published
-- event_ref: Deployment.succeeded
+34. ReleaseBundle.approved -> ReleaseBundle.published
+- event_ref: deployment.succeeded
 - action_plan: accept_ai_result
 - tool_plan:
-  - storage-adapter: update Release state to published
+  - storage-adapter: update ReleaseBundle status to published
 - guards:
-  - Deployment.state = succeeded
+  - DeploymentRun.status = succeeded
 - required: true
 
-35. Release.published -> Release.closed
+35. ReleaseBundle.published -> ReleaseBundle.closed
 - event_ref: release.close-requested
 - action_plan: produce_review_package, decide_gate
 - tool_plan:
   - shell: review package generator (deploy summary + rollback readiness)
   - operator-ui: release close approve/request_changes/defer/reject
-  - storage-adapter: update Release state to closed
+  - storage-adapter: update ReleaseBundle status to closed
 - required: true
 
 ### G. FSM coverage templates (dla wszystkich OP)
@@ -936,12 +936,9 @@ dla OP, ktore nie maja jeszcze jawnych wpisow per kazdy wariant.
 
 Zakres OP objetych tym mechanizmem:
 - Project, Requirement, Constraint, DecisionRecord, Idea, Feature, Scenario
-- Term, UIComponent, UIScreen
-- PromptTask, ActorRolePermission
+- UIComponent, UIScreen
 - UseCase, PortContract, Component
-- Risk, Release, Deployment
-- Exception
-- Repository, ChangeSet, VerificationPlan, DataSchema, Migration, RuntimeEnvironment
+- Repository, ChangeSet, DataSchema, Migration
 
 Zasada:
 - jesli legalny transition z FSM nie ma jawnego bindingu wyzej, stosujemy binding szablonowy G1/G2/G3.
@@ -989,5 +986,5 @@ G3. Retry/escalation template
 - Kazdy binding krytyczny musi miec audit trace: ProcessEventRecord + GateDecisionRecord (jesli gate wystepuje).
 - MCP moze byc uzyte tylko jako adapter transportowy; kontrola job lifecycle nalezy do DS.
 - Kazdy binding transition MUST wykonac authz precheck:
-  - storage-adapter: read ActorRolePermission(active, scope, allowed_actions)
-  - brak uprawnienia -> utworz Exception(authz), blokuj transition, zapisz ProcessEventRecord.
+  - storage-adapter: read AccessGrant(active, scope, allowed_actions)
+  - brak uprawnienia -> utworz ExceptionCase(authz), blokuj transition, zapisz ProcessEventRecord.
