@@ -375,7 +375,9 @@ extension PlaybookRuntimeFileSystem {
             projectRoot.appendingPathComponent(".ai/runtime/v1/ops/usecase.bootstrap-start-project").path,
             projectRoot.appendingPathComponent(".ai/runtime/v1/ops/portcontract.bootstrap-start-project").path,
             projectRoot.appendingPathComponent(".ai/runtime/v1/ops/component.bootstrap-workspace").path,
-            projectRoot.appendingPathComponent(".ai/runtime/v1/ops/permission.operator-local").path,
+            projectRoot.appendingPathComponent(".ai/runtime/v1/ops/repository.local").path,
+            projectRoot.appendingPathComponent(".ai/runtime/v1/ops/verificationpolicy.bootstrap").path,
+            projectRoot.appendingPathComponent(".ai/runtime/v1/ops/accessgrant.operator-local").path,
         ]
     }
 

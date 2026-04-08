@@ -54,7 +54,7 @@ struct PlaybookRuntimeFileSystem: PlaybookRuntimeContract {
                 projectPath: projectRootPath,
                 projectState: nil,
                 remoteURL: nil,
-                allOps: [],
+                allEntities: [],
                 baselineArtifacts: [],
                 processEventCount: 0,
                 gateDecisionCount: 0,
@@ -70,7 +70,7 @@ struct PlaybookRuntimeFileSystem: PlaybookRuntimeContract {
             projectPath: trimmedPath,
             projectState: summaries.projectState,
             remoteURL: summaries.remoteURL,
-            allOps: summaries.ops.sorted { $0.opID < $1.opID },
+            allEntities: summaries.entities.sorted { $0.opID < $1.opID },
             baselineArtifacts: baselineArtifactStatuses(projectRoot: projectURL),
             processEventCount: summaries.processEventCount,
             gateDecisionCount: summaries.gateDecisionCount,
@@ -82,7 +82,7 @@ struct PlaybookRuntimeFileSystem: PlaybookRuntimeContract {
 }
 
 private struct RuntimeSummarySnapshot {
-    let ops: [PlaybookDerivedOPSummary]
+    let entities: [PlaybookDerivedOPSummary]
     let projectState: String?
     let remoteURL: String?
     let processEventCount: Int
@@ -113,7 +113,7 @@ private extension PlaybookRuntimeFileSystem {
             ideaID: nil,
             ideaState: nil,
             decisionEnvelopePath: nil,
-            derivedOps: [],
+            derivedEntities: [],
             createdArtifacts: []
         )
     }
@@ -128,7 +128,7 @@ private extension PlaybookRuntimeFileSystem {
                     .stringValue
 
                 return try RuntimeSummarySnapshot(
-                    ops: sqlRuntimeStore.allOpSummaries(projectRoot: projectRoot),
+                    entities: sqlRuntimeStore.allEntitySummaries(projectRoot: projectRoot),
                     projectState: projectSnapshot?.state,
                     remoteURL: remoteURL?.isEmpty == true ? nil : remoteURL,
                     processEventCount: sqlRuntimeStore.processEventCount(projectRoot: projectRoot),
@@ -139,7 +139,7 @@ private extension PlaybookRuntimeFileSystem {
                 )
             } catch {
                 return RuntimeSummarySnapshot(
-                    ops: [],
+                    entities: [],
                     projectState: nil,
                     remoteURL: nil,
                     processEventCount: 0,
@@ -174,7 +174,8 @@ private extension PlaybookRuntimeFileSystem {
                 PlaybookDerivedOPSummary(
                     opID: snapshot.opID,
                     opType: snapshot.opType,
-                    state: snapshot.state
+                    state: snapshot.state,
+                    category: playbookRuntimeEntityCategory(for: snapshot.opType)
                 )
             )
 
@@ -209,7 +210,7 @@ private extension PlaybookRuntimeFileSystem {
         }
 
         return RuntimeSummarySnapshot(
-            ops: summaries,
+            entities: summaries,
             projectState: projectState,
             remoteURL: remoteURL,
             processEventCount: countLines(at: projectRoot.appendingPathComponent(".ai/runtime/v1/process-events.ndjson")),

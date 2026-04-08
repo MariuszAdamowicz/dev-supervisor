@@ -24,7 +24,7 @@ struct IdeaContext {
 
 struct DerivedIdeaArtifacts {
     let createdArtifacts: [String]
-    let derivedOps: [PlaybookDerivedOPSummary]
+    let derivedEntities: [PlaybookDerivedOPSummary]
 }
 
 extension PlaybookRuntimeFileSystem {
@@ -113,7 +113,7 @@ extension PlaybookRuntimeFileSystem {
             ideaID: ideaID,
             ideaState: ideaSnapshot.state,
             decisionEnvelopePath: envelopePath,
-            derivedOps: derivedArtifacts.derivedOps.sorted { $0.opID < $1.opID },
+            derivedEntities: derivedArtifacts.derivedEntities.sorted { $0.opID < $1.opID },
             createdArtifacts: (derivedArtifacts.createdArtifacts + [envelopePath]).sorted()
         )
     }
@@ -179,7 +179,7 @@ private extension PlaybookRuntimeFileSystem {
             projectRoot: context.projectURL
         )
         try moveProjectToConfigured(projectRoot: context.projectURL)
-        try createBaselineBundle(context)
+        try createBaselineBundle(context, remoteURL: setup.remoteURL)
         try recordPolicyEvent(
             opID: "project.ds",
             opType: "Project",
@@ -253,8 +253,8 @@ private extension PlaybookRuntimeFileSystem {
         _ = try applyTransition(request, projectRoot: projectRoot)
     }
 
-    func createBaselineBundle(_ context: NewProjectContext) throws {
-        let definitions = baselineDefinitions(for: context)
+    func createBaselineBundle(_ context: NewProjectContext, remoteURL: String?) throws {
+        let definitions = baselineDefinitions(for: context, remoteURL: remoteURL)
 
         for definition in definitions {
             let request = RuntimeCreateOpRequest(
@@ -271,7 +271,7 @@ private extension PlaybookRuntimeFileSystem {
         }
     }
 
-    func baselineDefinitions(for context: NewProjectContext) -> [RuntimeDerivedDefinition] {
+    func baselineDefinitions(for context: NewProjectContext, remoteURL: String?) -> [RuntimeDerivedDefinition] {
         let parentLinks = [RuntimeLink(rel: "parent", target: "project.ds")]
         let operatorActor = context.request.baselineGate.actor
 
@@ -282,7 +282,13 @@ private extension PlaybookRuntimeFileSystem {
             baselineUseCaseDefinition(parentLinks: parentLinks),
             baselinePortContractDefinition(parentLinks: parentLinks),
             baselineComponentDefinition(parentLinks: parentLinks),
-            baselinePermissionDefinition(
+            baselineRepositoryDefinition(
+                parentLinks: parentLinks,
+                projectPath: context.projectURL.path,
+                remoteURL: remoteURL
+            ),
+            baselineVerificationPolicyDefinition(parentLinks: parentLinks),
+            baselineAccessGrantDefinition(
                 parentLinks: parentLinks,
                 operatorActor: operatorActor,
                 projectPath: context.projectURL.path
@@ -396,14 +402,54 @@ private extension PlaybookRuntimeFileSystem {
         )
     }
 
-    func baselinePermissionDefinition(
+    func baselineRepositoryDefinition(
+        parentLinks: [RuntimeLink],
+        projectPath: String,
+        remoteURL: String?
+    ) -> RuntimeDerivedDefinition {
+        RuntimeDerivedDefinition(
+            opID: "repository.local",
+            opType: "Repository",
+            initialState: "active",
+            links: parentLinks + remoteRepositoryLinks(remoteURL),
+            tags: ["baseline", "entrypoint:new_project", "version-control"],
+            payload: [
+                "vcs": .string("git"),
+                "local_root": .string(projectPath),
+                "default_branch": .string("main"),
+                "remote_origin": remoteURL.map(JSONValue.string) ?? .null,
+                "branch_policy": .string("solo-no-pr"),
+            ]
+        )
+    }
+
+    func baselineVerificationPolicyDefinition(parentLinks: [RuntimeLink]) -> RuntimeDerivedDefinition {
+        RuntimeDerivedDefinition(
+            opID: "verificationpolicy.bootstrap",
+            opType: "VerificationPolicy",
+            initialState: "active",
+            links: parentLinks,
+            tags: ["baseline", "entrypoint:new_project", "verification"],
+            payload: [
+                "required_lanes": .array([
+                    .string("build"),
+                    .string("test"),
+                    .string("lint"),
+                ]),
+                "quality_gate": .string("all-changed-scope"),
+                "report_ref": .string("bootstrap:new_project"),
+            ]
+        )
+    }
+
+    func baselineAccessGrantDefinition(
         parentLinks: [RuntimeLink],
         operatorActor: String,
         projectPath: String
     ) -> RuntimeDerivedDefinition {
         RuntimeDerivedDefinition(
-            opID: "permission.operator-local",
-            opType: "ActorRolePermission",
+            opID: "accessgrant.operator-local",
+            opType: "AccessGrant",
             initialState: "active",
             links: parentLinks + [RuntimeLink(rel: "actor", target: operatorActor)],
             tags: ["baseline", "entrypoint:new_project", "authz"],
@@ -434,7 +480,9 @@ private extension PlaybookRuntimeFileSystem {
                 RuntimeEnvelopeCondition(name: "component_map_exists", passed: true, detail: ".ai/architecture/component-map.md"),
                 RuntimeEnvelopeCondition(name: "new_project_ux_exists", passed: true, detail: ".ai/ux/new-project.md"),
                 RuntimeEnvelopeCondition(name: "op_index_exists", passed: true, detail: ".ai/runtime/v1/op-index.json"),
-                RuntimeEnvelopeCondition(name: "operator_permission_active", passed: true, detail: "ActorRolePermission.active"),
+                RuntimeEnvelopeCondition(name: "repository_control_active", passed: true, detail: "Repository.active"),
+                RuntimeEnvelopeCondition(name: "verification_policy_active", passed: true, detail: "VerificationPolicy.active"),
+                RuntimeEnvelopeCondition(name: "operator_access_grant_active", passed: true, detail: "AccessGrant.active"),
                 RuntimeEnvelopeCondition(name: "authz_precheck", passed: true, detail: "policy-engine authorized operator"),
             ],
             scope: "Task-first baseline projektu i przejscie Project.configured -> \(context.request.baselineGate.decision.targetProjectState).",
@@ -548,7 +596,7 @@ private extension PlaybookRuntimeFileSystem {
 
     func createDerivedArtifacts(for context: IdeaContext, ideaID: String) throws -> DerivedIdeaArtifacts {
         let definitions = buildDerivedDefinitions(for: context.ideaTitle, description: context.ideaDescription, ideaID: ideaID)
-        var derivedOps: [PlaybookDerivedOPSummary] = []
+        var derivedEntities: [PlaybookDerivedOPSummary] = []
 
         for definition in definitions {
             let request = RuntimeCreateOpRequest(
@@ -562,11 +610,12 @@ private extension PlaybookRuntimeFileSystem {
                 actor: "system:dev-supervisor"
             )
             _ = try createOpInstance(request, projectRoot: context.projectURL)
-            derivedOps.append(
+            derivedEntities.append(
                 PlaybookDerivedOPSummary(
                     opID: definition.opID,
                     opType: definition.opType,
-                    state: definition.initialState
+                    state: definition.initialState,
+                    category: playbookRuntimeEntityCategory(for: definition.opType)
                 )
             )
         }
@@ -575,11 +624,11 @@ private extension PlaybookRuntimeFileSystem {
             projectRoot: context.projectURL,
             ideaTitle: context.ideaTitle,
             ideaDescription: context.ideaDescription,
-            derivedOps: derivedOps
+            derivedOps: derivedEntities
         )
         let uxArtifact = try writeIdeaUXArtifact(projectRoot: context.projectURL, ideaTitle: context.ideaTitle)
 
-        return DerivedIdeaArtifacts(createdArtifacts: files + [uxArtifact], derivedOps: derivedOps)
+        return DerivedIdeaArtifacts(createdArtifacts: files + [uxArtifact], derivedEntities: derivedEntities)
     }
 
     func writeIdeaUXArtifact(projectRoot: URL, ideaTitle: String) throws -> String {
@@ -605,8 +654,8 @@ private extension PlaybookRuntimeFileSystem {
                 RuntimeEnvelopeCondition(name: "authz_precheck", passed: true, detail: "policy-engine authorized operator"),
                 RuntimeEnvelopeCondition(name: "idea_ux_exists", passed: true, detail: ".ai/ux/add-idea.md"),
             ],
-            scope: "Konwersja pierwszej idei i wygenerowanie pochodnych OP.",
-            changeSet: derivedArtifacts.derivedOps.map { "created_op:\($0.opType):\($0.opID)" }
+            scope: "Konwersja pierwszej idei i wygenerowanie pochodnych bytow runtime.",
+            changeSet: derivedArtifacts.derivedEntities.map { "created_entity:\($0.opType):\($0.opID)" }
                 + derivedArtifacts.createdArtifacts.map { "created_file:\($0)" },
             validation: RuntimeEnvelopeValidation(
                 buildStatus: "not_run",
@@ -618,16 +667,16 @@ private extension PlaybookRuntimeFileSystem {
             traceability: [
                 "Idea -> Feature",
                 "Idea -> Requirement",
-                "Idea -> Term",
+                "Idea -> GlossaryEntry",
                 "Idea -> PromptTask",
                 "Idea -> .ai/ux/add-idea.md",
             ],
             risks: [],
             rollbackOrReworkPlan: [
                 "approve -> Idea przejdzie do converted.",
-                "request_changes -> Idea pozostanie w scoped i zachowa pochodne OP.",
+                "request_changes -> Idea pozostanie w scoped i zachowa pochodne byty runtime.",
                 "defer -> Idea pozostanie w scoped.",
-                "reject -> Idea przejdzie do dropped, pochodne OP pozostana do rewizji.",
+                "reject -> Idea przejdzie do dropped, pochodne byty runtime pozostana do rewizji.",
             ],
             decisionOptions: PlaybookGateDecision.allCases.map(\.rawValue),
             decisionEffects: [

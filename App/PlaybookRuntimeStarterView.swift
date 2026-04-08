@@ -13,7 +13,7 @@ struct PlaybookRuntimeStarterView: View {
     @State private var baselineDecision: PlaybookGateDecision = .approve
     @State private var baselineReason = "baseline kompletny i niesprzeczny"
     @State private var ideaTitle = "Uruchomienie projektu z UI"
-    @State private var ideaDescription = "Operator tworzy projekt, baseline i pochodne OP w jednym nadzorowanym flow."
+    @State private var ideaDescription = "Operator tworzy projekt, baseline i pochodne byty runtime w jednym nadzorowanym flow."
     @State private var ideaDecision: PlaybookGateDecision = .approve
     @State private var ideaReason = "idea gotowa do konwersji"
     @State private var lastNewProjectResult: PlaybookNewProjectResult?
@@ -78,15 +78,16 @@ struct PlaybookRuntimeStarterView: View {
                         ]
                     )
 
-                    if !addIdea.derivedOps.isEmpty {
+                    if !addIdea.derivedEntities.isEmpty {
                         card {
                             VStack(alignment: .leading, spacing: 12) {
-                                Text("Wygenerowane pochodne OP")
+                                Text("Wygenerowane byty runtime")
                                     .font(.system(.headline, design: .rounded))
-                                FlowLayout(spacing: 10) {
-                                    ForEach(addIdea.derivedOps) { op in
-                                        chip(title: op.opType, subtitle: "\(op.opID) • \(op.state)")
-                                    }
+                                if !addIdea.derivedOps.isEmpty {
+                                    entityGroup(title: "Core OP", entities: addIdea.derivedOps)
+                                }
+                                if !addIdea.derivedControls.isEmpty {
+                                    entityGroup(title: "Controls", entities: addIdea.derivedControls)
                                 }
                             }
                         }
@@ -322,6 +323,7 @@ private extension PlaybookRuntimeStarterView {
 
                 HStack(spacing: 18) {
                     metricBlock(title: "OP", value: "\(summary.allOps.count)")
+                    metricBlock(title: "Controls", value: "\(summary.controls.count)")
                     metricBlock(title: "Eventy", value: "\(summary.processEventCount)")
                     metricBlock(title: "Gate", value: "\(summary.gateDecisionCount)")
                     metricBlock(title: "Evidence", value: "\(summary.evidenceCount)")
@@ -335,8 +337,8 @@ private extension PlaybookRuntimeStarterView {
             VStack(alignment: .leading, spacing: 18) {
                 headerBlock(
                     eyebrow: "Entrypoint `add_idea`",
-                    title: "Zapisz pierwsza idee i wygeneruj pochodne OP",
-                    subtitle: "Ten krok zapisuje idee, uruchamia pochodne OP i pozostawia jawny envelope decyzji dla gate konwersji."
+                    title: "Zapisz pierwsza idee i wygeneruj pochodne byty runtime",
+                    subtitle: "Ten krok zapisuje idee, uruchamia dalsze byty runtime i pozostawia jawny envelope decyzji dla gate konwersji."
                 )
 
                 formField("Tytul idei") {
@@ -345,7 +347,7 @@ private extension PlaybookRuntimeStarterView {
                 }
 
                 formField("Opis idei") {
-                    TextField("Operator tworzy projekt, baseline i pochodne OP w jednym nadzorowanym flow.", text: $ideaDescription)
+                    TextField("Operator tworzy projekt, baseline i pochodne byty runtime w jednym nadzorowanym flow.", text: $ideaDescription)
                         .textFieldStyle(.roundedBorder)
                 }
 
@@ -384,13 +386,21 @@ private extension PlaybookRuntimeStarterView {
 
                     Divider()
 
-                    Text("Biezacy graf OP")
+                    Text("Biezacy graf runtime")
                         .font(.system(.headline, design: .rounded))
 
-                    ForEach(summary.allOps) { op in
+                    ForEach(summary.allEntities) { op in
                         HStack {
                             Text(op.opType)
                                 .font(.system(.body, design: .rounded).weight(.semibold))
+                            Text(op.category == .coreOP ? "OP" : "control")
+                                .font(.caption.monospaced())
+                                .padding(.horizontal, 6)
+                                .padding(.vertical, 3)
+                                .background(
+                                    op.category == .coreOP ? Color.green.opacity(0.12) : Color.orange.opacity(0.12),
+                                    in: Capsule()
+                                )
                             Spacer()
                             Text(op.opID)
                                 .font(.footnote.monospaced())
@@ -408,7 +418,7 @@ private extension PlaybookRuntimeStarterView {
                 headerBlock(
                     eyebrow: "Audit / Debug",
                     title: "Pokaz szczegoly runtime i provenance",
-                    subtitle: "Ta sekcja jest drugoplanowa: trzyma trace, stan OP i evidence, ale nie prowadzi operatora przez glowny task."
+                    subtitle: "Ta sekcja jest drugoplanowa: trzyma trace, stan runtime i evidence, ale nie prowadzi operatora przez glowny task."
                 )
             }
         }
@@ -550,6 +560,19 @@ private extension PlaybookRuntimeStarterView {
         .background(Color.black.opacity(0.04), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
     }
 
+    func entityGroup(title: String, entities: [PlaybookDerivedOPSummary]) -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text(title)
+                .font(.system(.footnote, design: .rounded).weight(.semibold))
+                .foregroundStyle(.secondary)
+            FlowLayout(spacing: 10) {
+                ForEach(entities) { entity in
+                    chip(title: entity.opType, subtitle: "\(entity.opID) • \(entity.state)")
+                }
+            }
+        }
+    }
+
     func detailRow(_ label: String, _ value: String) -> some View {
         HStack(alignment: .top, spacing: 12) {
             Text(label)
@@ -599,7 +622,7 @@ private extension PlaybookRuntimeStarterView {
                 ideaID: nil,
                 ideaState: nil,
                 decisionEnvelopePath: nil,
-                derivedOps: [],
+                derivedEntities: [],
                 createdArtifacts: []
             )
             return

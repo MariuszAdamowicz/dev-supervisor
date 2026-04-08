@@ -82,7 +82,7 @@ extension PlaybookRuntimeFileSystem {
     func buildDerivedDefinitions(for ideaTitle: String, description: String, ideaID: String) -> [RuntimeDerivedDefinition] {
         let slug = slugify(ideaTitle)
         let normalizedDescription = description.isEmpty ? "Brak opisu." : description
-        let primaryTerm = extractedTerms(from: "\(ideaTitle) \(description)").first ?? ideaTitle
+        let primaryGlossaryTerm = extractedTerms(from: "\(ideaTitle) \(description)").first ?? ideaTitle
         let baseLinks = [
             RuntimeLink(rel: "source_idea", target: ideaID),
             RuntimeLink(rel: "parent", target: "project.ds"),
@@ -116,13 +116,13 @@ extension PlaybookRuntimeFileSystem {
                 ]
             ),
             RuntimeDerivedDefinition(
-                opID: uniqueOpID(base: "term.\(slug)"),
-                opType: "Term",
+                opID: uniqueOpID(base: "glossary.\(slug)"),
+                opType: "GlossaryEntry",
                 initialState: "proposed",
                 links: baseLinks,
                 tags: ["generated_from:idea"],
                 payload: [
-                    "term": .string(primaryTerm),
+                    "term": .string(primaryGlossaryTerm),
                     "definition": .string("Termin wygenerowany z pierwszej idei: \(ideaTitle)"),
                 ]
             ),
@@ -134,9 +134,9 @@ extension PlaybookRuntimeFileSystem {
                     RuntimeLink(rel: "target_op", target: "feature.\(slug)"),
                     RuntimeLink(rel: "source_idea", target: ideaID),
                 ],
-                tags: ["generated_from:idea", "task:idea-to-feature-and-terms"],
+                tags: ["generated_from:idea", "task:idea-to-feature-and-glossary"],
                 payload: [
-                    "task_type": .string("idea-to-feature-and-terms"),
+                    "task_type": .string("idea-to-feature-and-glossary"),
                     "context_set": .array([
                         .string(".ai/prd/overview.md"),
                         .string(".ai/prd/constraints.md"),
@@ -238,10 +238,11 @@ extension PlaybookRuntimeFileSystem {
                 - title: \(ideaTitle)
                 - description: \(ideaDescription.isEmpty ? "Brak opisu." : ideaDescription)
 
-                ## Generated OP
+                ## Generated Runtime Entities
                 - Feature: \(featureOps["Feature"] ?? "n/a")
                 - Requirement: \(featureOps["Requirement"] ?? "n/a")
-                - Term: \(featureOps["Term"] ?? "n/a")
+                - GlossaryEntry: \(featureOps["GlossaryEntry"] ?? "n/a")
+                - PromptTask: \(featureOps["PromptTask"] ?? "n/a")
                 """
             ),
             (
@@ -252,7 +253,7 @@ extension PlaybookRuntimeFileSystem {
                 Scenario: Start project and keep first idea visible in runtime.
                 Given an active project
                 When the operator adds the first idea
-                Then DevSupervisor creates derived OP and audit trail
+                Then DevSupervisor creates derived runtime entities and audit trail
                 """
             ),
             (
@@ -269,7 +270,7 @@ extension PlaybookRuntimeFileSystem {
                 """
                 # Tasks
 
-                - [x] Create derived OP
+                - [x] Create derived runtime entities
                 - [x] Create audit trail
                 - [ ] Expand downstream Feature workflow
                 """
@@ -557,10 +558,10 @@ extension PlaybookRuntimeFileSystem {
         - primary_action: save_idea
         - happy_path:
           - wpisz tytul i opis
-          - sprawdz derived OP
+          - sprawdz derived runtime entities
           - zatwierdz gate konwersji
         - blocked_state: projekt nieaktywny
-        - success_state: Idea.converted + derived OP zapisane
+        - success_state: Idea.converted + derived runtime entities zapisane
         - current_idea_title: \(ideaTitle)
         """
     }

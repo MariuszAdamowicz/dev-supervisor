@@ -52,7 +52,9 @@ final class PlaybookRuntimeFileSystemTests: XCTestCase {
         XCTAssertEqual(summary.projectState, "active")
         XCTAssertEqual(summary.remoteURL, "git@github.com:test/starter-ds.git")
         XCTAssertTrue(summary.baselineArtifacts.allSatisfy { $0.exists })
-        XCTAssertTrue(summary.allOps.contains(where: { $0.opType == "ActorRolePermission" && $0.state == "active" }))
+        XCTAssertTrue(summary.controls.contains(where: { $0.opType == "AccessGrant" && $0.state == "active" }))
+        XCTAssertTrue(summary.controls.contains(where: { $0.opType == "Repository" && $0.state == "active" }))
+        XCTAssertTrue(summary.controls.contains(where: { $0.opType == "VerificationPolicy" && $0.state == "active" }))
         XCTAssertTrue(summary.allOps.contains(where: { $0.opType == "UseCase" }))
         XCTAssertTrue(summary.allOps.contains(where: { $0.opType == "PortContract" }))
         XCTAssertTrue(summary.allOps.contains(where: { $0.opType == "Component" }))
@@ -98,7 +100,8 @@ final class PlaybookRuntimeFileSystemTests: XCTestCase {
 
         XCTAssertTrue(result.result.isSuccess)
         XCTAssertEqual(result.ideaState, "converted")
-        XCTAssertEqual(Set(result.derivedOps.map(\.opType)), Set(["Feature", "Requirement", "Term", "PromptTask"]))
+        XCTAssertEqual(Set(result.derivedOps.map(\.opType)), Set(["Feature", "Requirement"]))
+        XCTAssertEqual(Set(result.derivedControls.map(\.opType)), Set(["GlossaryEntry", "PromptTask"]))
         XCTAssertTrue(
             FileManager.default.fileExists(
                 atPath: projectURL.appendingPathComponent(".ai/features/uruchomienie-projektu-z-ui/prd.md").path
@@ -204,7 +207,9 @@ final class PlaybookRuntimeFileSystemTests: XCTestCase {
         XCTAssertTrue(FileManager.default.fileExists(atPath: projectURL.appendingPathComponent("State/supervisor.sqlite3").path))
 
         let stats = try SQLRuntimeStore().stats(projectRoot: projectURL)
-        XCTAssertEqual(stats.opCount, 8)
+        XCTAssertEqual(stats.entityCount, 10)
+        XCTAssertEqual(stats.coreOpCount, 6)
+        XCTAssertEqual(stats.controlCount, 4)
         XCTAssertEqual(stats.gateDecisionCount, 1)
         XCTAssertEqual(stats.evidenceCount, 1)
         XCTAssertGreaterThanOrEqual(stats.processEventCount, 12)
@@ -262,6 +267,9 @@ final class PlaybookRuntimeFileSystemTests: XCTestCase {
         XCTAssertTrue(summary.allOps.contains(where: { $0.opType == "Idea" && $0.state == "converted" }))
 
         let stats = try SQLRuntimeStore().stats(projectRoot: projectURL)
+        XCTAssertEqual(stats.entityCount, 15)
+        XCTAssertEqual(stats.coreOpCount, 9)
+        XCTAssertEqual(stats.controlCount, 6)
         XCTAssertEqual(stats.gateDecisionCount, 2)
         XCTAssertEqual(stats.evidenceCount, 2)
         XCTAssertNotNil(
@@ -300,9 +308,12 @@ final class PlaybookRuntimeFileSystemTests: XCTestCase {
 
         XCTAssertEqual(summary.projectState, "active")
         XCTAssertTrue(summary.allOps.contains(where: { $0.opType == "Project" && $0.state == "active" }))
+        XCTAssertTrue(summary.controls.contains(where: { $0.opType == "AccessGrant" && $0.state == "active" }))
 
         let stats = try SQLRuntimeStore().stats(projectRoot: projectURL)
-        XCTAssertEqual(stats.opCount, 8)
+        XCTAssertEqual(stats.entityCount, 10)
+        XCTAssertEqual(stats.coreOpCount, 6)
+        XCTAssertEqual(stats.controlCount, 4)
         XCTAssertEqual(stats.gateDecisionCount, 1)
         XCTAssertEqual(stats.evidenceCount, 1)
     }

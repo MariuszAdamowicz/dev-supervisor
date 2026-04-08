@@ -84,6 +84,31 @@ struct PlaybookGateInput: Equatable {
     }
 }
 
+enum PlaybookRuntimeEntityCategory: String, Equatable {
+    case coreOP = "core_op"
+    case control
+}
+
+private let playbookCoreOPTypes: Set<String> = [
+    "Project",
+    "Requirement",
+    "Constraint",
+    "Idea",
+    "Feature",
+    "Scenario",
+    "UIComponent",
+    "UIScreen",
+    "UseCase",
+    "PortContract",
+    "Component",
+    "ChangeSet",
+    "DataSchema",
+]
+
+func playbookRuntimeEntityCategory(for opType: String) -> PlaybookRuntimeEntityCategory {
+    playbookCoreOPTypes.contains(opType) ? .coreOP : .control
+}
+
 struct PlaybookNewProjectRequest: Equatable {
     let projectName: String
     let projectRootPath: String
@@ -131,9 +156,18 @@ struct PlaybookDerivedOPSummary: Equatable, Identifiable {
     let opID: String
     let opType: String
     let state: String
+    let category: PlaybookRuntimeEntityCategory
 
     var id: String {
         opID
+    }
+
+    var isCoreOP: Bool {
+        category == .coreOP
+    }
+
+    var isControl: Bool {
+        category == .control
     }
 }
 
@@ -153,19 +187,35 @@ struct PlaybookAddIdeaResult: Equatable {
     let ideaID: String?
     let ideaState: String?
     let decisionEnvelopePath: String?
-    let derivedOps: [PlaybookDerivedOPSummary]
+    let derivedEntities: [PlaybookDerivedOPSummary]
     let createdArtifacts: [String]
+
+    var derivedOps: [PlaybookDerivedOPSummary] {
+        derivedEntities.filter(\.isCoreOP)
+    }
+
+    var derivedControls: [PlaybookDerivedOPSummary] {
+        derivedEntities.filter(\.isControl)
+    }
 }
 
 struct PlaybookRuntimeSummary: Equatable {
     let projectPath: String
     let projectState: String?
     let remoteURL: String?
-    let allOps: [PlaybookDerivedOPSummary]
+    let allEntities: [PlaybookDerivedOPSummary]
     let baselineArtifacts: [PlaybookArtifactStatus]
     let processEventCount: Int
     let gateDecisionCount: Int
     let evidenceCount: Int
     let lastEvidenceClass: String?
     let lastEventID: String?
+
+    var allOps: [PlaybookDerivedOPSummary] {
+        allEntities.filter(\.isCoreOP)
+    }
+
+    var controls: [PlaybookDerivedOPSummary] {
+        allEntities.filter(\.isControl)
+    }
 }

@@ -4,11 +4,17 @@ import SQLite3
 private let sqliteTransient = unsafeBitCast(-1, to: sqlite3_destructor_type.self)
 
 struct SQLRuntimeStoreStats: Equatable {
-    let opCount: Int
+    let entityCount: Int
+    let coreOpCount: Int
+    let controlCount: Int
     let relationCount: Int
     let processEventCount: Int
     let gateDecisionCount: Int
     let evidenceCount: Int
+
+    var opCount: Int {
+        coreOpCount
+    }
 }
 
 struct SQLRuntimeStore {
@@ -99,7 +105,7 @@ struct SQLRuntimeStore {
         return String(format: "evidence_%04d", count + 1)
     }
 
-    func allOpSummaries(projectRoot: URL) throws -> [PlaybookDerivedOPSummary] {
+    func allEntitySummaries(projectRoot: URL) throws -> [PlaybookDerivedOPSummary] {
         try withDatabase(projectRoot: projectRoot, importExisting: true) { db in
             let sql = """
             SELECT op_id, op_type, current_state
@@ -118,7 +124,8 @@ struct SQLRuntimeStore {
                     PlaybookDerivedOPSummary(
                         opID: text(at: 0, in: statement) ?? "",
                         opType: text(at: 1, in: statement) ?? "",
-                        state: text(at: 2, in: statement) ?? ""
+                        state: text(at: 2, in: statement) ?? "",
+                        category: playbookRuntimeEntityCategory(for: text(at: 1, in: statement) ?? "")
                     )
                 )
             }
@@ -194,8 +201,14 @@ struct SQLRuntimeStore {
 
     func stats(projectRoot: URL) throws -> SQLRuntimeStoreStats {
         try withDatabase(projectRoot: projectRoot, importExisting: true) { db in
-            try SQLRuntimeStoreStats(
-                opCount: scalarInt(db: db, sql: "SELECT COUNT(*) FROM op_instances", values: []),
+            let opTypes = try queryTextColumn(db: db, sql: "SELECT op_type FROM op_instances", values: [])
+            let coreOpCount = opTypes.filter { playbookRuntimeEntityCategory(for: $0) == .coreOP }.count
+            let entityCount = opTypes.count
+
+            return try SQLRuntimeStoreStats(
+                entityCount: entityCount,
+                coreOpCount: coreOpCount,
+                controlCount: entityCount - coreOpCount,
                 relationCount: scalarInt(db: db, sql: "SELECT COUNT(*) FROM op_relations", values: []),
                 processEventCount: scalarInt(db: db, sql: "SELECT COUNT(*) FROM process_events", values: []),
                 gateDecisionCount: scalarInt(db: db, sql: "SELECT COUNT(*) FROM gate_decisions", values: []),
