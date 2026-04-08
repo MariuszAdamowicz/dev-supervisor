@@ -1,6 +1,6 @@
 import Foundation
 
-struct FeatureCandidate: Equatable {
+struct FeatureCandidate: Codable, Equatable {
     let key: String
     let name: String
     let description: String

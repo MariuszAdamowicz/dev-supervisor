@@ -517,7 +517,7 @@ extension PlaybookRuntimeFileSystem {
         """
         # Component Map
 
-        - PlaybookRuntimeStarterView -> operator projection
+        - ContentView -> operator projection
         - PlaybookRuntimeFileSystem -> runtime orchestration
         - PlaybookRuntimeStorage -> snapshots, audit, evidence, op-index
         - PlaybookRuntimeGitAdapters -> local git i GitHub adapter
