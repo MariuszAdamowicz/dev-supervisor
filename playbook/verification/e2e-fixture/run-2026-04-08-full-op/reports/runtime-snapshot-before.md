@@ -7,7 +7,6 @@
 - idea: captured
 - portcontract: proposed
 - project: created
-- repository: detected
 - requirement: proposed
 - scenario: drafted
 - uicomponent: proposed

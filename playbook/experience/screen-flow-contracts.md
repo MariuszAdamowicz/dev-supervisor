@@ -33,7 +33,7 @@ Musi pokazac:
 - user goal: `utworz nowy projekt i przygotuj baseline`
 - formularz nazwa/opis projektu
 - wizard wyboru profili
-- status Repository i VerificationPolicy
+- status Repository control i VerificationPolicy
 - status baseline artifacts (overview/constraints/glossary/use-case/port-contract/component-map/adr/ux)
 - CTA: `approve baseline` tylko gdy guards spelnione
 

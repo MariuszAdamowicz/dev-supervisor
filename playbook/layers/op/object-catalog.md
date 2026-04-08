@@ -37,9 +37,10 @@ Semantyka operacyjna i stosowalnosc OP:
 - `control-object`: obiekt sterujacy polityka, jakoscia, uprawnieniami albo decyzja.
 - `decision-control`: mutowalny rekord decyzji architektonicznej lub produktowej; nie jest OP.
 - `execution-object`: obiekt wykonania pracy, wdrozenia albo ograniczonego pakietu zmian.
-- `environment-object`: obiekt opisujacy repo, schemat danych lub srodowisko uruchomieniowe.
+- `environment-object`: obiekt opisujacy schema/data contract lub inne trwałe aspekty srodowiska projektu.
 - `verification-control`: mutowalna polityka lane, evidence i gate dla scope formalnej walidacji; nie jest OP.
 - `data-control`: mutowalny control review/apply/rollback zmiany danych; nie jest OP.
+- `version-control-control`: mutowalny control stanu repozytorium i polityk VCS; nie jest OP.
 - `environment-control`: mutowalny target srodowiska i gotowosci runtime; nie jest OP.
 - `authz-control`: mutowalny control autoryzacji i ownership; nie jest OP.
 - `glossary-control`: mutowalny wpis slownika domenowego i UX; nie jest OP.
@@ -128,23 +129,25 @@ Semantyka operacyjna i stosowalnosc OP:
 - Stosowalnosc: `always`
 - Kluczowe pola: component_id, responsibility, stability_index, abstraction_level, dependencies.
 
-### 12. Repository
-- Rola: stan repozytorium projektu i polityk VCS.
-- Klasa: `environment-object`
-- Stosowalnosc: `version-controlled`
-- Kluczowe pola: repo_id, vcs, local_root, remote_origin, default_branch, branch_policy, cleanliness.
-
-### 13. ChangeSet
+### 12. ChangeSet
 - Rola: ograniczony pakiet zmian powiazany z OP, plikami i commitami.
 - Klasa: `execution-object`
 - Stosowalnosc: `version-controlled`
 - Kluczowe pola: changeset_id, repository_ref, branch_ref, file_scope, op_refs, commit_refs, validation_refs.
 
-### 14. DataSchema
+### 13. DataSchema
 - Rola: kanoniczny kontrakt modelu danych i kompatybilnosci.
 - Klasa: `environment-object`
 - Stosowalnosc: `persistent-data`
 - Kluczowe pola: schema_id, storage_engine, compatibility_policy, owned_structures, migration_refs.
+
+## Version-control Controls (nie sa OP, ale sa kanoniczne i mutowalne)
+
+### Repository
+- Rola: mutowalny control stanu repozytorium projektu i polityk VCS.
+- Klasa: `version-control-control`
+- Stosowalnosc: `version-controlled`
+- Kluczowe pola: repo_id, vcs, local_root, remote_origin, default_branch, branch_policy, cleanliness, status.
 
 ## Data Controls (nie sa OP, ale sa kanoniczne i mutowalne)
 
@@ -283,7 +286,7 @@ Semantyka operacyjna i stosowalnosc OP:
 - Kluczowe pola: signal_type, value, threshold, subject_ref, lane_ref, provenance_class.
 
 ## Minimalny graf relacji
-- Project -> Repository -> ChangeSet
+- Project -(Repository)-> ChangeSet
 - Project -(AccessGrant)-> operator|scope
 - Project -(DecisionRecord)-> baseline i kolejne decyzje
 - Project -(VerificationPolicy)-> scope formal-validation
@@ -315,7 +318,7 @@ Semantyka operacyjna i stosowalnosc OP:
 - `GlossaryEntry.deprecated` wymaga replacement albo cleanup dla impacted UI/scenario scope.
 - Kazdy krytyczny blad ma policy: retry albo recovery control.
 - Zamkniecie Feature wymaga braku krytycznych otwartych PromptTask.
-- Repository i ChangeSet musza zachowac traceability do powiazanych Feature/Requirement/Scenario.
+- Repository control i ChangeSet musza zachowac traceability do powiazanych Feature/Requirement/Scenario.
 - VerificationPolicy musi byc przypisana do Feature, ChangeSet albo ReleaseBundle wymagajacego formalnej walidacji.
 - DataSchema jest OP dla stanu danych; `MigrationAction` jest wymaganym data-control, gdy zmiana obejmuje trwale dane lub niekompatybilna ewolucje schematu.
 - ReleaseBundle nie moze byc opublikowany bez `EnvironmentTarget` w stanie co najmniej `ready`.

@@ -7,7 +7,6 @@
 - idea: converted
 - portcontract: adopted
 - project: active
-- repository: active
 - requirement: linked
 - scenario: passing
 - uicomponent: verified

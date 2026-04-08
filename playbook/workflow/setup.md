@@ -17,6 +17,7 @@ Kanoniczne definicje OP:
 - layers/op/risk-contracts.md
 - layers/op/recovery-contracts.md
 - layers/op/scheduler-contracts.md
+- layers/op/version-control-contracts.md
 - layers/op/verification-contracts.md
 - layers/op/state-machines.md
 - layers/op/trigger-rules.md
@@ -24,7 +25,7 @@ Kanoniczne definicje OP:
 ## 1. Bootstrap projektu
 
 - utworz repo i .gitignore
-- zarejestruj Repository OP dla lokalnego repo
+- zarejestruj Repository control dla lokalnego repo
 - skonfiguruj scripts: build/test/lint
 - wybierz storage profile:
   - profiles/storage/file-ai.md
@@ -42,7 +43,8 @@ Kanoniczne definicje OP:
 - utworz `.ai/architecture/component-map.md`
 - utworz `.ai/ux/new-project.md`
 - utworz `.ai/verification/plan.md`
-- utworz Requirement/Constraint/Repository OP dla baseline
+- utworz Requirement/Constraint OP dla baseline
+- utworz Repository control dla baseline VCS
 - utworz DecisionRecord dla baseline architektonicznego i produktowego
 - utworz VerificationPolicy dla baseline formalnej walidacji
 - zdefiniuj poczatkowe UseCase i granice PortContract dla kluczowych przeplywow
@@ -50,13 +52,13 @@ Kanoniczne definicje OP:
 - utworz AccessGrant dla operatora inicjujacego projekt
 - jesli profil jest `deployable-runtime`, utworz EnvironmentTarget dla local i docelowych lane
 - jesli profil jest `persistent-data`, utworz DataSchema dla baseline danych
-- zbuduj indeks OP i parent linkage dla baseline
+- zbuduj indeks OP/control i parent linkage dla baseline
 
 Product Gate przechodzi tylko gdy:
 - baseline jest kompletny,
 - baseline jest niesprzeczny,
 - baseline ma komplet UX/architecture artifacts,
-- baseline ma Repository i VerificationPolicy zgodne z profilem projektu,
+- baseline ma Repository control i VerificationPolicy zgodne z profilem projektu,
 - authz i provenance sa zapisane,
 - operator zapisal jawna decyzje gate.
 
@@ -79,7 +81,7 @@ a nie przez reczne przegladanie listy plikow.
 - .ai/ux/* to projekcja UX dla operatora (nie kanoniczna semantyka)
 - .ai/architecture/* i .ai/adr/* to artefakty baseline wymagane przy setup
 - state/trigger/gate sa kanoniczne tylko w OP Layer
-- create/read/update/remove OP podlega `workflow/op-crud-contract.md`
+- create/read/update/remove OP i control podlega `workflow/op-crud-contract.md`
 
 Zasada rozstrzygania konfliktu:
 - jesli .ai/* koliduje z OP Layer, nadrzedna jest definicja OP.

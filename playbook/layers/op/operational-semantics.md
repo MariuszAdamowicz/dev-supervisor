@@ -44,9 +44,10 @@ Linki:
 - `control-object`: obiekt sterujacy polityka, uprawnieniami, jakością albo decyzja.
 - `decision-control`: mutowalny rekord decyzji architektonicznej lub produktowej, niebedacy OP.
 - `execution-object`: obiekt wykonawczy zwiazany z uruchomieniem pracy, zmian lub wdrozen.
-- `environment-object`: obiekt opisujacy repo, schemat danych lub srodowisko uruchomieniowe.
+- `environment-object`: obiekt opisujacy schema/data contract lub inne trwale aspekty srodowiska projektu.
 - `verification-control`: mutowalna polityka lane, evidence i gate dla scope formalnej walidacji, niebedaca OP.
 - `data-control`: mutowalny handle review/apply/rollback zmiany danych, niebedacy OP.
+- `version-control-control`: mutowalny handle stanu repozytorium i polityk VCS, niebedacy OP.
 - `environment-control`: mutowalny target srodowiska i gotowosci runtime, niebedacy OP.
 - `exception-control`: mutowalny przypadek bledu procesu lub runtime, niebedacy OP.
 - `delivery-control`: mutowalny runtime handle rollout/deploy, niebedacy OP.
@@ -144,13 +145,6 @@ Linki:
 - lifecycle: identified -> mapped -> checked -> compliant albo refactor-required -> deprecated.
 - CRUD: create dla istotnej jednostki architektonicznej; update przy refaktorze i zmianie odpowiedzialnosci; remove = deprecate po merge/replacement.
 
-### Repository
-- class: `environment-object`
-- applies_when: `version-controlled`
-- znaczenie: repozytorium jest stanem projektu: init, remote, branch policy, cleanliness i divergence maja skutki procesowe.
-- lifecycle: detected -> initialized -> remote-attached -> policy-aligned -> active -> archived.
-- CRUD: create przy bootstrap projektu; update przy zmianie remote/policy; remove = archive/detach przy zachowaniu historii.
-
 ### ChangeSet
 - class: `execution-object`
 - applies_when: `version-controlled`
@@ -189,6 +183,15 @@ Linki:
 - znaczenie: migracja jest mutowalnym handle review/apply/rollback zmiany danych; to wykonanie operacyjne, nie samodzielny obiekt pracy projektu.
 - lifecycle: control nie ma pelnego FSM OP; ma mutowalny `status` opisany w `data-contracts.md`.
 - CRUD: create przy kazdej niekompatybilnej lub operacyjnie istotnej zmianie schematu; update przy review/readiness/apply/rollback; remove = `superseded` albo `rolled-back`, nigdy hard delete po audycie.
+
+## Version-control Controls
+
+### Repository
+- class: `version-control-control`
+- applies_when: `version-controlled`
+- znaczenie: repozytorium jest mutowalnym control'em VCS: init, remote, branch policy, cleanliness i divergence maja skutki procesowe, ale nie sa samodzielnym obiektem pracy produktu.
+- lifecycle: control nie ma pelnego FSM OP; ma mutowalny `status` opisany w `version-control-contracts.md`.
+- CRUD: create przy bootstrap projektu; update przy zmianie remote/policy/branch hygiene; remove = `archived` albo `detached`, nigdy hard delete po audycie.
 
 ## Delivery Controls
 

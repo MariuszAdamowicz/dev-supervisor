@@ -1,6 +1,5 @@
 op_type,from_state,event,to_state
 Project,configured,project.baseline-approve-requested (gate=reject),archived
-Repository,remote-attached,repo.align-policy-requested (gate=reject),archived
 Requirement,clarified,requirement.approve-requested (gate=reject),deprecated
 Constraint,validated,constraint.enforce-requested (gate=reject),retired
 Idea,scoped,idea.convert-requested (gate=reject),dropped

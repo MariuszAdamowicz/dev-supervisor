@@ -19,7 +19,7 @@ Primary copy nie opisuje:
 - `Feature.specified -> Feature.ux-aligned`.
 
 ## Glowny przebieg (nowy projekt)
-1. Project setup (Project + Repository + AccessGrant)
+1. Project setup (Project + Repository control + AccessGrant)
 2. Product baseline (Requirement + Constraint + DecisionRecord + UseCase + PortContract + Component + VerificationPolicy + UX contract)
 3. Idea intake (Idea)
 4. Idea scoping (Idea -> Feature)

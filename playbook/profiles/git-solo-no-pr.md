@@ -12,7 +12,7 @@ Cel:
 ## Reguły
 - dalej pracuj w branchach `feat/<feature>`
 - nie pushuj zmian roboczych bez walidacji
-- repozytorium projektu musi byc odwzorowane jako `Repository`, a pakiet pracy jako `ChangeSet`
+- repozytorium projektu musi byc odwzorowane jako `Repository` control, a pakiet pracy jako `ChangeSet`
 - przed merge do `main` wykonaj self-review na checklistach z `core/git-workflow.md`
 - merge do `main` wyłącznie po zielonym:
   - `./Scripts/build.sh`

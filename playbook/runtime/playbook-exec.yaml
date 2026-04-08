@@ -14,6 +14,7 @@ source_of_truth:
     risk_contracts: playbook/layers/op/risk-contracts.md
     recovery_contracts: playbook/layers/op/recovery-contracts.md
     scheduler_contracts: playbook/layers/op/scheduler-contracts.md
+    version_control_contracts: playbook/layers/op/version-control-contracts.md
     verification_contracts: playbook/layers/op/verification-contracts.md
     state_machines: playbook/layers/op/state-machines.md
     trigger_rules: playbook/layers/op/trigger-rules.md
@@ -246,13 +247,13 @@ persistence_map:
     - ".ai/runtime/v1/ops/project.ds/gates.ndjson"
   required_op_types_after_new_project:
     - Project
-    - Repository
     - Requirement
     - Constraint
     - UseCase
     - PortContract
     - Component
   required_control_types_after_new_project:
+    - Repository
     - AccessGrant
     - DecisionRecord
     - VerificationPolicy
@@ -277,13 +278,13 @@ baseline_contract:
     - new_project_ux_projection
   required_op_types:
     - Project
-    - Repository
     - Requirement
     - Constraint
     - UseCase
     - PortContract
     - Component
   required_control_types:
+    - Repository
     - AccessGrant
     - DecisionRecord
     - VerificationPolicy
@@ -311,6 +312,14 @@ data_contract:
     - rollback_or_compatibility_plan
     - environment_window
   no_op_migration_note_allowed: true
+
+version_control_contract:
+  repository_control: Repository
+  changeset_source_of_truth: ChangeSet
+  repository_required_for_changeset: true
+  active_repository_statuses:
+    - policy-aligned
+    - active
 
 crud_contract:
   hard_delete_after_audit_event: forbidden

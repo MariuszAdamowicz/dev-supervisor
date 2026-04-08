@@ -20,6 +20,7 @@ Ponizsze scenariusze sa nadal przydatne do szybkich testow lokalnych, ale nie st
 - `scenario-exception-case.csv`
 - `scenario-glossary-entry.csv`
 - `scenario-migration-action.csv`
+- `scenario-repository-control.csv`
 - `scenario-risk-entry.csv`
 - `scenario-verification-policy.csv`
 - `scenario-release-bundle.csv`

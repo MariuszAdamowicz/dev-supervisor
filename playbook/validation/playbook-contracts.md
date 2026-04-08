@@ -40,7 +40,7 @@ formalnie walidowac kompletnosc i spojnosc Playbook Layer wzgledem OP Layer.
 
 5b. Baseline completeness contract
 - `workflow/setup.md` i `runtime/playbook-exec.yaml` musza definiowac ten sam minimalny baseline.
-- baseline MUST obejmowac: overview, constraints, glossary, Repository, Requirement, Constraint, DecisionRecord, UseCase, PortContract, Component, AccessGrant, VerificationPolicy i artefakt UX entrypointu.
+- baseline MUST obejmowac: overview, constraints, glossary, Repository control, Requirement, Constraint, DecisionRecord, UseCase, PortContract, Component, AccessGrant, VerificationPolicy i artefakt UX entrypointu.
 - `EnvironmentTarget` jest wymagany w baseline tylko gdy profil aktywuje `deployable-runtime`.
 - brak zgodnosci workflow/exec dla baseline = playbook invalid.
 
@@ -166,6 +166,11 @@ formalnie walidowac kompletnosc i spojnosc Playbook Layer wzgledem OP Layer.
 - `DataSchema.applied` bez odpowiadajacego `MigrationAction.approved` albo jawnego no-op note = invalid.
 - `MigrationAction.ready|applied` bez rollback albo compatibility planu = invalid.
 
+6h. Version-control control contract
+- mutowalne controls VCS musza byc opisane w `layers/op/version-control-contracts.md`.
+- `ChangeSet.staged|validated|committed` bez `Repository.status in {policy-aligned, active}` = invalid.
+- `Repository.policy-aligned` bez jawnej polityki branch/commit = invalid.
+
 7. No-cycle contract
 - graf zaleznosci miedzy Component nie moze zawierac cykli (ADP).
 - wykryty cykl = playbook invalid do czasu przejscia Component.refactor-required -> Component.compliant.
@@ -179,7 +184,7 @@ formalnie walidowac kompletnosc i spojnosc Playbook Layer wzgledem OP Layer.
 - jesli test logiki biznesowej wymaga infrastruktury, oznacz jako architectural coupling i blokuj gate approve.
 
 9a. Version-control contract
-- projekt z aktywnym profilem git/VCS musi miec Repository jako stan projektu i ChangeSet jako sledzony pakiet zmian.
+- projekt z aktywnym profilem git/VCS musi miec `Repository` control jako stan VCS i `ChangeSet` jako sledzony pakiet zmian.
 - commit bez traceability do ChangeSet albo ChangeSet bez powiazania z OP pracy = invalid.
 
 9b. Verification planning contract

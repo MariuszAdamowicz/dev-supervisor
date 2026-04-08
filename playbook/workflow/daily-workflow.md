@@ -18,6 +18,7 @@ Kanoniczna semantyka:
 - layers/op/risk-contracts.md
 - layers/op/recovery-contracts.md
 - layers/op/scheduler-contracts.md
+- layers/op/version-control-contracts.md
 - layers/op/verification-contracts.md
 - runtime/scheduling-contract.md
 - layers/op/state-machines.md

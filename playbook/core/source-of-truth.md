@@ -17,6 +17,7 @@ Kanoniczne definicje OP:
 - layers/op/risk-contracts.md
 - layers/op/recovery-contracts.md
 - layers/op/scheduler-contracts.md
+- layers/op/version-control-contracts.md
 - layers/op/verification-contracts.md
 - layers/op/state-machines.md
 - layers/op/trigger-rules.md
@@ -46,7 +47,7 @@ Dla implementacji zachowania:
 PRD < BDD < TESTY
 
 Dla procesu:
-authz contracts + data contracts + decision contracts + delivery contracts + environment contracts + exception contracts + glossary contracts + job contracts + relation contracts + risk contracts + recovery contracts + scheduler contracts + verification contracts + state machine + trigger rules + gate decisions z OP Layer wygrywaja nad opisami operacyjnymi.
+authz contracts + data contracts + decision contracts + delivery contracts + environment contracts + exception contracts + glossary contracts + job contracts + relation contracts + risk contracts + recovery contracts + scheduler contracts + version-control contracts + verification contracts + state machine + trigger rules + gate decisions z OP Layer wygrywaja nad opisami operacyjnymi.
 
 ## Czego nie traktowac jako source of truth
 

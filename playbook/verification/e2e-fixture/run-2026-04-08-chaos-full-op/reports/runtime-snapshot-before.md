@@ -7,7 +7,6 @@
 - idea: scoped
 - portcontract: reviewed
 - project: configured
-- repository: remote-attached
 - requirement: clarified
 - scenario: reviewed
 - uicomponent: implemented

@@ -7,7 +7,6 @@
 - idea: dropped
 - portcontract: deprecated
 - project: archived
-- repository: archived
 - requirement: deprecated
 - scenario: obsolete
 - uicomponent: deprecated

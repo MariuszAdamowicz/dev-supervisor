@@ -190,20 +190,6 @@ Transitions:
 9. compliant --component.deprecate-requested (gate=approve)--> deprecated
 10. compliant --component.deprecate-requested (gate=request_changes|defer)--> compliant
 
-### Repository
-States:
-detected, initialized, remote-attached, policy-aligned, active, archived
-
-Transitions:
-1. detected --repo.initialize-requested--> initialized
-2. initialized --repo.attach-remote-requested--> remote-attached
-3. remote-attached --repo.align-policy-requested (gate=approve)--> policy-aligned
-4. remote-attached --repo.align-policy-requested (gate=request_changes|defer)--> remote-attached
-5. remote-attached --repo.align-policy-requested (gate=reject)--> archived
-6. policy-aligned --repo.activate-requested--> active
-7. active --repo.archive-requested (gate=approve)--> archived
-8. active --repo.archive-requested (gate=request_changes|defer)--> active
-
 ### ChangeSet
 States:
 drafted, staged, validated, committed, superseded
@@ -289,7 +275,7 @@ Transitions:
 2. GateDecisionRecord bez review package jest niewazna.
 3. Feature nie przejdzie do done przy krytycznym ExceptionCase z `compensation_required=true` bez `CompensationAction.status=completed`.
 4. Zmiana stanu bez ProcessEventRecord jest niewazna.
-5. ChangeSet nie przejdzie do committed bez powiazania z Repository i co najmniej jednym OP pracy.
+5. ChangeSet nie przejdzie do committed bez powiazania z Repository control i co najmniej jednym OP pracy.
 6. MigrationAction nie przejdzie do applied bez DataSchema w stanie co najmniej approved.
 7. DeploymentRun i ReleaseBundle nie moga polegac na `EnvironmentTarget` ponizej stanu `ready`.
 
@@ -356,6 +342,27 @@ Te byty nie sa OP i nie maja niezaleznego FSM, ale sa kanonicznie wymagane:
   - `applied --migration.supersede-requested (gate=request_changes|defer)--> applied`
   - `rolled-back --migration.supersede-requested (gate=approve)--> superseded`
   - `rolled-back --migration.supersede-requested (gate=request_changes|defer)--> rolled-back`
+
+## Version-control control contracts
+
+### Repository
+- nie jest OP
+- statusy: `detected`, `initialized`, `remote-attached`, `policy-aligned`, `active`, `archived`
+- `detected` powstaje przy bootstrapie projektu albo wykryciu repo root
+- `initialized` oznacza gotowe lokalne repo
+- `remote-attached` oznacza jawnie przypiety remote
+- `policy-aligned` oznacza zgodnosc z polityka branch/commit
+- `active` oznacza repo gotowe do pracy dla biezacego scope
+- `archived` zamyka repo dla aktywnej pracy bez wymazywania historii
+- legalne przejscia:
+  - `detected --repo.initialize-requested--> initialized`
+  - `initialized --repo.attach-remote-requested--> remote-attached`
+  - `remote-attached --repo.align-policy-requested (gate=approve)--> policy-aligned`
+  - `remote-attached --repo.align-policy-requested (gate=request_changes|defer)--> remote-attached`
+  - `remote-attached --repo.align-policy-requested (gate=reject)--> archived`
+  - `policy-aligned --repo.activate-requested--> active`
+  - `active --repo.archive-requested (gate=approve)--> archived`
+  - `active --repo.archive-requested (gate=request_changes|defer)--> active`
 
 ## Verification control contracts
 

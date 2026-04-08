@@ -57,6 +57,13 @@ ustalic jednoznaczny kontrakt tworzenia, odczytu, modyfikacji i usuwania OP oraz
 - data control musi byc queryable po `schema_ref`, `status`, `execution_lane` i `environment_ref`.
 - data control po `rolled-back|superseded` musi zachowac reason, rollback trace i evidence_refs.
 
+## 2dc. Version-control control contract
+
+- runtime musi utrzymywac mutowalne controls VCS zgodnie z `layers/op/version-control-contracts.md`.
+- `Repository` nie jest OP i nie bierze udzialu w OP coverage audit.
+- control VCS musi byc queryable po `local_root`, `remote_origin`, `default_branch` i `status`.
+- control VCS po `archived` musi zachowac reason, policy snapshot i reverse lookup do historycznych `ChangeSet`.
+
 ## 2e. Recovery control contract
 
 - runtime musi utrzymywac mutowalne recovery controls zgodnie z `layers/op/recovery-contracts.md`.
@@ -132,7 +139,7 @@ ustalic jednoznaczny kontrakt tworzenia, odczytu, modyfikacji i usuwania OP oraz
 - kazdy child zna parent, a parent ma mozliwosc projekcji child summary.
 - `Component` i `DependencyRelation` wymagaja kontroli kierunku zaleznosci i no-cycle.
 - `UseCase` / `PortContract` / `Component` musza byc wyszukiwalne z `Feature`.
-- `Repository` i `ChangeSet` musza byc wyszukiwalne z `Feature`, `Requirement` i `Scenario`, gdy istnieje traceability.
+- `Repository` control i `ChangeSet` musza byc wyszukiwalne z `Feature`, `Requirement` i `Scenario`, gdy istnieje traceability.
 - `DecisionRecord` musi miec reverse lookup do scope, ktore uzasadnia albo superseduje.
 - `VerificationPolicy` musi byc wyszukiwalna z `Feature`, `ChangeSet` i `ReleaseBundle`, gdy `formal-validation` jest aktywne.
 - `DeploymentRun` musi miec reverse lookup do `ReleaseBundle` i `EnvironmentTarget`.

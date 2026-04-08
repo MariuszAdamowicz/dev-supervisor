@@ -364,7 +364,7 @@ Kazdy binding ma:
   - operator-ui: confirm remediation scope
 - required: true
 
-### A6. Repository / ChangeSet / VerificationPolicy / DataSchema / MigrationAction / Environment
+### A6. Repository control / ChangeSet / VerificationPolicy / DataSchema / MigrationAction / Environment
 
 4ag. Repository.detected -> Repository.initialized
 - event_ref: repo.initialize-requested
@@ -947,7 +947,7 @@ Zakres OP objetych tym mechanizmem:
 - Project, Requirement, Constraint, Idea, Feature, Scenario
 - UIComponent, UIScreen
 - UseCase, PortContract, Component
-- Repository, ChangeSet, DataSchema
+- ChangeSet, DataSchema
 
 Zasada:
 - jesli legalny transition z FSM nie ma jawnego bindingu wyzej, stosujemy binding szablonowy G1/G2/G3.

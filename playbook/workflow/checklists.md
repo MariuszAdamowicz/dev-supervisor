@@ -65,7 +65,7 @@
 
 ## Checklista repository i changeset
 
-- Repository istnieje i ma przypiety remote/policy
+- Repository control istnieje i ma przypiety remote/policy
 - ChangeSet ma jawny file scope i traceability do OP pracy
 - commit refs sa zapisane po `ChangeSet.committed`
 - brak nieautoryzowanych zmian poza zakresem owned paths

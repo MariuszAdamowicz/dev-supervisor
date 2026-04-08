@@ -2,10 +2,6 @@ op_type,from_state,event,to_state
 Project,created,project.configure-requested,configured
 Project,configured,project.baseline-approve-requested (gate=approve),baseline-approved
 Project,baseline-approved,project.activate-requested,active
-Repository,detected,repo.initialize-requested,initialized
-Repository,initialized,repo.attach-remote-requested,remote-attached
-Repository,remote-attached,repo.align-policy-requested (gate=approve),policy-aligned
-Repository,policy-aligned,repo.activate-requested,active
 Idea,captured,idea.scope-requested,scoped
 Idea,scoped,idea.convert-requested (gate=approve),converted
 Requirement,proposed,requirement.clarify-requested,clarified

@@ -34,7 +34,7 @@ zweryfikowac nie tylko obecnosc nazw i artefaktow, ale tez prawdziwa semantyke p
 - symulacja, fixture, runtime capture i lane binarny maja jawna klase dowodu.
 
 7. Version-control semantics
-- `Repository` i `ChangeSet` sa sprawdzane pod katem traceability, policy alignment i integrity commit scope.
+- `Repository` control i `ChangeSet` sa sprawdzane pod katem traceability, policy alignment i integrity commit scope.
 
 8. Verification planning semantics
 - `VerificationPolicy` musi mapowac lane do Feature/ChangeSet/ReleaseBundle zgodnie z profilem projektu.
@@ -55,7 +55,7 @@ zweryfikowac nie tylko obecnosc nazw i artefaktow, ale tez prawdziwa semantyke p
 - semantic assertions na runtime evidence,
 - negative tests dla authz, invalidation, reject/defer, retry, recovery controls,
 - scheduling assertions dla `primary active step`, `pending/blocked/waiting` i scope lock conflict,
-- traceability assertions dla Repository/ChangeSet i VerificationPolicy,
+- traceability assertions dla Repository control/ChangeSet i VerificationPolicy,
 - compatibility assertions dla DataSchema/MigrationAction/EnvironmentTarget,
 - provenance verification.
 

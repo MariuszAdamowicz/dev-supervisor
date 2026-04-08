@@ -1,0 +1,6 @@
+op_type,from_state,event,to_state
+Repository,detected,repo.initialize-requested,initialized
+Repository,initialized,repo.attach-remote-requested,remote-attached
+Repository,remote-attached,repo.align-policy-requested (gate=approve),policy-aligned
+Repository,policy-aligned,repo.activate-requested,active
+Repository,active,repo.archive-requested (gate=approve),archived
