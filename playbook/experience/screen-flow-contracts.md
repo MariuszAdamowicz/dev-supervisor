@@ -116,12 +116,12 @@ Musi pokazac:
 Widoczne gdy:
 - Release.candidate/approved/published
 - Deployment.prepared/running/failed
-- Rollback.prepared/running
+- aktywny `RollbackAction` (`planned|running|failed`)
 
 Musi pokazac:
 - release scope
 - deployment status timeline
-- rollback readiness i compensation status
+- rollback status i compensation status
 - CTA: start deploy / confirm rollback
 
 ## 8. Exception & Timer Screen

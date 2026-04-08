@@ -183,15 +183,8 @@ Linki:
 - class: `execution-object`
 - applies_when: `deployable-runtime`
 - znaczenie: deployment jest osobnym przebiegiem wykonawczym wobec release.
-- lifecycle: prepared -> running -> succeeded albo failed.
+- lifecycle: prepared -> running -> succeeded albo failed; przy fail uruchamia recovery controls, a nie nowy OP delivery.
 - CRUD: create po approval release; update podczas retry; remove = terminal success/fail.
-
-### Rollback
-- class: `execution-object`
-- applies_when: `deployable-runtime`
-- znaczenie: rollback nie jest tylko skryptem; to osobny stan procesu po awarii wdrozenia.
-- lifecycle: prepared -> running -> succeeded albo failed.
-- CRUD: create po deployment failure lub explicit operator action; update przy retry; remove = terminal success/fail.
 
 ### Exception
 - class: `execution-object`
@@ -260,10 +253,17 @@ Linki:
 
 ## Recovery Controls
 
+### RollbackAction
+- class: `recovery-control`
+- applies_when: `deployable-runtime` albo `persistent-data`, gdy revert jest legalna sciezka recovery
+- znaczenie: rollback jest kontrola runtime cofajaca deployment lub migracje do poprzedniej stabilnej rewizji. To nie jest samodzielny obiekt pracy projektu.
+- lifecycle: control nie ma pelnego FSM OP; ma mutowalny `status` opisany w `recovery-contracts.md`.
+- CRUD: create po `Deployment.failed` albo `Migration.rollback-requested`; update przez `planned -> running -> completed|failed|cancelled`; remove = `completed` albo `cancelled`.
+
 ### CompensationAction
 - class: `recovery-control`
 - applies_when: `always` gdy failure_policy wymaga undo lub cleanup side effects
-- znaczenie: kompensacja jest mechanizmem odzyskiwania dla Exception, Rollback, Migration albo innych krokow z side effect. To runtime control, nie samodzielny obiekt pracy projektu.
+- znaczenie: kompensacja jest mechanizmem odzyskiwania dla Exception, RollbackAction, Migration albo innych krokow z side effect. To runtime control, nie samodzielny obiekt pracy projektu.
 - lifecycle: control nie ma pelnego FSM OP; ma mutowalny `status` opisany w `recovery-contracts.md`.
 - CRUD: create przy awarii/reject/decyzji recovery; update przez `planned -> running -> completed|failed|cancelled`; remove = `completed` albo `cancelled`, nigdy hard delete po audycie.
 

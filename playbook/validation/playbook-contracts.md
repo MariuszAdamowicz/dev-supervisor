@@ -104,7 +104,7 @@ formalnie walidowac kompletnosc i spojnosc Playbook Layer wzgledem OP Layer.
 - QualityEvidenceRecord.fail wymusza request_changes lub defer, nigdy auto-approve.
 
 3. Recovery contract
-- dla Deployment.failed musi istniec binding rollback + recovery control.
+- dla Deployment.failed musi istniec binding rollback action + recovery control.
 
 4. Permission contract
 - action moze byc wykonana tylko przy aktywnym ActorRolePermission.
@@ -133,7 +133,9 @@ formalnie walidowac kompletnosc i spojnosc Playbook Layer wzgledem OP Layer.
 
 6c. Recovery control contract
 - mutowalne recovery controls musza byc opisane w `layers/op/recovery-contracts.md`.
+- `Deployment.failed` bez odpowiadajacego `RollbackAction` = invalid.
 - `Exception.compensation_required=true` bez odpowiadajacego `CompensationAction` = invalid.
+- `RollbackAction.failed` bez eskalacji albo nowej decyzji gate = invalid.
 - `CompensationAction.failed` bez eskalacji albo nowej decyzji gate = invalid.
 
 7. No-cycle contract

@@ -72,7 +72,7 @@ Create:
 Read:
 - runtime musi umiec pytac:
   - `jakie recovery controls sa aktywne dla X`,
-  - `czy Exception lub Rollback maja otwarte compensation`,
+  - `czy Exception lub RollbackAction maja otwarte compensation`,
   - `jakie failed compensation blokuja closure target scope`.
 
 Update:
@@ -96,13 +96,20 @@ Remove:
 - `running`:
   - utrzymuje blocker do czasu `completed` albo `failed`.
 - `completed`:
-  - odblokowuje closure `Exception`, `Rollback`, `Migration` albo innego target scope,
+  - odblokowuje closure `Exception`, `RollbackAction`, `Migration` albo innego target scope,
   - nie usuwa audytu ani dowodu przyczyny.
 - `failed`:
   - wymaga eskalacji operatora albo nowej decyzji gate,
   - moze utrzymac Exception w stanie `escalated`.
 - `cancelled`:
   - nie odblokowuje scope automatycznie; wymaga osobnej legalnej sciezki closure.
+
+## Dodatkowe invarianty RollbackAction
+
+- `RollbackAction` musi wskazywac `target_ref`, `reason` i `target_revision`,
+- `Deployment.failed` albo `Migration.rollback-requested` bez aktywnego lub completed `RollbackAction` jest invalid,
+- `failed` albo `cancelled` bez `ProcessEventRecord` i jawnego reason jest invalid,
+- rollback control nie moze zniknac z indeksu po pojawieniu sie audytu.
 
 ## Invariants
 
@@ -111,12 +118,76 @@ Remove:
 - `failed` albo `cancelled` bez `ProcessEventRecord` i jawnego reason jest invalid,
 - recovery control nie moze zniknac z indeksu po pojawieniu sie audytu.
 
+## RollbackAction
+
+Rola:
+opisuje kontrolowane cofniecie deploymentu albo migracji
+do poprzedniej stabilnej rewizji lub kompatybilnego stanu.
+
+Przyklady:
+- rollout undo po nieudanym deploymentcie,
+- wycofanie zmiany danych do poprzedniego okna kompatybilnosci,
+- revert runtime po przekroczeniu deployment deadline albo awarii rollout controller.
+
+### Statusy
+
+- `planned`: rollback zostal zaplanowany, ale jeszcze sie nie wykonuje.
+- `running`: rollback jest wykonywany.
+- `completed`: rollback zakonczony i target scope zostal przywrocony.
+- `failed`: rollback nie przywrocil stabilnego stanu; wymaga eskalacji albo retry.
+- `cancelled`: rollback nie jest dalej potrzebny, bo target scope zostal zamkniety inna legalna sciezka.
+
+### CRUD semantics
+
+Create:
+- tworz `RollbackAction`, gdy `Deployment.failed`
+  albo migration policy wymaga revert,
+- create wymaga `target_ref`, `reason`, `target_revision`
+  i `source_deployment_ref` albo `source_migration_ref`.
+
+Read:
+- runtime musi umiec pytac:
+  - `czy Deployment lub Migration ma otwarty rollback`,
+  - `jaki jest target revision i status rollback`,
+  - `jakie failed rollbacki blokuja release closure`.
+
+Update:
+- dozwolone sa tylko status changes:
+  - `planned -> running | cancelled`
+  - `running -> completed | failed | cancelled`
+  - `failed -> planned | cancelled`
+- update wymaga `reason`, `actor`, `ProcessEventRecord`
+  i odswiezenia blocker projection dla target scope.
+
+Remove:
+- hard delete po pojawieniu sie audytu jest zabronione,
+- semantyczne usuniecie = `completed` albo `cancelled`,
+- `cancelled` wymaga jawnego reason i wskazania, jaka inna sciezka recovery zamknela target.
+
+### Propagation
+
+- `planned`:
+  - utrzymuje target scope jako `rollback-pending`,
+  - blokuje closure Release/Deployment/Migration, jesli policy tego wymaga.
+- `running`:
+  - utrzymuje blocker do czasu `completed` albo `failed`.
+- `completed`:
+  - odblokowuje closure `Deployment` albo `Migration`,
+  - zachowuje trace do target revision i eventow wykonania.
+- `failed`:
+  - wymaga eskalacji operatora albo nowej decyzji gate,
+  - moze utrzymac `Deployment` lub `Migration` w stanie zablokowanym.
+- `cancelled`:
+  - nie odblokowuje scope automatycznie; wymaga osobnej legalnej sciezki closure.
+
 ## Zrodla praktyk
 
 Punkty odniesienia:
 - Azure Compensating Transaction: kompensacja jest jawna, aplikacyjnie specyficzna i nie jest automatycznym rollbackiem.
 - Microservices.io Saga: tylko kroki, po ktorych moze nastapic biznesowa porazka, potrzebuja compensation.
+- Kubernetes Deployment rollout undo: rollback jest operacja kontrolera odnoszaca sie do rewizji deploymentu i eventow rollout, nie samodzielnym artefaktem produktu.
 
 Linki:
 - https://learn.microsoft.com/en-us/azure/architecture/patterns/compensating-transaction
 - https://microservices.io/post/microservices/2019/07/09/developing-sagas-part-1.html
+- https://kubernetes.io/docs/concepts/workloads/controllers/deployment/

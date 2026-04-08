@@ -17,7 +17,6 @@
 - repository: detected
 - requirement: proposed
 - risk: identified
-- rollback: prepared
 - runtimeenvironment: defined
 - scenario: drafted
 - term: proposed

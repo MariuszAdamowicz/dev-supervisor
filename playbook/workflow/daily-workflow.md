@@ -120,4 +120,4 @@ Jesli transition nie jest domkniety:
 
 Gdy Feature OP osiagnie gotowosc release:
 - przekaz do Release OP,
-- przejdz przez Deployment/Rollback wg guardow OP.
+- przejdz przez Deployment/recovery controls wg guardow OP.

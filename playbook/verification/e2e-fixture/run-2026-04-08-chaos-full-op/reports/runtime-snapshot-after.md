@@ -17,7 +17,6 @@
 - repository: archived
 - requirement: deprecated
 - risk: escalated
-- rollback: failed
 - runtimeenvironment: retired
 - scenario: obsolete
 - term: deprecated

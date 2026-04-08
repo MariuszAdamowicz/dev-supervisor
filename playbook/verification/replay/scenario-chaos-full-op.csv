@@ -28,6 +28,4 @@ Risk,assessed,risk.escalate-requested (gate=approve),escalated
 Release,candidate,release.approve-requested (gate=reject),closed
 Deployment,running,deployment.failed,failed
 Deployment,failed,deployment.retry-requested (gate=request_changes|defer),failed
-Rollback,running,rollback.failed,failed
-Rollback,failed,rollback.retry-requested (gate=request_changes|defer),failed
 Exception,classified,exception.handle-requested (gate=defer),escalated

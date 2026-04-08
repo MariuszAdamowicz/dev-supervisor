@@ -8,7 +8,7 @@ Cel:
 ## Minimalny kontrakt envelope
 
 Kazdy gate-required transition MUSI miec pakiet:
-- `transition_ref` (`OP.from -> OP.to`)
+- `transition_ref` (`OP.from -> OP.to` albo `control.status change`)
 - `current_state`
 - `target_state`
 - `preconditions` (guardy + ich status pass/fail)
@@ -72,7 +72,7 @@ Lista bazowa:
 34. `Scenario.passing -> Scenario.obsolete`
 35. `Exception.classified -> Exception.handled`
 36. `Release.candidate -> Release.approved`
-37. `Deployment.failed -> Rollback.succeeded` (gate zamkniecia rollback)
+37. `Deployment.failed -> RollbackAction.completed` (gate zamkniecia recovery)
 38. `Feature.released -> Feature.done`
 39. `Release.published -> Release.closed`
 

@@ -16,5 +16,5 @@
 - Idea & Feature View (Idea/Feature/Scenario/ChangeSet)
 - UX View (Term/UIComponent/UIScreen)
 - Data & Environment View (DataSchema/Migration/RuntimeEnvironment)
-- Delivery View (Release/Deployment/Rollback)
+- Delivery View (Release/Deployment/Recovery Controls)
 - Audit View (ProcessEventRecord/GateDecisionRecord/QualityEvidenceRecord/Exception)

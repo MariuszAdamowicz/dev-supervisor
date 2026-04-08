@@ -27,7 +27,7 @@ Primary copy nie opisuje:
 6. UX alignment (Term + UIComponent + UIScreen)
 7. Quality and hardening (VerificationPlan + QualityEvidenceRecord + Risk + dependency relations)
 8. Data and environment readiness (DataSchema + Migration + RuntimeEnvironment, gdy dotyczy)
-9. Delivery (Release -> Deployment -> Rollback)
+9. Delivery (Release -> Deployment -> RollbackAction/CompensationAction)
 10. Audit closure (ProcessEventRecord + final GateDecisionRecord)
 
 ## Decyzje operatora
@@ -35,7 +35,7 @@ Operator podejmuje decyzje:
 - wybór aktywnej idei/feature,
 - GateDecisionRecord (approve/request_changes/defer/reject),
 - acceptance lub escalation dla Risk/Exception,
-- publikacja release i ewentualny rollback.
+- publikacja release i ewentualny recovery action.
 
 ## Cofanie i regeneracja
 Zmiana upstream OP invaliduje downstream OP zgodnie z trigger rules.

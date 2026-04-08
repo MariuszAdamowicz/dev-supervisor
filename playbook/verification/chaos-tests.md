@@ -8,7 +8,7 @@ sprawdzic odpornosc procesu na bledy i niepewnosc operacyjna.
 2. `authz.denied` przed transition krytycznym.
 3. `QualityEvidenceRecord.fail` po implementacji.
 4. `deployment.failed` w Release flow.
-5. `rollback.failed` po deployment fail.
+5. `rollback.failed` po deployment fail (materializowane jako `RollbackAction.failed`).
 6. gate `reject` dla transition gate-required.
 
 ## Oczekiwane zachowanie

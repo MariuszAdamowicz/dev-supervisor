@@ -17,7 +17,6 @@
 - repository: remote-attached
 - requirement: clarified
 - risk: assessed
-- rollback: running
 - runtimeenvironment: validated
 - scenario: reviewed
 - term: proposed

@@ -32,8 +32,8 @@ ustalic jednoznaczny kontrakt tworzenia, odczytu, modyfikacji i usuwania OP oraz
 ## 2c. Recovery control contract
 
 - runtime musi utrzymywac mutowalne recovery controls zgodnie z `layers/op/recovery-contracts.md`.
-- `CompensationAction` nie jest OP i nie bierze udzialu w OP coverage audit.
-- recovery control musi byc queryable po `target_ref`, `status` i `source_exception_ref|source_deployment_ref`.
+- `RollbackAction` i `CompensationAction` nie sa OP i nie biora udzialu w OP coverage audit.
+- recovery control musi byc queryable po `target_ref`, `status` i `source_exception_ref|source_deployment_ref|source_migration_ref`.
 - recovery control po `completed|cancelled` musi zachowac reason i evidence_refs.
 
 ## 3. Update

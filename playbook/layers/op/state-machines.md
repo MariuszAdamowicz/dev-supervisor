@@ -287,18 +287,6 @@ Transitions:
 3. running --deployment.failed--> failed
 4. failed --deployment.retry-requested (gate=approve)--> prepared
 5. failed --deployment.retry-requested (gate=request_changes|defer)--> failed
-6. failed --rollback.started--> failed
-
-### Rollback
-States:
-prepared, running, succeeded, failed
-
-Transitions:
-1. prepared --rollback.start-requested--> running
-2. running --rollback.completed--> succeeded
-3. running --rollback.failed--> failed
-4. failed --rollback.retry-requested (gate=approve)--> prepared
-5. failed --rollback.retry-requested (gate=request_changes|defer)--> failed
 
 ### Exception
 States:
@@ -489,11 +477,20 @@ Te byty nie sa OP i nie maja niezaleznego FSM, ale sa kanonicznie wymagane:
 
 ## Recovery control contracts
 
+### RollbackAction
+- nie jest OP
+- statusy: `planned`, `running`, `completed`, `failed`, `cancelled`
+- `planned` powstaje po `Deployment.failed` albo `Migration.rollback-requested`
+- `running` oznacza wykonywanie revert do poprzedniej stabilnej rewizji
+- `completed` domyka recovery dla `Deployment` albo `Migration`
+- `failed` wymaga eskalacji albo nowej decyzji gate/retry
+- `cancelled` wymaga jawnego reason i jest legalne tylko gdy target scope zostal zamkniety inna legalna sciezka
+
 ### CompensationAction
 - nie jest OP
 - statusy: `planned`, `running`, `completed`, `failed`, `cancelled`
 - `planned` powstaje po awarii, reject albo triggerze recovery z policy
 - `running` oznacza wykonywanie undo/cleanup
-- `completed` domyka wymagane recovery i moze odblokowac closure `Exception` lub `Rollback`
+- `completed` domyka wymagane recovery i moze odblokowac closure `Exception` lub `RollbackAction`
 - `failed` wymaga eskalacji albo nowej decyzji gate/retry
 - `cancelled` wymaga jawnego reason i jest legalne tylko gdy target scope zostal zamkniety inna legalna sciezka

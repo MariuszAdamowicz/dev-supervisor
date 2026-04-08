@@ -17,6 +17,7 @@ zweryfikowac nie tylko obecnosc nazw i artefaktow, ale tez prawdziwa semantyke p
 4. Invariant semantics
 - parent linkage, no-cycle, dependency relation status, dependency direction, open critical task rules i terminal path rules sa sprawdzane na dowodach runtime.
 - `SchedulerTimer` ma poprawny lifecycle `scheduled -> fired -> consumed|cancelled`.
+- `RollbackAction` ma poprawny lifecycle `planned -> running -> completed|failed|cancelled`.
 - `CompensationAction` ma poprawny lifecycle `planned -> running -> completed|failed|cancelled`.
 
 5. CRUD semantics

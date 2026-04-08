@@ -751,7 +751,7 @@ Kazdy binding ma:
   - operator-ui: close/escalate exception
 - required: true
 
-### F. Release / Deployment / Rollback
+### F. Release / Deployment / Recovery
 
 25. Feature.stabilized -> Release.candidate
 - event_ref: Feature.stabilized
@@ -831,16 +831,16 @@ Kazdy binding ma:
 - action_plan: run_rollback
 - tool_plan:
   - deployment-adapter: detect fail + emit signal
-  - storage-adapter: create Rollback + CompensationAction
+  - storage-adapter: create RollbackAction (+ CompensationAction gdy policy wymaga cleanup)
 - required: true
 
-31. Deployment.failed -> Rollback.prepared -> Rollback.running -> Rollback.succeeded
+31. Deployment.failed -> RollbackAction.planned -> RollbackAction.running -> RollbackAction.completed
 - event_ref: Deployment.failed
 - action_plan: run_rollback, decide_gate
 - tool_plan:
   - deployment-adapter: rollback
   - operator-ui: confirm rollback/close
-  - storage-adapter: persist compensation outcome
+  - storage-adapter: persist rollback outcome
 - required: true
 
 31a. Deployment.failed -> Deployment.prepared
@@ -860,29 +860,29 @@ Kazdy binding ma:
   - storage-adapter: persist retry denied/deferred reason + escalation
 - required: true
 
-31c. Rollback.prepared -> Rollback.running
+31c. RollbackAction.planned -> RollbackAction.running
 - event_ref: rollback.started
 - action_plan: run_rollback
 - tool_plan:
   - deployment-adapter: start rollback
-  - storage-adapter: update Rollback state to running
+  - storage-adapter: update RollbackAction status to running
 - required: true
 
-31d. Rollback.running -> Rollback.succeeded
+31d. RollbackAction.running -> RollbackAction.completed
 - event_ref: rollback.completed
 - action_plan: run_rollback, accept_ai_result
 - tool_plan:
   - deployment-adapter: collect rollback result
-  - storage-adapter: update Rollback state to succeeded
-  - storage-adapter: update CompensationAction status to completed
+  - storage-adapter: update RollbackAction status to completed
+  - storage-adapter: update CompensationAction status to completed gdy cleanup byl wymagany
 - required: true
 
-31e. Rollback.running -> Rollback.failed
+31e. RollbackAction.running -> RollbackAction.failed
 - event_ref: rollback.failed
 - action_plan: run_rollback
 - tool_plan:
   - deployment-adapter: collect rollback error
-  - storage-adapter: update Rollback state to failed
+  - storage-adapter: update RollbackAction status to failed
   - operator-ui: escalate rollback failure
 - required: true
 
@@ -939,7 +939,7 @@ Zakres OP objetych tym mechanizmem:
 - Term, UIComponent, UIScreen
 - PromptTask, ActorRolePermission
 - UseCase, PortContract, Component
-- Risk, Release, Deployment, Rollback
+- Risk, Release, Deployment
 - Exception
 - Repository, ChangeSet, VerificationPlan, DataSchema, Migration, RuntimeEnvironment
 

@@ -284,7 +284,7 @@ Kazda regula ma:
 - Action: utworz PromptTask(release-close-review) + PromptTask(feature-close-review)
 
 - Event: Deployment.failed
-- Action: utworz Rollback.prepared + CompensationAction.planned
+- Action: utworz RollbackAction.planned; jesli side-effect cleanup jest wymagany, utworz CompensationAction.planned
 
 - Event: deployment.retry-requested (gate=approve)
 - Action: przejdz Deployment.failed -> Deployment.prepared
@@ -293,13 +293,13 @@ Kazda regula ma:
 - Action: pozostaw Deployment w failed + eskaluj do operatora
 
 - Event: rollback.start-requested
-- Action: przejdz Rollback.prepared -> Rollback.running
+- Action: oznacz RollbackAction.running
 
 - Event: rollback.completed
-- Action: przejdz Rollback.running -> Rollback.succeeded + oznacz CompensationAction.completed
+- Action: oznacz RollbackAction.completed; domknij CompensationAction tylko gdy cleanup zostal faktycznie wykonany
 
 - Event: rollback.failed
-- Action: przejdz Rollback.running -> Rollback.failed + eskaluj
+- Action: oznacz RollbackAction.failed + eskaluj
 
 ### 5. Timery i eskalacje
 - Event: timeout.fired
@@ -310,11 +310,11 @@ Kazda regula ma:
 - Event: project.archive-requested
 - Action: utworz review package archiwizacji + GateDecisionRecord candidate
 
-## Retry / idempotency / compensation
+## Retry / idempotency / recovery
 
 - Retry stosuj tylko dla operacji oznaczonych retryable.
 - Kazdy trigger ma idempotency_key, aby uniknac duplikatow PromptTask.
-- Po przekroczeniu limitu retry wymagane jest CompensationAction albo decyzja reject/defer.
+- Po przekroczeniu limitu retry wymagane jest RollbackAction, CompensationAction albo decyzja reject/defer.
 
 ## Reguly bezpieczenstwa i uprawnien
 

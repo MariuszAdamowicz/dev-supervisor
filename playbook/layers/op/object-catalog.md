@@ -158,51 +158,45 @@ Semantyka operacyjna i stosowalnosc OP:
 - Rola: wykonanie wdrozenia.
 - Klasa: `execution-object`
 - Stosowalnosc: `deployable-runtime`
-- Kluczowe pola: deployment_id, environment, result, rollback_ref.
+- Kluczowe pola: deployment_id, environment, result, rollback_action_ref.
 
-### 19. Rollback
-- Rola: cofniecie wdrozenia.
-- Klasa: `execution-object`
-- Stosowalnosc: `deployable-runtime`
-- Kluczowe pola: rollback_id, trigger_reason, recovered_state.
-
-### 20. Exception
+### 19. Exception
 - Rola: blad procesu lub biznesowy exception case.
 - Klasa: `execution-object`
 - Stosowalnosc: `always`
 - Kluczowe pola: exception_id, class, severity, compensation_required.
 
-### 21. Repository
+### 20. Repository
 - Rola: stan repozytorium projektu i polityk VCS.
 - Klasa: `environment-object`
 - Stosowalnosc: `version-controlled`
 - Kluczowe pola: repo_id, vcs, local_root, remote_origin, default_branch, branch_policy, cleanliness.
 
-### 22. ChangeSet
+### 21. ChangeSet
 - Rola: ograniczony pakiet zmian powiazany z OP, plikami i commitami.
 - Klasa: `execution-object`
 - Stosowalnosc: `version-controlled`
 - Kluczowe pola: changeset_id, repository_ref, branch_ref, file_scope, op_refs, commit_refs, validation_refs.
 
-### 23. VerificationPlan
+### 22. VerificationPlan
 - Rola: plan warstw testow i evidence dla Feature, ChangeSet lub Release.
 - Klasa: `control-object`
 - Stosowalnosc: `formal-validation`
 - Kluczowe pola: verification_id, target_scope, required_lanes, pass_criteria, evidence_rules.
 
-### 24. DataSchema
+### 23. DataSchema
 - Rola: kanoniczny kontrakt modelu danych i kompatybilnosci.
 - Klasa: `environment-object`
 - Stosowalnosc: `persistent-data`
 - Kluczowe pola: schema_id, storage_engine, compatibility_policy, owned_structures, migration_refs.
 
-### 25. Migration
+### 24. Migration
 - Rola: wykonanie zmiany schematu lub danych z jawna gotowoscia rollback.
 - Klasa: `execution-object`
 - Stosowalnosc: `persistent-data`
-- Kluczowe pola: migration_id, schema_ref, direction, compatibility_window, execution_lane, rollback_ref.
+- Kluczowe pola: migration_id, schema_ref, direction, compatibility_window, execution_lane, rollback_action_ref.
 
-### 26. RuntimeEnvironment
+### 25. RuntimeEnvironment
 - Rola: srodowisko lokalne, CI, staging lub prod wraz z capability i config policy.
 - Klasa: `environment-object`
 - Stosowalnosc: `deployable-runtime`
@@ -225,6 +219,12 @@ Semantyka operacyjna i stosowalnosc OP:
 - Kluczowe pola: timer_id, target_ref, status, due_at, reason, fire_policy, retry_budget.
 
 ## Recovery Controls (nie sa OP, ale sa kanoniczne i mutowalne)
+
+### RollbackAction
+- Rola: mutowalne cofniecie deploymentu albo migracji po awarii runtime.
+- Klasa: `recovery-control`
+- Stosowalnosc: `deployable-runtime` albo `persistent-data`, gdy policy wymaga revert.
+- Kluczowe pola: recovery_id, target_ref, source_deployment_ref|source_migration_ref, status, target_revision, retry_budget, reason.
 
 ### CompensationAction
 - Rola: mutowalny plan undo/cleanup po awarii, rollbacku albo nieudanym kroku z side effect.
@@ -266,10 +266,11 @@ Semantyka operacyjna i stosowalnosc OP:
 - Feature -(DependencyRelation)-> external_ref|Component|RuntimeEnvironment
 - Feature -> Risk
 - Feature -> DataSchema -> Migration
-- Feature -> Release -> Deployment -> Rollback
+- Feature -> Release -> Deployment
 - Release -> RuntimeEnvironment
+- Deployment -(RollbackAction)-> target_ref
+- Migration -(RollbackAction)-> target_ref
 - Exception -(CompensationAction)-> target_ref
-- Rollback -(CompensationAction)-> target_ref
 - target_ref -(SchedulerTimer)-> timeout.fired
 - Wszystko emituje ProcessEventRecord i moze miec GateDecisionRecord / QualityEvidenceRecord
 
@@ -277,14 +278,16 @@ Semantyka operacyjna i stosowalnosc OP:
 - Brak osieroconych OP (kazdy OP poza Project ma parent linkage).
 - Kazdy state transition ma event + guard + actor.
 - Kazda decyzja gate ma GateDecisionRecord i audytowalny ProcessEventRecord.
-- Kazdy krytyczny blad ma policy: retry albo compensation.
+- Kazdy krytyczny blad ma policy: retry albo recovery control.
 - Zamkniecie Feature wymaga braku krytycznych otwartych PromptTask.
 - Repository i ChangeSet musza zachowac traceability do powiazanych Feature/Requirement/Scenario.
 - VerificationPlan musi byc przypisany do Feature, ChangeSet albo Release wymagajacego formalnej walidacji.
 - DataSchema i Migration sa wymagane, gdy zmiana obejmuje trwale dane lub niekompatybilna ewolucje schematu.
 - Deployment i Release nie moga byc wykonane bez RuntimeEnvironment w stanie co najmniej `ready`.
+- Deployment.failed musi utworzyc jawny `RollbackAction` albo miec jawny waiver z reason.
 - DependencyRelation z `status=blocked` musi byc widoczna w reverse lookup i projection operatora.
 - Exception z `compensation_required=true` musi miec jawny `CompensationAction` zanim zamknie downstream scope.
+- RollbackAction musi byc domkniety jako `completed` albo `cancelled` z audytowalnym reason.
 - SchedulerTimer musi byc consumowany albo anulowany po domknieciu target scope.
 - CompensationAction musi byc domkniety jako `completed` albo `cancelled` z audytowalnym reason.
 - UseCase i PortContract musza byc utrzymane bez zaleznosci od frameworkowych typow.

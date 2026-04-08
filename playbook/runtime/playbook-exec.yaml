@@ -881,8 +881,8 @@ entrypoint_catalog:
       - Exception.detected -> Exception.classified
       - Exception.classified -> Exception.escalated
       - timeout.fired -> Exception.escalated
-      - Deployment.failed -> Rollback.prepared
-      - Rollback.prepared -> Rollback.running
+      - Deployment.running -> Deployment.failed
+      - Deployment.failed -> RollbackAction.planned
 
 transition_execution:
   compiler_mode: template_compiled

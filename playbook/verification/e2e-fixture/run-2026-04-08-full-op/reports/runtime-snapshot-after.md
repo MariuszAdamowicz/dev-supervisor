@@ -17,7 +17,6 @@
 - repository: active
 - requirement: linked
 - risk: closed
-- rollback: succeeded
 - runtimeenvironment: active
 - scenario: passing
 - term: approved
