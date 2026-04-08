@@ -89,6 +89,7 @@ Kanoniczna warstwa OP (event-driven):
 Pliki kanoniczne:
 - layers/op/object-catalog.md
 - layers/op/authz-contracts.md
+- layers/op/data-contracts.md
 - layers/op/decision-contracts.md
 - layers/op/delivery-contracts.md
 - layers/op/environment-contracts.md

@@ -7,6 +7,7 @@ Operator wybiera entrypoint OP albo control, a system wyznacza next_transition z
 Kanoniczna semantyka:
 - layers/op/object-catalog.md
 - layers/op/authz-contracts.md
+- layers/op/data-contracts.md
 - layers/op/decision-contracts.md
 - layers/op/delivery-contracts.md
 - layers/op/environment-contracts.md
@@ -33,7 +34,7 @@ Dopuszczalne entrypointy (zalezne od kontekstu):
 - VerificationPolicy (polityka unit/integration/acceptance/e2e)
 - UseCase/PortContract (granice i kontrakty aplikacyjne)
 - Component / relation graph (reguly zaleznosci i spojnosci)
-- DataSchema/Migration (ewolucja danych)
+- DataSchema/MigrationAction (ewolucja danych)
 - GlossaryEntry/UIComponent (UX alignment)
 - AccessGrant / authz controls
 - EnvironmentTarget (gotowosc lane i deploymentu)

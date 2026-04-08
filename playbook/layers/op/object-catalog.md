@@ -39,6 +39,7 @@ Semantyka operacyjna i stosowalnosc OP:
 - `execution-object`: obiekt wykonania pracy, wdrozenia albo ograniczonego pakietu zmian.
 - `environment-object`: obiekt opisujacy repo, schemat danych lub srodowisko uruchomieniowe.
 - `verification-control`: mutowalna polityka lane, evidence i gate dla scope formalnej walidacji; nie jest OP.
+- `data-control`: mutowalny control review/apply/rollback zmiany danych; nie jest OP.
 - `environment-control`: mutowalny target srodowiska i gotowosci runtime; nie jest OP.
 - `authz-control`: mutowalny control autoryzacji i ownership; nie jest OP.
 - `glossary-control`: mutowalny wpis slownika domenowego i UX; nie jest OP.
@@ -145,11 +146,13 @@ Semantyka operacyjna i stosowalnosc OP:
 - Stosowalnosc: `persistent-data`
 - Kluczowe pola: schema_id, storage_engine, compatibility_policy, owned_structures, migration_refs.
 
-### 15. Migration
-- Rola: wykonanie zmiany schematu lub danych z jawna gotowoscia rollback.
-- Klasa: `execution-object`
+## Data Controls (nie sa OP, ale sa kanoniczne i mutowalne)
+
+### MigrationAction
+- Rola: mutowalny handle review/apply/rollback zmiany danych dla konkretnego `DataSchema`.
+- Klasa: `data-control`
 - Stosowalnosc: `persistent-data`
-- Kluczowe pola: migration_id, schema_ref, direction, compatibility_window, execution_lane, rollback_action_ref.
+- Kluczowe pola: migration_id, schema_ref, direction, compatibility_window, execution_lane, rollback_action_ref, status.
 
 ## Delivery Controls (nie sa OP, ale sa kanoniczne i mutowalne)
 
@@ -294,12 +297,12 @@ Semantyka operacyjna i stosowalnosc OP:
 - Feature -(VerificationPolicy)-> lane scope
 - Feature -(DependencyRelation)-> external_ref|Component|EnvironmentTarget
 - Feature -(RiskEntry)-> scope
-- Feature -> DataSchema -> Migration
+- Feature -> DataSchema -> MigrationAction
 - Feature -(ReleaseBundle)-> delivery scope
 - ReleaseBundle -(DeploymentRun)-> EnvironmentTarget
 - ReleaseBundle -> EnvironmentTarget
 - DeploymentRun -(RollbackAction)-> target_ref
-- Migration -(RollbackAction)-> target_ref
+- MigrationAction -(RollbackAction)-> target_ref
 - ExceptionCase -(CompensationAction)-> target_ref
 - target_ref -(SchedulerTimer)-> timeout.fired
 - Wszystko emituje ProcessEventRecord i moze miec GateDecisionRecord / QualityEvidenceRecord
@@ -314,7 +317,7 @@ Semantyka operacyjna i stosowalnosc OP:
 - Zamkniecie Feature wymaga braku krytycznych otwartych PromptTask.
 - Repository i ChangeSet musza zachowac traceability do powiazanych Feature/Requirement/Scenario.
 - VerificationPolicy musi byc przypisana do Feature, ChangeSet albo ReleaseBundle wymagajacego formalnej walidacji.
-- DataSchema i Migration sa wymagane, gdy zmiana obejmuje trwale dane lub niekompatybilna ewolucje schematu.
+- DataSchema jest OP dla stanu danych; `MigrationAction` jest wymaganym data-control, gdy zmiana obejmuje trwale dane lub niekompatybilna ewolucje schematu.
 - ReleaseBundle nie moze byc opublikowany bez `EnvironmentTarget` w stanie co najmniej `ready`.
 - DeploymentRun.failed musi utworzyc jawny `RollbackAction` albo miec jawny waiver z reason.
 - DependencyRelation z `status=blocked` musi byc widoczna w reverse lookup i projection operatora.

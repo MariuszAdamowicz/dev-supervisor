@@ -5,7 +5,6 @@
 - dataschema: drafted
 - feature: drafted
 - idea: captured
-- migration: drafted
 - portcontract: proposed
 - project: created
 - repository: detected

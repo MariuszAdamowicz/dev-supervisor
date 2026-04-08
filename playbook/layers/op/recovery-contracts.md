@@ -96,7 +96,7 @@ Remove:
 - `running`:
   - utrzymuje blocker do czasu `completed` albo `failed`.
 - `completed`:
-  - odblokowuje closure `ExceptionCase`, `RollbackAction`, `Migration` albo innego target scope,
+  - odblokowuje closure `ExceptionCase`, `RollbackAction`, `MigrationAction` albo innego target scope,
   - nie usuwa audytu ani dowodu przyczyny.
 - `failed`:
   - wymaga eskalacji operatora albo nowej decyzji gate,
@@ -107,7 +107,7 @@ Remove:
 ## Dodatkowe invarianty RollbackAction
 
 - `RollbackAction` musi wskazywac `target_ref`, `reason` i `target_revision`,
-- `DeploymentRun.failed` albo `Migration.rollback-requested` bez aktywnego lub completed `RollbackAction` jest invalid,
+- `DeploymentRun.failed` albo `MigrationAction.rollback-requested` bez aktywnego lub completed `RollbackAction` jest invalid,
 - `failed` albo `cancelled` bez `ProcessEventRecord` i jawnego reason jest invalid,
 - rollback control nie moze zniknac z indeksu po pojawieniu sie audytu.
 
@@ -121,7 +121,7 @@ Remove:
 ## RollbackAction
 
 Rola:
-opisuje kontrolowane cofniecie deploymentu albo migracji
+opisuje kontrolowane cofniecie deploymentu albo migracji danych
 do poprzedniej stabilnej rewizji lub kompatybilnego stanu.
 
 Przyklady:
@@ -147,7 +147,7 @@ Create:
 
 Read:
 - runtime musi umiec pytac:
-  - `czy DeploymentRun lub Migration ma otwarty rollback`,
+  - `czy DeploymentRun lub MigrationAction ma otwarty rollback`,
   - `jaki jest target revision i status rollback`,
   - `jakie failed rollbacki blokuja release closure`.
 
@@ -168,15 +168,15 @@ Remove:
 
 - `planned`:
   - utrzymuje target scope jako `rollback-pending`,
-  - blokuje closure ReleaseBundle/DeploymentRun/Migration, jesli policy tego wymaga.
+  - blokuje closure ReleaseBundle/DeploymentRun/MigrationAction, jesli policy tego wymaga.
 - `running`:
   - utrzymuje blocker do czasu `completed` albo `failed`.
 - `completed`:
-  - odblokowuje closure `DeploymentRun` albo `Migration`,
+  - odblokowuje closure `DeploymentRun` albo `MigrationAction`,
   - zachowuje trace do target revision i eventow wykonania.
 - `failed`:
   - wymaga eskalacji operatora albo nowej decyzji gate,
-  - moze utrzymac `DeploymentRun` lub `Migration` w stanie zablokowanym.
+  - moze utrzymac `DeploymentRun` lub `MigrationAction` w stanie zablokowanym.
 - `cancelled`:
   - nie odblokowuje scope automatycznie; wymaga osobnej legalnej sciezki closure.
 

@@ -66,8 +66,8 @@ Lista bazowa:
 28. `ChangeSet.staged -> ChangeSet.validated`
 29. `VerificationPolicy.reviewed -> VerificationPolicy.approved`
 30. `DataSchema.reviewed -> DataSchema.approved`
-31. `Migration.reviewed -> Migration.approved`
-32. `Migration.applied -> Migration.rolled-back`
+31. `MigrationAction.reviewed -> MigrationAction.approved`
+32. `MigrationAction.applied -> MigrationAction.rolled-back`
 33. `EnvironmentTarget.validated -> EnvironmentTarget.ready`
 34. `Scenario.passing -> Scenario.obsolete`
 35. `ExceptionCase.classified -> ExceptionCase.handled`

@@ -3,6 +3,7 @@ source_of_truth:
   op_layer:
     object_catalog: playbook/layers/op/object-catalog.md
     authz_contracts: playbook/layers/op/authz-contracts.md
+    data_contracts: playbook/layers/op/data-contracts.md
     decision_contracts: playbook/layers/op/decision-contracts.md
     delivery_contracts: playbook/layers/op/delivery-contracts.md
     environment_contracts: playbook/layers/op/environment-contracts.md
@@ -302,6 +303,14 @@ authz_contract:
   default_mode: deny_by_default
   prewrite_engine: policy-engine
   denied_transition_effect: ExceptionCase(authz)
+
+data_contract:
+  schema_source_of_truth: DataSchema
+  migration_control: MigrationAction
+  incompatible_change_requires:
+    - rollback_or_compatibility_plan
+    - environment_window
+  no_op_migration_note_allowed: true
 
 crud_contract:
   hard_delete_after_audit_event: forbidden
@@ -906,8 +915,10 @@ entrypoint_catalog:
     transition_refs:
       - DataSchema.drafted -> DataSchema.reviewed
       - DataSchema.reviewed -> DataSchema.approved
-      - Migration.drafted -> Migration.reviewed
-      - Migration.ready -> Migration.applied
+      - MigrationAction.drafted -> MigrationAction.reviewed
+      - MigrationAction.reviewed -> MigrationAction.approved
+      - MigrationAction.approved -> MigrationAction.ready
+      - MigrationAction.ready -> MigrationAction.applied
   manage_environment:
     template: environment_readiness
     transition_refs:

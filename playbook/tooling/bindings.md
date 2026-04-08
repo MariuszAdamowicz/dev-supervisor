@@ -364,7 +364,7 @@ Kazdy binding ma:
   - operator-ui: confirm remediation scope
 - required: true
 
-### A6. Repository / ChangeSet / VerificationPolicy / Data / Environment
+### A6. Repository / ChangeSet / VerificationPolicy / DataSchema / MigrationAction / Environment
 
 4ag. Repository.detected -> Repository.initialized
 - event_ref: repo.initialize-requested
@@ -437,16 +437,25 @@ Kazdy binding ma:
   - storage-adapter: persist DataSchema draft
 - required: true
 
-4ao. Migration.ready -> Migration.applied
+4ao. MigrationAction.reviewed -> MigrationAction.approved
+- event_ref: migration.approve-requested
+- action_plan: produce_review_package, decide_gate
+- tool_plan:
+  - shell: compatibility + rollback readiness review package
+  - operator-ui: approve/request_changes/defer/reject migration plan
+  - storage-adapter: persist MigrationAction state
+- required: true
+
+4ap. MigrationAction.ready -> MigrationAction.applied
 - event_ref: migration.apply-requested
 - action_plan: evolve_data_schema
 - tool_plan:
   - shell: execute migration lane
   - operator-ui: confirm apply window and rollback readiness
-  - storage-adapter: persist Migration result
+  - storage-adapter: persist MigrationAction result
 - required: true
 
-4ap. EnvironmentTarget.defined -> EnvironmentTarget.validated
+4aq. EnvironmentTarget.defined -> EnvironmentTarget.validated
 - event_ref: environment.validate-requested
 - action_plan: validate_runtime_environment
 - tool_plan:
@@ -938,7 +947,7 @@ Zakres OP objetych tym mechanizmem:
 - Project, Requirement, Constraint, Idea, Feature, Scenario
 - UIComponent, UIScreen
 - UseCase, PortContract, Component
-- Repository, ChangeSet, DataSchema, Migration
+- Repository, ChangeSet, DataSchema
 
 Zasada:
 - jesli legalny transition z FSM nie ma jawnego bindingu wyzej, stosujemy binding szablonowy G1/G2/G3.

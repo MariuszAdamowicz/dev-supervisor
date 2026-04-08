@@ -5,7 +5,6 @@
 - dataschema: applied
 - feature: done
 - idea: converted
-- migration: applied
 - portcontract: adopted
 - project: active
 - repository: active

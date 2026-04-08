@@ -1,0 +1,7 @@
+op_type,from_state,event,to_state
+MigrationAction,drafted,migration.review-requested,reviewed
+MigrationAction,reviewed,migration.approve-requested (gate=approve),approved
+MigrationAction,approved,migration.ready-requested,ready
+MigrationAction,ready,migration.apply-requested,applied
+MigrationAction,applied,migration.rollback-requested (gate=approve),rolled-back
+MigrationAction,rolled-back,migration.supersede-requested (gate=approve),superseded

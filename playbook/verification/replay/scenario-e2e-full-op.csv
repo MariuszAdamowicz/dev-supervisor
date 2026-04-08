@@ -45,9 +45,5 @@ ChangeSet,validated,changeset.commit-requested,committed
 DataSchema,drafted,schema.review-requested,reviewed
 DataSchema,reviewed,schema.approve-requested (gate=approve),approved
 DataSchema,approved,schema.apply-requested,applied
-Migration,drafted,migration.review-requested,reviewed
-Migration,reviewed,migration.approve-requested (gate=approve),approved
-Migration,approved,migration.ready-requested,ready
-Migration,ready,migration.apply-requested,applied
 Feature,stabilized,feature.release-requested,released
 Feature,released,feature.done-requested (gate=approve),done

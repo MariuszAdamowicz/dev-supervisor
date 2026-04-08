@@ -73,7 +73,7 @@
 ## Checklista danych i srodowisk
 
 - DataSchema istnieje dla zmian dotykajacych trwale dane
-- Migration istnieje dla zmian niekompatybilnych lub operacyjnie istotnych
+- MigrationAction istnieje dla zmian niekompatybilnych lub operacyjnie istotnych
 - EnvironmentTarget ma capability, config i constraints jawne dla lane
 - rollback lub compatibility plan jest jawny dla danych i deploymentu
 

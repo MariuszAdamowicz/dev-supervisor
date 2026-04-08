@@ -26,7 +26,7 @@ Primary copy nie opisuje:
 5. Feature spec/test loop (Feature + Scenario + ChangeSet + PromptTask control + GateDecisionRecord)
 6. UX alignment (GlossaryEntry + UIComponent + UIScreen)
 7. Quality and hardening (VerificationPolicy + QualityEvidenceRecord + RiskEntry + dependency relations)
-8. Data and environment readiness (DataSchema + Migration + EnvironmentTarget, gdy dotyczy)
+8. Data and environment readiness (DataSchema + MigrationAction + EnvironmentTarget, gdy dotyczy)
 9. Delivery (ReleaseBundle -> DeploymentRun -> RollbackAction/CompensationAction)
 10. Audit closure (ProcessEventRecord + final GateDecisionRecord)
 

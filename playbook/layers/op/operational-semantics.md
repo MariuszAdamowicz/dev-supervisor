@@ -46,6 +46,7 @@ Linki:
 - `execution-object`: obiekt wykonawczy zwiazany z uruchomieniem pracy, zmian lub wdrozen.
 - `environment-object`: obiekt opisujacy repo, schemat danych lub srodowisko uruchomieniowe.
 - `verification-control`: mutowalna polityka lane, evidence i gate dla scope formalnej walidacji, niebedaca OP.
+- `data-control`: mutowalny handle review/apply/rollback zmiany danych, niebedacy OP.
 - `environment-control`: mutowalny target srodowiska i gotowosci runtime, niebedacy OP.
 - `exception-control`: mutowalny przypadek bledu procesu lub runtime, niebedacy OP.
 - `delivery-control`: mutowalny runtime handle rollout/deploy, niebedacy OP.
@@ -164,13 +165,6 @@ Linki:
 - lifecycle: drafted -> reviewed -> approved -> applied -> superseded -> deprecated.
 - CRUD: create dla nowego obszaru danych; update przez kolejne rewizje; remove = deprecate po migracji off path.
 
-### Migration
-- class: `execution-object`
-- applies_when: `persistent-data`
-- znaczenie: migracja jest wykonaniem zmiany schematu/danych z wlasnym review, retry i rollback planem.
-- lifecycle: drafted -> reviewed -> approved -> ready -> applied -> rolled-back albo superseded.
-- CRUD: create przy kazdej niekompatybilnej lub operacyjnie istotnej zmianie schematu; update przy rehearsal/rework; remove = supersede po zastosowaniu.
-
 ## Graph Relations
 
 ### DependencyRelation
@@ -186,6 +180,15 @@ Linki:
 - znaczenie: timer jest runtime handle scheduler'a, a nie obiektem pracy. Ma gwarantowac deterministyczne `timeout.fired`, cancel i consume.
 - lifecycle: timer nie ma pelnego FSM OP; ma mutowalny `status` opisany w `scheduler-contracts.md`.
 - CRUD: create przy defer/retry/deadline; update przez `scheduled -> fired|cancelled -> consumed`; remove = `cancelled` albo `consumed`.
+
+## Data Controls
+
+### MigrationAction
+- class: `data-control`
+- applies_when: `persistent-data`
+- znaczenie: migracja jest mutowalnym handle review/apply/rollback zmiany danych; to wykonanie operacyjne, nie samodzielny obiekt pracy projektu.
+- lifecycle: control nie ma pelnego FSM OP; ma mutowalny `status` opisany w `data-contracts.md`.
+- CRUD: create przy kazdej niekompatybilnej lub operacyjnie istotnej zmianie schematu; update przy review/readiness/apply/rollback; remove = `superseded` albo `rolled-back`, nigdy hard delete po audycie.
 
 ## Delivery Controls
 
@@ -282,12 +285,12 @@ Linki:
 - applies_when: `deployable-runtime` albo `persistent-data`, gdy revert jest legalna sciezka recovery
 - znaczenie: rollback jest kontrola runtime cofajaca deployment lub migracje do poprzedniej stabilnej rewizji. To nie jest samodzielny obiekt pracy projektu.
 - lifecycle: control nie ma pelnego FSM OP; ma mutowalny `status` opisany w `recovery-contracts.md`.
-- CRUD: create po `DeploymentRun.failed` albo `Migration.rollback-requested`; update przez `planned -> running -> completed|failed|cancelled`; remove = `completed` albo `cancelled`.
+- CRUD: create po `DeploymentRun.failed` albo `MigrationAction.rollback-requested`; update przez `planned -> running -> completed|failed|cancelled`; remove = `completed` albo `cancelled`.
 
 ### CompensationAction
 - class: `recovery-control`
 - applies_when: `always` gdy failure_policy wymaga undo lub cleanup side effects
-- znaczenie: kompensacja jest mechanizmem odzyskiwania dla ExceptionCase, RollbackAction, Migration albo innych krokow z side effect. To runtime control, nie samodzielny obiekt pracy projektu.
+- znaczenie: kompensacja jest mechanizmem odzyskiwania dla ExceptionCase, RollbackAction, MigrationAction albo innych krokow z side effect. To runtime control, nie samodzielny obiekt pracy projektu.
 - lifecycle: control nie ma pelnego FSM OP; ma mutowalny `status` opisany w `recovery-contracts.md`.
 - CRUD: create przy awarii/reject/decyzji recovery; update przez `planned -> running -> completed|failed|cancelled`; remove = `completed` albo `cancelled`, nigdy hard delete po audycie.
 

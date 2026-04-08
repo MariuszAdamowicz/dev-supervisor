@@ -5,7 +5,6 @@
 - dataschema: reviewed
 - feature: implemented
 - idea: scoped
-- migration: reviewed
 - portcontract: reviewed
 - project: configured
 - repository: remote-attached

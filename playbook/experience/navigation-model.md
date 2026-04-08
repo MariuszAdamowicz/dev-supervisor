@@ -15,6 +15,6 @@
 - Project Setup View (Project/Repository/Requirement/Constraint/DecisionRecord/VerificationPolicy)
 - Idea & Feature View (Idea/Feature/Scenario/ChangeSet)
 - UX View (GlossaryEntry/UIComponent/UIScreen)
-- Data & Environment View (DataSchema/Migration/EnvironmentTarget)
+- Data & Environment View (DataSchema/MigrationAction/EnvironmentTarget)
 - Delivery View (ReleaseBundle/DeploymentRun/Recovery Controls)
 - Audit View (ProcessEventRecord/GateDecisionRecord/QualityEvidenceRecord/ExceptionCase)

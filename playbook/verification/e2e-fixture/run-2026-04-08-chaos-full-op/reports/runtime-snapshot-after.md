@@ -5,7 +5,6 @@
 - dataschema: deprecated
 - feature: specified
 - idea: dropped
-- migration: rolled-back
 - portcontract: deprecated
 - project: archived
 - repository: archived

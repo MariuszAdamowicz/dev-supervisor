@@ -172,10 +172,10 @@ Kazda regula ma:
 - Action: utworz PromptTask(schema-approval-review)
 - Gate effect: odblokowuje DataSchema.approved
 
-- Event: Migration.drafted
+- Event: MigrationAction.drafted
 - Action: utworz PromptTask(migration-review)
 
-- Event: Migration.approved
+- Event: MigrationAction.approved
 - Action: utworz PromptTask(migration-readiness-check)
 
 - Event: EnvironmentTarget.defined

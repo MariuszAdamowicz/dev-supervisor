@@ -102,7 +102,7 @@ Zakaz:
 
 Widoczne gdy:
 - DataSchema.drafted/reviewed/approved/applied
-- Migration.drafted/reviewed/ready/applied
+- MigrationAction.drafted/reviewed/ready/applied
 - EnvironmentTarget.defined/validated/ready/degraded
 
 Musi pokazac:

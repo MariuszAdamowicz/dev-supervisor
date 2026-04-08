@@ -50,6 +50,13 @@ ustalic jednoznaczny kontrakt tworzenia, odczytu, modyfikacji i usuwania OP oraz
 - decision control musi byc queryable po `scope_refs`, `status` i `supersedes_ref`.
 - decision control po `superseded` musi zachowac reason i replacement_ref.
 
+## 2db. Data control contract
+
+- runtime musi utrzymywac mutowalne data controls zgodnie z `layers/op/data-contracts.md`.
+- `MigrationAction` nie jest OP i nie bierze udzialu w OP coverage audit.
+- data control musi byc queryable po `schema_ref`, `status`, `execution_lane` i `environment_ref`.
+- data control po `rolled-back|superseded` musi zachowac reason, rollback trace i evidence_refs.
+
 ## 2e. Recovery control contract
 
 - runtime musi utrzymywac mutowalne recovery controls zgodnie z `layers/op/recovery-contracts.md`.
@@ -115,7 +122,7 @@ ustalic jednoznaczny kontrakt tworzenia, odczytu, modyfikacji i usuwania OP oraz
 - `control-object`: remove = retire, revoke, close albo supersede z jawna polityka skutkow.
 - `decision-control`: remove = supersede; nie moze wymazac historii wyboru ani konsekwencji dla scope.
 - `execution-object`: remove = close, cancel, fail, rolled-back albo supersede; usuniecie nie moze wymazac historii wykonania.
-- `environment-object`: remove = archive, retire albo decommission; runtime musi zachowac reference integrity dla historycznych ChangeSet/ReleaseBundle/Migration.
+- `environment-object`: remove = archive, retire albo decommission; runtime musi zachowac reference integrity dla historycznych ChangeSet/ReleaseBundle/MigrationAction.
 - `verification-control`: remove = retire; nie moze ukryc historii wymagan lane ani evidence provenance dla dawnego scope.
 
 ## 5. Graph integrity
@@ -129,7 +136,7 @@ ustalic jednoznaczny kontrakt tworzenia, odczytu, modyfikacji i usuwania OP oraz
 - `DecisionRecord` musi miec reverse lookup do scope, ktore uzasadnia albo superseduje.
 - `VerificationPolicy` musi byc wyszukiwalna z `Feature`, `ChangeSet` i `ReleaseBundle`, gdy `formal-validation` jest aktywne.
 - `DeploymentRun` musi miec reverse lookup do `ReleaseBundle` i `EnvironmentTarget`.
-- `DataSchema` / `Migration` / `EnvironmentTarget` musza miec reverse lookup do OP, ktore zalezne sa od danych lub deploymentu.
+- `DataSchema` / `MigrationAction` / `EnvironmentTarget` musza miec reverse lookup do OP, ktore zalezne sa od danych lub deploymentu.
 - `DependencyRelation` musi miec reverse lookup do impacted OP i jawny `status`.
 
 ## 6. Runtime artefakty

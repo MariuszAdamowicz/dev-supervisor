@@ -40,7 +40,7 @@ zweryfikowac nie tylko obecnosc nazw i artefaktow, ale tez prawdziwa semantyke p
 - `VerificationPolicy` musi mapowac lane do Feature/ChangeSet/ReleaseBundle zgodnie z profilem projektu.
 
 9. Data and environment semantics
-- `DataSchema`, `Migration` i `EnvironmentTarget` musza byc sprawdzane tam, gdzie aktywne sa `persistent-data` lub `deployable-runtime`.
+- `DataSchema`, `MigrationAction` i `EnvironmentTarget` musza byc sprawdzane tam, gdzie aktywne sa `persistent-data` lub `deployable-runtime`.
 
 10. Runtime scheduling semantics
 - po jednym evencie moze powstac wiele OP/control, ale scheduler musi deterministycznie wybrac jeden `primary active step`.
@@ -56,7 +56,7 @@ zweryfikowac nie tylko obecnosc nazw i artefaktow, ale tez prawdziwa semantyke p
 - negative tests dla authz, invalidation, reject/defer, retry, recovery controls,
 - scheduling assertions dla `primary active step`, `pending/blocked/waiting` i scope lock conflict,
 - traceability assertions dla Repository/ChangeSet i VerificationPolicy,
-- compatibility assertions dla DataSchema/Migration/EnvironmentTarget,
+- compatibility assertions dla DataSchema/MigrationAction/EnvironmentTarget,
 - provenance verification.
 
 ## 3. Kryterium PASS

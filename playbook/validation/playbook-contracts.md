@@ -161,6 +161,11 @@ formalnie walidowac kompletnosc i spojnosc Playbook Layer wzgledem OP Layer.
 - authz deny, quality fail albo timeout escalation bez odpowiadajacego `ExceptionCase` = invalid.
 - `ExceptionCase.escalated` bez projection blocker albo bez sciezki reassessment = invalid.
 
+6g. Data control contract
+- mutowalne data controls musza byc opisane w `layers/op/data-contracts.md`.
+- `DataSchema.applied` bez odpowiadajacego `MigrationAction.approved` albo jawnego no-op note = invalid.
+- `MigrationAction.ready|applied` bez rollback albo compatibility planu = invalid.
+
 7. No-cycle contract
 - graf zaleznosci miedzy Component nie moze zawierac cykli (ADP).
 - wykryty cykl = playbook invalid do czasu przejscia Component.refactor-required -> Component.compliant.
@@ -182,7 +187,7 @@ formalnie walidowac kompletnosc i spojnosc Playbook Layer wzgledem OP Layer.
 - brak mapowania lane -> Feature/ChangeSet/ReleaseBundle = playbook invalid.
 
 9c. Data evolution contract
-- projekt z `persistent-data` musi utrzymywac DataSchema, a zmiana niekompatybilna lub operacyjnie istotna musi miec Migration.
+- projekt z `persistent-data` musi utrzymywac DataSchema, a zmiana niekompatybilna lub operacyjnie istotna musi miec `MigrationAction`.
 - zmiana danych bez rollback/compatibility policy = playbook invalid.
 
 9d. Environment readiness contract

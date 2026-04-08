@@ -15,5 +15,3 @@ PortContract,reviewed,port-contract.approve-requested (gate=reject),deprecated
 Component,mapped,component.check-requested (check=fail),refactor-required
 Component,checked,component.compliance-requested (gate=reject),refactor-required
 DataSchema,reviewed,schema.approve-requested (gate=reject),deprecated
-Migration,reviewed,migration.approve-requested (gate=reject),superseded
-Migration,applied,migration.rollback-requested (gate=approve),rolled-back

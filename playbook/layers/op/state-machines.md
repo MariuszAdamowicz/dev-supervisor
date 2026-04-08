@@ -233,25 +233,6 @@ Transitions:
 9. superseded --schema.deprecate-requested (gate=approve)--> deprecated
 10. superseded --schema.deprecate-requested (gate=request_changes|defer)--> superseded
 
-### Migration
-States:
-drafted, reviewed, approved, ready, applied, rolled-back, superseded
-
-Transitions:
-1. drafted --migration.review-requested--> reviewed
-2. reviewed --migration.approve-requested (gate=approve)--> approved
-3. reviewed --migration.approve-requested (gate=request_changes)--> drafted
-4. reviewed --migration.approve-requested (gate=defer)--> reviewed
-5. reviewed --migration.approve-requested (gate=reject)--> superseded
-6. approved --migration.ready-requested--> ready
-7. ready --migration.apply-requested--> applied
-8. applied --migration.rollback-requested (gate=approve)--> rolled-back
-9. applied --migration.rollback-requested (gate=request_changes|defer)--> applied
-10. applied --migration.supersede-requested (gate=approve)--> superseded
-11. applied --migration.supersede-requested (gate=request_changes|defer)--> applied
-12. rolled-back --migration.supersede-requested (gate=approve)--> superseded
-13. rolled-back --migration.supersede-requested (gate=request_changes|defer)--> rolled-back
-
 ## Guard conditions (przyklady przekrojowe)
 
 1. Feature.implemented wymaga:
@@ -295,7 +276,7 @@ Transitions:
 
 10. DataSchema.applied wymaga:
 - brak konfliktu z aktywnym `EnvironmentTarget`,
-- Migration.approved lub jawny no-op migration note,
+- MigrationAction.approved lub jawny no-op migration note,
 - jawny rollback/compatibility plan dla zmian niekompatybilnych.
 
 11. EnvironmentTarget.ready wymaga:
@@ -309,7 +290,7 @@ Transitions:
 3. Feature nie przejdzie do done przy krytycznym ExceptionCase z `compensation_required=true` bez `CompensationAction.status=completed`.
 4. Zmiana stanu bez ProcessEventRecord jest niewazna.
 5. ChangeSet nie przejdzie do committed bez powiazania z Repository i co najmniej jednym OP pracy.
-6. Migration nie przejdzie do applied bez DataSchema w stanie co najmniej approved.
+6. MigrationAction nie przejdzie do applied bez DataSchema w stanie co najmniej approved.
 7. DeploymentRun i ReleaseBundle nie moga polegac na `EnvironmentTarget` ponizej stanu `ready`.
 
 ## System record contracts
@@ -348,6 +329,33 @@ Te byty nie sa OP i nie maja niezaleznego FSM, ale sa kanonicznie wymagane:
   - `reviewed --decision.approve-requested (gate=reject)--> superseded`
   - `approved --decision.supersede-requested (gate=approve)--> superseded`
   - `approved --decision.supersede-requested (gate=request_changes|defer)--> approved`
+
+## Data control contracts
+
+### MigrationAction
+- nie jest OP
+- statusy: `drafted`, `reviewed`, `approved`, `ready`, `applied`, `rolled-back`, `superseded`
+- `drafted` powstaje przy niekompatybilnej albo operacyjnie istotnej zmianie danych
+- `reviewed` oznacza gotowy review package kompatybilnosci i apply window
+- `approved` oznacza zatwierdzony plan migracji
+- `ready` oznacza gotowosc lane i rollback readiness
+- `applied` oznacza wykonana migracje
+- `rolled-back` oznacza cofniecie migracji legalna sciezka recovery
+- `superseded` oznacza plan zastapiony nowym albo jawnie wycofany
+- legalne przejscia:
+  - `drafted --migration.review-requested--> reviewed`
+  - `reviewed --migration.approve-requested (gate=approve)--> approved`
+  - `reviewed --migration.approve-requested (gate=request_changes)--> drafted`
+  - `reviewed --migration.approve-requested (gate=defer)--> reviewed`
+  - `reviewed --migration.approve-requested (gate=reject)--> superseded`
+  - `approved --migration.ready-requested--> ready`
+  - `ready --migration.apply-requested--> applied`
+  - `applied --migration.rollback-requested (gate=approve)--> rolled-back`
+  - `applied --migration.rollback-requested (gate=request_changes|defer)--> applied`
+  - `applied --migration.supersede-requested (gate=approve)--> superseded`
+  - `applied --migration.supersede-requested (gate=request_changes|defer)--> applied`
+  - `rolled-back --migration.supersede-requested (gate=approve)--> superseded`
+  - `rolled-back --migration.supersede-requested (gate=request_changes|defer)--> rolled-back`
 
 ## Verification control contracts
 
@@ -536,9 +544,9 @@ Te byty nie sa OP i nie maja niezaleznego FSM, ale sa kanonicznie wymagane:
 ### RollbackAction
 - nie jest OP
 - statusy: `planned`, `running`, `completed`, `failed`, `cancelled`
-- `planned` powstaje po `DeploymentRun.failed` albo `Migration.rollback-requested`
+- `planned` powstaje po `DeploymentRun.failed` albo `MigrationAction.rollback-requested`
 - `running` oznacza wykonywanie revert do poprzedniej stabilnej rewizji
-- `completed` domyka recovery dla `DeploymentRun` albo `Migration`
+- `completed` domyka recovery dla `DeploymentRun` albo `MigrationAction`
 - `failed` wymaga eskalacji albo nowej decyzji gate/retry
 - `cancelled` wymaga jawnego reason i jest legalne tylko gdy target scope zostal zamkniety inna legalna sciezka
 
