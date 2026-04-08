@@ -3,6 +3,7 @@ source_of_truth:
   op_layer:
     object_catalog: playbook/layers/op/object-catalog.md
     relation_contracts: playbook/layers/op/relation-contracts.md
+    recovery_contracts: playbook/layers/op/recovery-contracts.md
     scheduler_contracts: playbook/layers/op/scheduler-contracts.md
     state_machines: playbook/layers/op/state-machines.md
     trigger_rules: playbook/layers/op/trigger-rules.md
@@ -1139,7 +1140,7 @@ failure_and_retry_policy:
     retry_budget: 2
     timeout_sec: 120
     on_timeout:
-      - create_timeout_op_if_not_exists
+      - schedule_timer_if_not_exists
       - route_to_gate_decision: defer
   storage_adapter:
     retry_budget: 1

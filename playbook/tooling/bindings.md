@@ -831,7 +831,7 @@ Kazdy binding ma:
 - action_plan: run_rollback
 - tool_plan:
   - deployment-adapter: detect fail + emit signal
-  - storage-adapter: create Rollback + Compensation
+  - storage-adapter: create Rollback + CompensationAction
 - required: true
 
 31. Deployment.failed -> Rollback.prepared -> Rollback.running -> Rollback.succeeded
@@ -874,7 +874,7 @@ Kazdy binding ma:
 - tool_plan:
   - deployment-adapter: collect rollback result
   - storage-adapter: update Rollback state to succeeded
-  - storage-adapter: update Compensation state to completed
+  - storage-adapter: update CompensationAction status to completed
 - required: true
 
 31e. Rollback.running -> Rollback.failed
@@ -940,7 +940,7 @@ Zakres OP objetych tym mechanizmem:
 - PromptTask, ActorRolePermission
 - UseCase, PortContract, Component
 - Risk, Release, Deployment, Rollback
-- Exception, Compensation
+- Exception
 - Repository, ChangeSet, VerificationPlan, DataSchema, Migration, RuntimeEnvironment
 
 Zasada:

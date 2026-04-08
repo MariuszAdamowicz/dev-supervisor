@@ -1,7 +1,6 @@
 # Runtime Snapshot Before
 - actorrolepermission: defined
 - changeset: drafted
-- compensation: planned
 - component: identified
 - constraint: proposed
 - dataschema: drafted

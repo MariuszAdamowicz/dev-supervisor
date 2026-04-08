@@ -25,6 +25,7 @@ Praktyki w tej specyfikacji opieraja sie na:
 - Practical Test Pyramid: weryfikacja wymaga warstw testow o roznej granulacji.
 - Twelve-Factor Config: konfiguracja srodowiskowa musi byc oddzielona od kodu.
 - Azure Compensating Transaction / Saga: dlugie procesy i awarie wymagaja jawnej kompensacji i retry.
+- Microservices.io Saga: compensation jest aplikacyjnie specyficznym krokiem undo, nie odrebnym artefaktem produktu.
 
 Linki:
 - https://cpre.ireb.org/en/concept/requirements-management
@@ -35,6 +36,7 @@ Linki:
 - https://martinfowler.com/articles/practical-test-pyramid.html
 - https://12factor.net/config
 - https://learn.microsoft.com/en-us/azure/architecture/patterns/compensating-transaction
+- https://microservices.io/post/microservices/2019/07/09/developing-sagas-part-1.html
 
 ## Klasy OP i recordow systemowych
 
@@ -43,6 +45,7 @@ Linki:
 - `execution-object`: obiekt wykonawczy zwiazany z uruchomieniem pracy, zmian lub wdrozen.
 - `environment-object`: obiekt opisujacy repo, schemat danych lub srodowisko uruchomieniowe.
 - `graph-relation`: mutowalna relacja w grafie OP, niebedaca osobnym OP.
+- `recovery-control`: mutowalny runtime handle undo/cleanup, niebedacy OP.
 - `scheduler-control`: mutowalny runtime handle czasu i retry, niebedacy OP.
 - `system-record`: rekord audytowy lub dowodowy. Nie jest OP, jest append-only i rzadko jest primary task.
 
@@ -197,13 +200,6 @@ Linki:
 - lifecycle: detected -> classified -> handled albo escalated.
 - CRUD: create przy authz/quality/runtime fail; update przez classify/handle; remove = handled/closed by lifecycle, nie delete.
 
-### Compensation
-- class: `execution-object`
-- applies_when: `always` gdy failure_policy wymaga undo
-- znaczenie: kompensacja musi miec plan, wykonanie i wynik; undo nie zawsze jest prostym odwróceniem krokow.
-- lifecycle: planned -> running -> completed albo failed.
-- CRUD: create po krytycznej awarii/reject; update przy retry; remove = completed.
-
 ### Repository
 - class: `environment-object`
 - applies_when: `version-controlled`
@@ -261,6 +257,15 @@ Linki:
 - znaczenie: timer jest runtime handle scheduler'a, a nie obiektem pracy. Ma gwarantowac deterministyczne `timeout.fired`, cancel i consume.
 - lifecycle: timer nie ma pelnego FSM OP; ma mutowalny `status` opisany w `scheduler-contracts.md`.
 - CRUD: create przy defer/retry/deadline; update przez `scheduled -> fired|cancelled -> consumed`; remove = `cancelled` albo `consumed`.
+
+## Recovery Controls
+
+### CompensationAction
+- class: `recovery-control`
+- applies_when: `always` gdy failure_policy wymaga undo lub cleanup side effects
+- znaczenie: kompensacja jest mechanizmem odzyskiwania dla Exception, Rollback, Migration albo innych krokow z side effect. To runtime control, nie samodzielny obiekt pracy projektu.
+- lifecycle: control nie ma pelnego FSM OP; ma mutowalny `status` opisany w `recovery-contracts.md`.
+- CRUD: create przy awarii/reject/decyzji recovery; update przez `planned -> running -> completed|failed|cancelled`; remove = `completed` albo `cancelled`, nigdy hard delete po audycie.
 
 ## System Records
 

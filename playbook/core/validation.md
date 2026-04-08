@@ -38,9 +38,9 @@ Kazdy failure path powinien miec:
 - scenariusz BDD,
 - test,
 - log,
-- policy w OP (retry/compensation/escalation).
+- policy w OP (retry/recovery/escalation).
 
 Jesli wystapi Exception albo timeout scheduler'a:
 - zarejestruj Exception OP i SchedulerTimer event,
-- wykonaj retry lub compensation,
+- wykonaj retry lub CompensationAction,
 - podejmij jawna decyzje gate.

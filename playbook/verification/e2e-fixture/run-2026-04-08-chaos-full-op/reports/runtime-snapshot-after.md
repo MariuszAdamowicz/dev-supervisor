@@ -1,7 +1,6 @@
 # Runtime Snapshot After
 - actorrolepermission: revoked
 - changeset: superseded
-- compensation: failed
 - component: refactor-required
 - constraint: retired
 - dataschema: deprecated

@@ -1,7 +1,6 @@
 # Runtime Snapshot After
 - actorrolepermission: active
 - changeset: committed
-- compensation: completed
 - component: compliant
 - constraint: revised
 - dataschema: applied

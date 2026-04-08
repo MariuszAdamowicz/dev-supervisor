@@ -7,6 +7,7 @@ Operator wybiera entrypoint OP, a system wyznacza next_transition z OP Layer.
 Kanoniczna semantyka:
 - layers/op/object-catalog.md
 - layers/op/relation-contracts.md
+- layers/op/recovery-contracts.md
 - layers/op/scheduler-contracts.md
 - layers/op/state-machines.md
 - layers/op/trigger-rules.md
@@ -27,7 +28,7 @@ Dopuszczalne entrypointy (zalezne od kontekstu):
 - ActorRolePermission (authz i ownership)
 - RuntimeEnvironment (gotowosc lane i deploymentu)
 - Release (delivery)
-- Exception / scheduler timer escalation (obsluga awarii)
+- Exception / recovery controls / scheduler timer escalation (obsluga awarii)
 
 ## 2. Odczytaj stan instancji OP
 

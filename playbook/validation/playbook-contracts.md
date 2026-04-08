@@ -46,7 +46,7 @@ formalnie walidowac kompletnosc i spojnosc Playbook Layer wzgledem OP Layer.
 
 5c. Runtime lifecycle coverage contract
 - kazdy entrypoint wymieniony w `workflow/daily-workflow.md` musi miec runtime definition albo template coverage w `runtime/playbook-exec.yaml`.
-- brak runtime coverage dla Feature, UX alignment, Release lub Exception/timer escalation = playbook invalid.
+- brak runtime coverage dla Feature, UX alignment, Release lub Exception/recovery/timer escalation = playbook invalid.
 
 6. Architecture alignment contract
 - kazda kluczowa zmiana Feature z zachowaniem biznesowym ma powiazany UseCase (co najmniej drafted, docelowo approved przed Feature.implemented).
@@ -104,7 +104,7 @@ formalnie walidowac kompletnosc i spojnosc Playbook Layer wzgledem OP Layer.
 - QualityEvidenceRecord.fail wymusza request_changes lub defer, nigdy auto-approve.
 
 3. Recovery contract
-- dla Deployment.failed musi istniec binding rollback + compensation.
+- dla Deployment.failed musi istniec binding rollback + recovery control.
 
 4. Permission contract
 - action moze byc wykonana tylko przy aktywnym ActorRolePermission.
@@ -130,6 +130,11 @@ formalnie walidowac kompletnosc i spojnosc Playbook Layer wzgledem OP Layer.
 - mutowalne timery runtime musza byc opisane w `layers/op/scheduler-contracts.md`.
 - `timeout.fired` bez odpowiadajacego `SchedulerTimer` = invalid.
 - defer/retry bez zaplanowania albo anulowania/consumingu timera = invalid.
+
+6c. Recovery control contract
+- mutowalne recovery controls musza byc opisane w `layers/op/recovery-contracts.md`.
+- `Exception.compensation_required=true` bez odpowiadajacego `CompensationAction` = invalid.
+- `CompensationAction.failed` bez eskalacji albo nowej decyzji gate = invalid.
 
 7. No-cycle contract
 - graf zaleznosci miedzy Component nie moze zawierac cykli (ADP).

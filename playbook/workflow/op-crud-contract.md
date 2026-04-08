@@ -29,6 +29,13 @@ ustalic jednoznaczny kontrakt tworzenia, odczytu, modyfikacji i usuwania OP oraz
 - scheduler control musi byc queryable po `target_ref`, `status` i `due_at`.
 - timer po `timeout.fired` musi zostac `consumed` albo `cancelled` w jawny sposob.
 
+## 2c. Recovery control contract
+
+- runtime musi utrzymywac mutowalne recovery controls zgodnie z `layers/op/recovery-contracts.md`.
+- `CompensationAction` nie jest OP i nie bierze udzialu w OP coverage audit.
+- recovery control musi byc queryable po `target_ref`, `status` i `source_exception_ref|source_deployment_ref`.
+- recovery control po `completed|cancelled` musi zachowac reason i evidence_refs.
+
 ## 3. Update
 
 - update OP zachodzi tylko przez legal transition albo audytowalny update artefaktu niezmieniajacy state.
@@ -43,7 +50,7 @@ ustalic jednoznaczny kontrakt tworzenia, odczytu, modyfikacji i usuwania OP oraz
 
 - `work-object`: update moze zmieniac payload, linki i stan, ale tylko w legalnych oknach lifecycle.
 - `control-object`: update wymaga jawnego reason i ponownej walidacji guardow OP zaleznych.
-- `execution-object`: update jest zwiazany z postepem wykonania, retry, timeout lub compensation; nie wolno nadpisywac wyniku bez nowego ProcessEventRecord.
+- `execution-object`: update jest zwiazany z postepem wykonania, retry, timeout lub recovery; nie wolno nadpisywac wyniku bez nowego ProcessEventRecord.
 - `environment-object`: update wymaga sprawdzenia skutkow dla ChangeSet, Release, Deployment lub Feature zaleznych od danego srodowiska/kontraktu.
 
 ### 3b. Propagation contract
@@ -97,6 +104,7 @@ Minimalny runtime po bootstrapie musi miec:
 - `op-index.json` lub rownowazny indeks OP,
 - jawny parent linkage,
 - jawny relation index i reverse relation index,
+- indeks scheduler controls i recovery controls,
 - indeks terminal/deprecated OP,
 - indeks propagation effects i impacted OP,
 - audyt create/update/remove.

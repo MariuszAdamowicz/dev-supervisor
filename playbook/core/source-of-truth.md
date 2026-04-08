@@ -6,6 +6,7 @@ Playbook Layer nie definiuje semantyki procesu. Semantyka procesu jest kanoniczn
 Kanoniczne definicje OP:
 - layers/op/object-catalog.md
 - layers/op/relation-contracts.md
+- layers/op/recovery-contracts.md
 - layers/op/scheduler-contracts.md
 - layers/op/state-machines.md
 - layers/op/trigger-rules.md
@@ -35,7 +36,7 @@ Dla implementacji zachowania:
 PRD < BDD < TESTY
 
 Dla procesu:
-relation contracts + scheduler contracts + state machine + trigger rules + gate decisions z OP Layer wygrywaja nad opisami operacyjnymi.
+relation contracts + recovery contracts + scheduler contracts + state machine + trigger rules + gate decisions z OP Layer wygrywaja nad opisami operacyjnymi.
 
 ## Czego nie traktowac jako source of truth
 

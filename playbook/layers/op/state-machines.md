@@ -312,17 +312,6 @@ Transitions:
 5. classified --exception.handle-requested (gate=reject)--> escalated
 6. escalated --exception.reassess-requested--> classified
 
-### Compensation
-States:
-planned, running, completed, failed
-
-Transitions:
-1. planned --compensation.start-requested--> running
-2. running --compensation.completed--> completed
-3. running --compensation.failed--> failed
-4. failed --compensation.retry-requested (gate=approve)--> planned
-5. failed --compensation.retry-requested (gate=request_changes|defer|reject)--> failed
-
 ### Repository
 States:
 detected, initialized, remote-attached, policy-aligned, active, archived
@@ -473,7 +462,7 @@ Transitions:
 
 1. OP nizszego poziomu nie moze wyprzedzac OP nadrzednego.
 2. GateDecisionRecord bez review package jest niewazna.
-3. Feature nie przejdzie do done przy krytycznym Exception bez Compensation.completed.
+3. Feature nie przejdzie do done przy krytycznym Exception z `compensation_required=true` bez `CompensationAction.status=completed`.
 4. Zmiana stanu bez ProcessEventRecord jest niewazna.
 5. ChangeSet nie przejdzie do committed bez powiazania z Repository i co najmniej jednym OP pracy.
 6. Migration nie przejdzie do applied bez DataSchema w stanie co najmniej approved.
@@ -497,3 +486,14 @@ Te byty nie sa OP i nie maja niezaleznego FSM, ale sa kanonicznie wymagane:
 - append-only
 - zapisuje wynik konkretnej lane/check
 - `pass/fail` jest ocena dowodowa dla subject_ref, a nie osobny OP lifecycle
+
+## Recovery control contracts
+
+### CompensationAction
+- nie jest OP
+- statusy: `planned`, `running`, `completed`, `failed`, `cancelled`
+- `planned` powstaje po awarii, reject albo triggerze recovery z policy
+- `running` oznacza wykonywanie undo/cleanup
+- `completed` domyka wymagane recovery i moze odblokowac closure `Exception` lub `Rollback`
+- `failed` wymaga eskalacji albo nowej decyzji gate/retry
+- `cancelled` wymaga jawnego reason i jest legalne tylko gdy target scope zostal zamkniety inna legalna sciezka

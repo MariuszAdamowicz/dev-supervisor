@@ -17,10 +17,12 @@ zweryfikowac nie tylko obecnosc nazw i artefaktow, ale tez prawdziwa semantyke p
 4. Invariant semantics
 - parent linkage, no-cycle, dependency relation status, dependency direction, open critical task rules i terminal path rules sa sprawdzane na dowodach runtime.
 - `SchedulerTimer` ma poprawny lifecycle `scheduled -> fired -> consumed|cancelled`.
+- `CompensationAction` ma poprawny lifecycle `planned -> running -> completed|failed|cancelled`.
 
 5. CRUD semantics
 - create/read/update/remove dla OP, relacji grafu i artefaktow jest deterministyczne i audytowalne.
 - create/read/update/remove dla scheduler controls jest deterministyczne i audytowalne.
+- create/read/update/remove dla recovery controls jest deterministyczne i audytowalne.
 
 6. Evidence class semantics
 - symulacja, fixture, runtime capture i lane binarny maja jawna klase dowodu.
@@ -40,7 +42,7 @@ zweryfikowac nie tylko obecnosc nazw i artefaktow, ale tez prawdziwa semantyke p
 - state-machine replay,
 - contract tests dla request/response/tool contracts,
 - semantic assertions na runtime evidence,
-- negative tests dla authz, invalidation, reject/defer, retry, compensation,
+- negative tests dla authz, invalidation, reject/defer, retry, recovery controls,
 - traceability assertions dla Repository/ChangeSet i VerificationPlan,
 - compatibility assertions dla DataSchema/Migration/RuntimeEnvironment,
 - provenance verification.

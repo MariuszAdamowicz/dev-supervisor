@@ -76,7 +76,5 @@ Feature,released,feature.done-requested (gate=approve),done
 Release,published,release.close-requested (gate=approve),closed
 Exception,detected,exception.classify-requested,classified
 Exception,classified,exception.handle-requested (gate=approve),handled
-Compensation,planned,compensation.start-requested,running
-Compensation,running,compensation.completed,completed
 Rollback,prepared,rollback.start-requested,running
 Rollback,running,rollback.completed,succeeded

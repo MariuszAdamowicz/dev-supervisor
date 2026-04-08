@@ -1,7 +1,6 @@
 # Runtime Snapshot Before
 - actorrolepermission: defined
 - changeset: staged
-- compensation: running
 - component: mapped
 - constraint: validated
 - dataschema: reviewed

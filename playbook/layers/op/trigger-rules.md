@@ -284,7 +284,7 @@ Kazda regula ma:
 - Action: utworz PromptTask(release-close-review) + PromptTask(feature-close-review)
 
 - Event: Deployment.failed
-- Action: utworz Rollback.prepared + Compensation.planned
+- Action: utworz Rollback.prepared + CompensationAction.planned
 
 - Event: deployment.retry-requested (gate=approve)
 - Action: przejdz Deployment.failed -> Deployment.prepared
@@ -296,7 +296,7 @@ Kazda regula ma:
 - Action: przejdz Rollback.prepared -> Rollback.running
 
 - Event: rollback.completed
-- Action: przejdz Rollback.running -> Rollback.succeeded + oznacz Compensation.completed
+- Action: przejdz Rollback.running -> Rollback.succeeded + oznacz CompensationAction.completed
 
 - Event: rollback.failed
 - Action: przejdz Rollback.running -> Rollback.failed + eskaluj
@@ -314,7 +314,7 @@ Kazda regula ma:
 
 - Retry stosuj tylko dla operacji oznaczonych retryable.
 - Kazdy trigger ma idempotency_key, aby uniknac duplikatow PromptTask.
-- Po przekroczeniu limitu retry wymagane jest Compensation lub decyzja reject/defer.
+- Po przekroczeniu limitu retry wymagane jest CompensationAction albo decyzja reject/defer.
 
 ## Reguly bezpieczenstwa i uprawnien
 
